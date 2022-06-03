@@ -1,0 +1,43 @@
+From b965cbe03aa8eee625f29518547ae16d647f3926 Mon Sep 17 00:00:00 2001
+From: cjybyjk <cjybyjk@users.noreply.github.com>
+Date: Fri, 3 Jun 2022 19:26:26 +0800
+Subject: [PATCH] Settings: Add toggle for StatusBar Lyric
+
+---
+ res/values-zh-rCN/krypton_strings.xml | 4 ++++
+ res/values/krypton_strings.xml        | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/res/values-zh-rCN/krypton_strings.xml b/res/values-zh-rCN/krypton_strings.xml
+index 9a8d754..c0ea158 100644
+--- a/res/values-zh-rCN/krypton_strings.xml
++++ b/res/values-zh-rCN/krypton_strings.xml
+@@ -15,6 +15,10 @@
+ -->
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
++    <!-- Status Bar Lyric -->
++    <string name="status_bar_show_lyric_title">状态栏歌词（需要应用支持哦）</string>
++    <string name="status_bar_show_lyric_summary">感谢Shelling和AmeChan的贡献~</string>
++
+     <!-- String for removal of sensitive info on about, depending on tap -->
+     <string name="device_info_protected_single_press">点击以显示信息</string>
+ 
+diff --git a/res/values/krypton_strings.xml b/res/values/krypton_strings.xml
+index bfddb01..53dd6a1 100644
+--- a/res/values/krypton_strings.xml
++++ b/res/values/krypton_strings.xml
+@@ -15,6 +15,10 @@
+ -->
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
++    <!-- Status Bar Lyric -->
++    <string name="status_bar_show_lyric_title">Status bar lyric (need App support)</string>
++    <string name="status_bar_show_lyric_summary">Show lyric in status bar. Thanks to @cjybyjk ! (from @exTHmUI)</string>
++
+     <!-- String for removal of sensitive info on about, depending on tap -->
+     <string name="device_info_protected_single_press">Tap to show info</string>
+ 
+-- 
+2.36.1
+

@@ -1,0 +1,29 @@
+From aec12afd9a5f3b4f0d36ebd7fd98860a5389ac9d Mon Sep 17 00:00:00 2001
+From: Undying-yueyue <orgtech007@gmail.com>
+Date: Fri, 3 Jun 2022 19:20:52 +0800
+Subject: [PATCH] Add StatusBar Lyric to KryptonSettings
+
+---
+ res/xml/statusbar_settings.xml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/res/xml/statusbar_settings.xml b/res/xml/statusbar_settings.xml
+index 12ad307..6e7a925 100644
+--- a/res/xml/statusbar_settings.xml
++++ b/res/xml/statusbar_settings.xml
+@@ -100,5 +100,12 @@
+             android:summary="@string/use_old_mobiletype_summary"
+             android:defaultValue="false" />
+ 
++       <!-- Statusbar Lyric -->
++       <com.krypton.settings.preference.SecureSettingSwitchPreference
++            android:key="status_bar_show_lyric"
++            android:title="@string/status_bar_show_lyric_title"
++            android:summary="@string/status_bar_show_lyric_summary"
++            android:defaultValue="true" />
++
+     </PreferenceCategory>
+ </PreferenceScreen>
+-- 
+2.36.1
+
