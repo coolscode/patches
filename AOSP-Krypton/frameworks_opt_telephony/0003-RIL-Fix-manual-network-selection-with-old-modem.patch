@@ -1,0 +1,71 @@
+From e1c1ec88d044c6665a02cab64ec6e59c25ef67f5 Mon Sep 17 00:00:00 2001
+From: faust93 <monumentum@gmail.com>
+Date: Wed, 19 Sep 2018 14:26:54 +0800
+Subject: [PATCH 5/5] RIL: Fix manual network selection with old modem
+
+ * Old modem sends and applies mccmnc+network type, but new aosp
+   telephony uses only digits.
+ * Manually cut or append the "+" and strings after that to work around.
+
+Change-Id: I1015e6c0d6afdc0c03d70e9491d49331703eddcc
+---
+ src/java/com/android/internal/telephony/RIL.java       | 10 ++++++++++
+ .../com/android/internal/telephony/RadioResponse.java  |  6 +++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index 56c81d1da3..8429c49db5 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -256,6 +256,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
+ 
+     final Integer mPhoneId;
+ 
++    private boolean mUseOldMncMccFormat;
++
+     private static final String PROPERTY_IS_VONR_ENABLED = "persist.radio.is_vonr_enabled_";
+ 
+     /**
+@@ -620,6 +622,9 @@ public class RIL extends BaseCommands implements CommandsInterface {
+             mRadioBugDetector = new RadioBugDetector(context, mPhoneId);
+         }
+ 
++        mUseOldMncMccFormat = SystemProperties.getBoolean(
++                "ro.telephony.use_old_mnc_mcc_format", false);
++
+         TelephonyManager tm = (TelephonyManager) context.getSystemService(
+                 Context.TELEPHONY_SERVICE);
+         mIsCellularSupported = tm.isVoiceCapable() || tm.isSmsCapable() || tm.isDataCapable();
+@@ -2557,6 +2562,11 @@ public class RIL extends BaseCommands implements CommandsInterface {
+         if (radioProxy != null) {
+             RILRequest rr = obtainRequest(RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL, result,
+                     mRILDefaultWorkSource);
++
++            if (mUseOldMncMccFormat && !TextUtils.isEmpty(operatorNumeric)) {
++                operatorNumeric += "+";
++            }
++
+             try {
+                 int halRan = convertAntToRan(ran);
+                 if (mRadioVersion.greaterOrEqual(RADIO_HAL_VERSION_1_5)) {
+diff --git a/src/java/com/android/internal/telephony/RadioResponse.java b/src/java/com/android/internal/telephony/RadioResponse.java
+index 9e08b9c400..7994576da4 100644
+--- a/src/java/com/android/internal/telephony/RadioResponse.java
++++ b/src/java/com/android/internal/telephony/RadioResponse.java
+@@ -2576,8 +2576,12 @@ public class RadioResponse extends IRadioResponse.Stub {
+         if (rr != null) {
+             ArrayList<OperatorInfo> ret = new ArrayList<OperatorInfo>();
+             for (int i = 0; i < networkInfos.size(); i++) {
++                String operatorNumeric = networkInfos.get(i).operatorNumeric;
++                if (operatorNumeric != null) {
++                    operatorNumeric = operatorNumeric.split("\\+")[0];
++                }
+                 ret.add(new OperatorInfo(networkInfos.get(i).alphaLong,
+-                        networkInfos.get(i).alphaShort, networkInfos.get(i).operatorNumeric,
++                        networkInfos.get(i).alphaShort, operatorNumeric,
+                         convertOpertatorInfoToString(networkInfos.get(i).status)));
+             }
+             if (responseInfo.error == RadioError.NONE) {
+-- 
+2.36.1
+
