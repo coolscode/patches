@@ -20,7 +20,7 @@ done
 
 if [ $1 = kosp ];then
 echo ""
-echo "Adapt AOSP Krypton to MTK"
+echo "Adapt AOSP Krypton to CEZANNE"
 echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 fi
