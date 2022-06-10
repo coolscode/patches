@@ -1,16 +1,17 @@
-From 7bd7f850217f2a44e39f9cb08d6b44a4743202fb Mon Sep 17 00:00:00 2001
+From 8db163d6116d5b6816b96a22dd1296ac11377c57 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@users.noreply.github.com>
-Date: Fri, 3 Jun 2022 20:20:51 +0800
-Subject: [PATCH] [SQUASHED]SystemUI: Introduce StatusBar Lyric for Android 12L
+Date: Fri, 10 Jun 2022 17:10:39 +0800
+Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 Co-authored-by:  Undying-yueyue <orgtech007@gmail.com>
+Co-authored-by:  AngelaCooljx <cool@gayhub.eu.org>
 ---
  core/api/current.txt                          |   2 +
  core/java/android/app/Notification.java       |   5 +
  core/java/android/provider/Settings.java      |   7 +
  core/java/android/widget/ImageSwitcher.java   |  16 +
  core/java/android/widget/TextSwitcher.java    |  11 +
- .../util/krypton/PixelPropsUtils.java         | 147 +++---
+ .../util/krypton/PixelPropsUtils.java         |  32 +-
  packages/SystemUI/res/layout/status_bar.xml   |  13 +
  .../res/layout/status_bar_lyric_ticker.xml    |  61 +++
  .../SystemUI/res/values/krypton_dimens.xml    |   5 +
@@ -26,10 +27,10 @@ Co-authored-by:  Undying-yueyue <orgtech007@gmail.com>
  .../systemui/statusbar/phone/Ticker.java      | 436 ++++++++++++++++++
  .../systemui/statusbar/phone/TickerView.java  |  47 ++
  .../phone/dagger/StatusBarViewModule.java     |   6 +
- .../fragment/CollapsedStatusBarFragment.java  |  40 ++
+ .../fragment/CollapsedStatusBarFragment.java  |  39 ++
  .../window/StatusBarWindowController.java     |   2 +-
  .../android/systemui/util/LyricTextView.java  | 142 ++++++
- 24 files changed, 1398 insertions(+), 72 deletions(-)
+ 24 files changed, 1345 insertions(+), 9 deletions(-)
  create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
  create mode 100644 packages/SystemUI/res/values/krypton_styles.xml
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
@@ -67,7 +68,7 @@ index 2c02be7d..8b613f3c 100644
              BigTextStyle.class, BigPictureStyle.class, InboxStyle.class, MediaStyle.class,
              DecoratedCustomViewStyle.class, DecoratedMediaCustomViewStyle.class,
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 2fa87709..fbc9e52d 100644
+index 54f050d1..3f0fc10c 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
 @@ -7089,6 +7089,13 @@ public final class Settings {
@@ -132,7 +133,7 @@ index ecd9a8cf..ca16c9dc 100644
 +
  }
 diff --git a/core/java/com/android/internal/util/krypton/PixelPropsUtils.java b/core/java/com/android/internal/util/krypton/PixelPropsUtils.java
-index d9ac3b06..bbac94c2 100644
+index f43e3b5a..11f7530b 100644
 --- a/core/java/com/android/internal/util/krypton/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/krypton/PixelPropsUtils.java
 @@ -1,6 +1,7 @@
@@ -143,197 +144,83 @@ index d9ac3b06..bbac94c2 100644
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
-@@ -14,51 +15,29 @@
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
--
- package com.android.internal.util.krypton;
- 
--import static java.util.Map.entry;
--
- import android.os.Build;
- import android.util.Log;
- 
-+import java.util.Arrays;
-+import java.util.ArrayList;
- import java.lang.reflect.Field;
--import java.util.List;
-+import java.util.HashMap;
- import java.util.Map;
- 
--/*
-- * @hide
-- */
--public final class PixelPropsUtils {
-+public class PixelPropsUtils {
- 
--    private static final String TAG = "PixelPropsUtils";
-+    private static final String TAG = PixelPropsUtils.class.getSimpleName();
+@@ -35,8 +36,6 @@ public final class PixelPropsUtils {
      private static final boolean DEBUG = false;
  
--    private static final Map<String, Object> commonProps = Map.ofEntries(
+     private static final Map<String, Object> commonProps = Map.ofEntries(
 -        entry("BRAND", "google"),
 -        entry("MANUFACTURER", "Google"),
--        entry("IS_DEBUGGABLE", false),
--        entry("IS_ENG", false),
--        entry("IS_USERDEBUG", false),
--        entry("IS_USER", true),
--        entry("TYPE", "user")
--    );
-+    private static volatile boolean sIsGms = false;
-+    public static final String PACKAGE_GMS = "com.google.android.gms";
+         entry("IS_DEBUGGABLE", false),
+         entry("IS_ENG", false),
+         entry("IS_USERDEBUG", false),
+@@ -45,6 +44,8 @@ public final class PixelPropsUtils {
+     );
  
--    private static final Map<String, String> ravenProps = Map.ofEntries(
--        entry("DEVICE", "raven"),
--        entry("PRODUCT", "raven"),
--        entry("MODEL", "Pixel 6 Pro"),
--        entry("FINGERPRINT", "google/raven/raven:12/SP2A.220505.002/8353555:user/release-keys")
--    );
--
--    private static final Map<String, String> marlinProps = Map.ofEntries(
--        entry("DEVICE", "marlin"),
--        entry("PRODUCT", "marlin"),
--        entry("MODEL", "Pixel XL"),
--        entry("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
--    );
--
--    private static final List<String> packagesToChange = List.of(
-+    private static final Map<String, Object> propsToChange;
-+    private static final Map<String, Object> propsToChangeMeizu;
-+    private static final Map<String, ArrayList<String>> propsToKeep;
-+    private static final String[] extraPackagesToChange = {
+     private static final Map<String, String> ravenProps = Map.ofEntries(
++        entry("BRAND", "google"),
++        entry("MANUFACTURER", "Google"),
+         entry("DEVICE", "raven"),
+         entry("PRODUCT", "raven"),
+         entry("MODEL", "Pixel 6 Pro"),
+@@ -52,12 +53,23 @@ public final class PixelPropsUtils {
+     );
+ 
+     private static final Map<String, String> marlinProps = Map.ofEntries(
++        entry("BRAND", "google"),
++        entry("MANUFACTURER", "Google"),
+         entry("DEVICE", "marlin"),
+         entry("PRODUCT", "marlin"),
+         entry("MODEL", "Pixel XL"),
+         entry("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
+     );
+ 
++    private static final Map<String, String> meizuProps = Map.ofEntries(
++        entry("BRAND", "meizu"),
++        entry("MANUFACTURER", "meizu"),
++        entry("DEVICE", "meizu18"),
++        entry("PRODUCT", "meizu_18_CN"),
++        entry("MODEL", "MEIZU 18"),
++        entry("FINGERPRINT", "meizu/meizu_18_CN/meizu18:11/RKQ1.201105.002/1607588916:user/release-keys")
++    );
++
+     private static final List<String> packagesToChange = List.of(
          "com.android.vending",
          "com.breel.wallpapers20",
-         "com.google.android.apps.customization.pixel",
-@@ -91,53 +70,77 @@ public final class PixelPropsUtils {
-         "com.google.intelligence.sense",
-         "com.google.pixel.dynamicwallpapers",
-         "com.google.pixel.livewallpaper"
--    );
-+    };
-+    private static final String[] meizuPropToChange = {
+@@ -106,6 +118,15 @@ public final class PixelPropsUtils {
+         "com.samsung.android.waterplugin"
+     );
+ 
++    private static final List<String> packagesToChangeMeizu = List.of(
 +        "com.netease.cloudmusic",
 +        "com.tencent.qqmusic",
 +        "com.kugou.android",
 +        "cmccwm.mobilemusic",
 +        "cn.kuwo.player",
-+        "com.salt.music",
 +        "com.meizu.media.music"
-+    };
- 
--    private static final List<String> packagesToChangePixelXL = List.of(
--        "com.google.android.apps.photos",
--        "com.samsung.accessory.berrymgr",
--        "com.samsung.accessory.fridaymgr",
--        "com.samsung.accessory.neobeanmgr",
--        "com.samsung.android.app.watchmanager",
--        "com.samsung.android.geargplugin",
--        "com.samsung.android.gearnplugin",
--        "com.samsung.android.modenplugin",
--        "com.samsung.android.neatplugin",
--        "com.samsung.android.waterplugin"
--    );
-+    static {
-+        propsToKeep = new HashMap<>();
-+        propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<String>(Arrays.asList("FINGERPRINT")));
-+        propsToChange = new HashMap<>();
-+        propsToChange.put("BRAND", "google");
-+        propsToChange.put("MANUFACTURER", "Google");
-+        propsToChange.put("DEVICE", "raven");
-+        propsToChange.put("PRODUCT", "raven");
-+        propsToChange.put("MODEL", "Pixel 6 Pro");
-+        propsToChange.put("FINGERPRINT", "google/raven/raven:12/SP2A.220505.002/8353555:user/release-keys");
-+        propsToChangeMeizu = new HashMap<>();
-+        propsToChangeMeizu.put("BRAND", "meizu");
-+        propsToChangeMeizu.put("MANUFACTURER", "meizu");
-+        propsToChangeMeizu.put("DEVICE", "meizu18");
-+        propsToChangeMeizu.put("PRODUCT", "meizu_18_CN");
-+        propsToChangeMeizu.put("MODEL", "MEIZU 18");
-+        propsToChangeMeizu.put("FINGERPRINT", "meizu/meizu_18_CN/meizu18:11/RKQ1.201105.002/1607588916:user/release-keys");
-+    }
- 
++    );
++
      public static void setProps(String packageName) {
--        if (packageName == null) {
-+        if (packageName == null){
+         if (packageName == null) {
              return;
+@@ -126,6 +147,11 @@ public final class PixelPropsUtils {
+             commonProps.forEach(PixelPropsUtils::setPropValue);
+             marlinProps.forEach(PixelPropsUtils::setPropValue);
          }
--        if (DEBUG) {
--            Log.d(TAG, "Package = " + packageName);
-+        if (packageName.equals(PACKAGE_GMS)) {
-+            sIsGms = true;
-+            setPropValue("TYPE", "userdebug");
-         }
--        if (packagesToChange.contains(packageName)) {
--            commonProps.forEach(PixelPropsUtils::setPropValue);
--            ravenProps.forEach((key, value) -> {
--                if (key.equals("MODEL") && packageName.equals("com.google.android.gms")) {
--                    return;
--                } else {
--                    setPropValue(key, value);
-+        if (packageName.startsWith("com.google.") || Arrays.asList(extraPackagesToChange).contains(packageName)){
-+            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-+            for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
-+                String key = prop.getKey();
-+                Object value = prop.getValue();
-+                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)){
-+                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
-+                    continue;
-                 }
--            });
--        } else if (packagesToChangePixelXL.contains(packageName)) {
--            commonProps.forEach(PixelPropsUtils::setPropValue);
--            marlinProps.forEach(PixelPropsUtils::setPropValue);
-+                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
-+                setPropValue(key, value);
-+            }
-+        }
 +        // Set Props for StatusBar Lyric
-+        if(Arrays.asList(meizuPropToChange).contains(packageName)){
-+            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-+            for (Map.Entry<String, Object> prop : propsToChangeMeizu.entrySet()) {
-+                String key = prop.getKey();
-+                Object value = prop.getValue();
-+                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
-+                setPropValue(key, value);
-+            }
-         }
++        if (packagesToChangeMeizu.contains(packageName)) {
++            commonProps.forEach(PixelPropsUtils::setPropValue);
++            marlinProps.forEach(PixelPropsUtils::setPropValue);
++        }
          // Set proper indexing fingerprint
--        if (packageName.equals("com.google.android.settings.intelligence")) {
-+        if (packageName.equals("com.google.android.settings.intelligence")){
+         if (packageName.equals("com.google.android.settings.intelligence")) {
              setPropValue("FINGERPRINT", Build.DATE);
-         }
-     }
- 
--    private static void setPropValue(String key, Object value) {
-+    private static void setPropValue(String key, Object value){
-         try {
--            if (DEBUG) {
--                Log.d(TAG, "Setting prop " + key + " to " + value);
--            }
--            final Field field = Build.class.getDeclaredField(key);
-+            if (DEBUG) Log.d(TAG, "Defining prop " + key + " to " + value.toString());
-+            Field field = Build.class.getDeclaredField(key);
-             field.setAccessible(true);
-             field.set(null, value);
-             field.setAccessible(false);
-@@ -145,4 +148,16 @@ public final class PixelPropsUtils {
+@@ -145,4 +171,4 @@ public final class PixelPropsUtils {
              Log.e(TAG, "Failed to set prop " + key, e);
          }
      }
-+
-+    private static boolean isCallerSafetyNet() {
-+        return Arrays.stream(Thread.currentThread().getStackTrace())
-+                .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
-+    }
-+
-+    public static void onEngineGetCertificateChain() {
-+        // Check stack for SafetyNet
-+        if (sIsGms && isCallerSafetyNet()) {
-+            throw new UnsupportedOperationException();
-+        }
-+    }
- }
+-}
++}
+\ No newline at end of file
 diff --git a/packages/SystemUI/res/layout/status_bar.xml b/packages/SystemUI/res/layout/status_bar.xml
 index 8b244c75..4c49e5a1 100644
 --- a/packages/SystemUI/res/layout/status_bar.xml
@@ -472,10 +359,10 @@ index 00000000..82881a36
 +    </style>
 + </resources>
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
-index 0e3b5b5c..1568f069 100644
+index 5b378007..2000ea8e 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
-@@ -432,6 +432,8 @@ public class NotificationMediaManager implements Dumpable {
+@@ -430,6 +430,8 @@ public class NotificationMediaManager implements Dumpable {
  
      public void findAndUpdateMediaNotifications() {
          boolean metaDataChanged;
@@ -484,7 +371,7 @@ index 0e3b5b5c..1568f069 100644
          if (mUsingNotifPipeline) {
              // TODO(b/169655907): get the semi-filtered notifications for current user
              Collection<NotificationEntry> allNotifications = mNotifPipeline.getAllNotifs();
-@@ -444,6 +446,19 @@ public class NotificationMediaManager implements Dumpable {
+@@ -442,6 +444,19 @@ public class NotificationMediaManager implements Dumpable {
  
              if (metaDataChanged) {
                  mEntryManager.updateNotifications("NotificationMediaManager - metaDataChanged");
@@ -877,7 +764,7 @@ index 00000000..18841233
 +    }
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
-index b10a461a..8ccb2720 100644
+index 4ff6790c..37be3fdc 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
 @@ -72,6 +72,10 @@ import android.content.res.Configuration;
@@ -983,7 +870,7 @@ index b10a461a..8ccb2720 100644
                      checkBarModes();
                      mBurnInProtectionController.setPhoneStatusBarView(mStatusBarView);
                  }).getFragmentManager()
-@@ -1655,6 +1695,18 @@ public class StatusBar extends SystemUI implements
+@@ -1659,6 +1699,18 @@ public class StatusBar extends SystemUI implements
          return mStatusBarWindowController.getStatusBarHeight();
      }
  
@@ -1002,7 +889,7 @@ index b10a461a..8ccb2720 100644
      public boolean toggleSplitScreenMode(int metricsDockAction, int metricsUndockAction) {
          if (!mSplitScreenOptional.isPresent()) {
              return false;
-@@ -1689,8 +1741,8 @@ public class StatusBar extends SystemUI implements
+@@ -1693,8 +1745,8 @@ public class StatusBar extends SystemUI implements
       * If the user switcher is simple then disable QS during setup because
       * the user intends to use the lock screen user switcher, QS in not needed.
       */
@@ -1013,7 +900,7 @@ index b10a461a..8ccb2720 100644
                  && (mUserSetup || mUserSwitcherController == null
                          || !mUserSwitcherController.isSimpleUserSwitcher())
                  && !isShadeDisabled()
-@@ -1957,6 +2009,10 @@ public class StatusBar extends SystemUI implements
+@@ -1961,6 +2013,10 @@ public class StatusBar extends SystemUI implements
          return shouldAnimateLaunch(isActivityIntent, false /* showOverLockscreen */);
      }
  
@@ -1024,7 +911,7 @@ index b10a461a..8ccb2720 100644
      public boolean isDeviceInVrMode() {
          return mPresenter.isDeviceInVrMode();
      }
-@@ -2306,6 +2362,156 @@ public class StatusBar extends SystemUI implements
+@@ -2310,6 +2366,156 @@ public class StatusBar extends SystemUI implements
          }
      }
  
@@ -1181,7 +1068,7 @@ index b10a461a..8ccb2720 100644
      public static String viewInfo(View v) {
          return "[(" + v.getLeft() + "," + v.getTop() + ")(" + v.getRight() + "," + v.getBottom()
                  + ") " + v.getWidth() + "x" + v.getHeight() + "]";
-@@ -2488,7 +2694,7 @@ public class StatusBar extends SystemUI implements
+@@ -2492,7 +2698,7 @@ public class StatusBar extends SystemUI implements
              final boolean dismissShade, final boolean disallowEnterPictureInPictureWhileLaunching,
              final Callback callback, int flags,
              @Nullable ActivityLaunchAnimator.Controller animationController) {
@@ -1190,7 +1077,7 @@ index b10a461a..8ccb2720 100644
  
          final boolean willLaunchResolverActivity =
                  mActivityIntentHelper.wouldLaunchResolverActivity(intent,
-@@ -3199,6 +3405,9 @@ public class StatusBar extends SystemUI implements
+@@ -3205,6 +3411,9 @@ public class StatusBar extends SystemUI implements
       * Switches theme from light to dark and vice-versa.
       */
      protected void updateTheme() {
@@ -1200,7 +1087,7 @@ index b10a461a..8ccb2720 100644
          // Lock wallpaper defines the color of the majority of the views, hence we'll use it
          // to set our default theme.
          final boolean lockDarkText = mColorExtractor.getNeutralColors().supportsDarkText();
-@@ -3881,6 +4090,15 @@ public class StatusBar extends SystemUI implements
+@@ -3890,6 +4099,15 @@ public class StatusBar extends SystemUI implements
          return mDeviceInteractive;
      }
  
@@ -1216,7 +1103,7 @@ index b10a461a..8ccb2720 100644
      private final SbSettingsObserver mSbSettingsObserver = new SbSettingsObserver();
  
      private class SbSettingsObserver extends ContentObserver {
-@@ -3980,7 +4198,7 @@ public class StatusBar extends SystemUI implements
+@@ -3989,7 +4207,7 @@ public class StatusBar extends SystemUI implements
       */
      private void executeActionDismissingKeyguard(Runnable action, boolean afterKeyguardGone,
              boolean collapsePanel, boolean willAnimateOnKeyguard) {
@@ -1225,7 +1112,7 @@ index b10a461a..8ccb2720 100644
  
          OnDismissAction onDismissAction = new OnDismissAction() {
              @Override
-@@ -4020,6 +4238,14 @@ public class StatusBar extends SystemUI implements
+@@ -4029,6 +4247,14 @@ public class StatusBar extends SystemUI implements
                  (ActivityLaunchAnimator.Controller) null);
      }
  
@@ -1752,7 +1639,7 @@ index 00000000..d7abbb61
 +    }
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
-index 14cca13b..fa294c43 100644
+index 8750845e..cf8d9f59 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
 @@ -46,6 +46,7 @@ import com.android.systemui.statusbar.phone.NotificationPanelView;
@@ -1763,19 +1650,21 @@ index 14cca13b..fa294c43 100644
  import com.android.systemui.statusbar.phone.StatusBarHideIconsForBouncerManager;
  import com.android.systemui.statusbar.phone.StatusBarIconController;
  import com.android.systemui.statusbar.phone.StatusBarLocationPublisher;
-@@ -61,8 +62,11 @@ import com.android.systemui.statusbar.policy.ConfigurationController;
- import com.android.systemui.statusbar.policy.KeyguardStateController;
+@@ -62,10 +63,13 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
  import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.util.settings.SecureSettings;
  
 +import java.util.Optional;
 +
+ import java.util.concurrent.Executor;
+ 
  import javax.inject.Named;
  
 +import dagger.Lazy;
  import dagger.Module;
  import dagger.Provides;
  
-@@ -249,6 +253,7 @@ public abstract class StatusBarViewModule {
+@@ -252,6 +256,7 @@ public abstract class StatusBarViewModule {
              NotificationIconAreaController notificationIconAreaController,
              PanelExpansionStateManager panelExpansionStateManager,
              FeatureFlags featureFlags,
@@ -1783,7 +1672,7 @@ index 14cca13b..fa294c43 100644
              StatusBarIconController statusBarIconController,
              StatusBarHideIconsForBouncerManager statusBarHideIconsForBouncerManager,
              KeyguardStateController keyguardStateController,
-@@ -266,6 +271,7 @@ public abstract class StatusBarViewModule {
+@@ -271,6 +276,7 @@ public abstract class StatusBarViewModule {
                  notificationIconAreaController,
                  panelExpansionStateManager,
                  featureFlags,
@@ -1792,18 +1681,18 @@ index 14cca13b..fa294c43 100644
                  statusBarHideIconsForBouncerManager,
                  keyguardStateController,
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
-index f3ed7cbc..6aa18bc5 100644
+index 1f549fe9..3a26a9ec 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
-@@ -36,6 +36,7 @@ import android.view.LayoutInflater;
+@@ -38,6 +38,7 @@ import android.view.LayoutInflater;
  import android.view.View;
  import android.view.ViewGroup;
  import android.view.ViewStub;
 +import android.widget.ImageSwitcher;
  import android.widget.LinearLayout;
  
- import com.android.systemui.R;
-@@ -55,6 +56,7 @@ import com.android.systemui.statusbar.events.SystemStatusAnimationScheduler;
+ import androidx.annotation.VisibleForTesting;
+@@ -60,6 +61,7 @@ import com.android.systemui.statusbar.events.SystemStatusAnimationScheduler;
  import com.android.systemui.statusbar.phone.NotificationIconAreaController;
  import com.android.systemui.statusbar.phone.NotificationPanelViewController;
  import com.android.systemui.statusbar.phone.PhoneStatusBarView;
@@ -1811,20 +1700,19 @@ index f3ed7cbc..6aa18bc5 100644
  import com.android.systemui.statusbar.phone.StatusBarHideIconsForBouncerManager;
  import com.android.systemui.statusbar.phone.StatusBarIconController;
  import com.android.systemui.statusbar.phone.StatusBarIconController.DarkIconManager;
-@@ -63,6 +65,7 @@ import com.android.systemui.statusbar.phone.fragment.dagger.StatusBarFragmentCom
+@@ -68,6 +70,7 @@ import com.android.systemui.statusbar.phone.fragment.dagger.StatusBarFragmentCom
  import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallController;
  import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallListener;
  import com.android.systemui.statusbar.phone.panelstate.PanelExpansionStateManager;
 +import com.android.systemui.statusbar.phone.TickerView;
  import com.android.systemui.statusbar.policy.EncryptionHelper;
  import com.android.systemui.statusbar.policy.KeyguardStateController;
- 
-@@ -70,9 +73,13 @@ import org.jetbrains.annotations.NotNull;
- 
+ import com.android.systemui.util.settings.SecureSettings;
+@@ -77,9 +80,12 @@ import org.jetbrains.annotations.NotNull;
  import java.util.ArrayList;
  import java.util.List;
+ import java.util.concurrent.Executor;
 +import java.util.Optional;
-+
  
  import javax.inject.Inject;
  
@@ -1833,7 +1721,7 @@ index f3ed7cbc..6aa18bc5 100644
  /**
   * Contains the collapsed status bar and handles hiding/showing based on disable flags
   * and keyguard state. Also manages lifecycle to make sure the views it contains are being
-@@ -100,11 +107,14 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -107,11 +113,14 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
      private View mCenteredIconArea;
      private int mDisabled1;
      private int mDisabled2;
@@ -1848,7 +1736,7 @@ index f3ed7cbc..6aa18bc5 100644
      private final OngoingCallController mOngoingCallController;
      private final SystemStatusAnimationScheduler mAnimationScheduler;
      private final StatusBarLocationPublisher mLocationPublisher;
-@@ -140,6 +150,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -149,6 +158,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
              NotificationIconAreaController notificationIconAreaController,
              PanelExpansionStateManager panelExpansionStateManager,
              FeatureFlags featureFlags,
@@ -1856,7 +1744,7 @@ index f3ed7cbc..6aa18bc5 100644
              StatusBarIconController statusBarIconController,
              StatusBarHideIconsForBouncerManager statusBarHideIconsForBouncerManager,
              KeyguardStateController keyguardStateController,
-@@ -157,6 +168,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -168,6 +178,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
          mNotificationIconAreaController = notificationIconAreaController;
          mPanelExpansionStateManager = panelExpansionStateManager;
          mFeatureFlags = featureFlags;
@@ -1864,7 +1752,7 @@ index f3ed7cbc..6aa18bc5 100644
          mStatusBarIconController = statusBarIconController;
          mStatusBarHideIconsForBouncerManager = statusBarHideIconsForBouncerManager;
          mKeyguardStateController = keyguardStateController;
-@@ -201,6 +213,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -215,6 +226,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
          showClock(false);
          initEmergencyCryptkeeperText();
          initOperatorName();
@@ -1872,7 +1760,7 @@ index f3ed7cbc..6aa18bc5 100644
          initNotificationIconArea();
          mAnimationScheduler.addCallback(this);
      }
-@@ -296,9 +309,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -334,9 +346,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
              if ((state1 & DISABLE_SYSTEM_INFO) != 0 || ((state2 & DISABLE2_SYSTEM_ICONS) != 0)) {
                  hideSystemIconArea(animate);
                  hideOperatorName(animate);
@@ -1884,7 +1772,7 @@ index f3ed7cbc..6aa18bc5 100644
              }
          }
  
-@@ -410,6 +425,18 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -448,6 +462,18 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
          }
      }
  
@@ -1903,7 +1791,7 @@ index f3ed7cbc..6aa18bc5 100644
      private void hideClock(boolean animate) {
          animateHiddenState(mClockView, clockHiddenMode(), animate);
      }
-@@ -554,6 +581,19 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+@@ -592,6 +618,19 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
          disable(getContext().getDisplayId(), mDisabled1, mDisabled2, false /* animate */);
      }
  

@@ -1,6 +1,6 @@
-From 1459c5d1e20b58dbcaf9604bdf49436b0d9a4818 Mon Sep 17 00:00:00 2001
+From bca199aeb5b028ea0247b84a0a46ecf7cfa626b6 Mon Sep 17 00:00:00 2001
 From: AngelaCooljx <ljx15007902367@gmail.com>
-Date: Fri, 3 Jun 2022 19:27:14 +0800
+Date: Fri, 10 Jun 2022 11:53:35 +0800
 Subject: [PATCH] Change 90 Hz->120 Hz in peak_refresh_rate_summary
 
 ---
@@ -50,10 +50,10 @@ Subject: [PATCH] Change 90 Hz->120 Hz in peak_refresh_rate_summary
  43 files changed, 43 insertions(+), 43 deletions(-)
 
 diff --git a/res/values-af/strings.xml b/res/values-af/strings.xml
-index 6a85581..049c5b5 100644
+index 368cfa4..e6b2d48 100644
 --- a/res/values-af/strings.xml
 +++ b/res/values-af/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Wys witbalans"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Gladde Vertoning"</string>
@@ -63,10 +63,10 @@ index 6a85581..049c5b5 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Hoogste herlaaikoers vir verbeterde raaksensitiwiteit en animasiegehalte. Verhoog batterygebruik."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Skermaandag"</string>
 diff --git a/res/values-b+sr+Latn/strings.xml b/res/values-b+sr+Latn/strings.xml
-index 3d3b671..093dddd 100644
+index 294c610..63b3df1 100644
 --- a/res/values-b+sr+Latn/strings.xml
 +++ b/res/values-b+sr+Latn/strings.xml
-@@ -1351,7 +1351,7 @@
+@@ -1353,7 +1353,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Balans bele ekrana"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Tečni prikaz"</string>
@@ -76,10 +76,10 @@ index 3d3b671..093dddd 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Najveća učestalost osvežavanja za poboljšan odziv na dodir i kvalitet animacije. Povećava potrošnju baterije."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Pažnja ekrana"</string>
 diff --git a/res/values-da/strings.xml b/res/values-da/strings.xml
-index 9466c06..e27e847 100644
+index 074270b..2b7b948 100644
 --- a/res/values-da/strings.xml
 +++ b/res/values-da/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Skærmens hvidbalance"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -89,10 +89,10 @@ index 9466c06..e27e847 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Den højeste opdateringshastighed, som giver forbedret animationskvalitet og reaktionsevne ved berøring. Medfører højere batteriforbrug."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Opmærksom skærm"</string>
 diff --git a/res/values-el/strings.xml b/res/values-el/strings.xml
-index 7ac8306..76d7d65 100644
+index bc283df..aece948 100644
 --- a/res/values-el/strings.xml
 +++ b/res/values-el/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Εμφάνιση ισορροπίας λευκού"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -102,10 +102,10 @@ index 7ac8306..76d7d65 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Ο υψηλότερος δυνατός ρυθμός ανανέωσης για βελτιωμένη απόκριση αφής και ποιότητα κινούμενων εικόνων. Αυξάνει τη χρήση της μπαταρίας."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Παρακολούθηση οθόνης"</string>
 diff --git a/res/values-en-rAU/strings.xml b/res/values-en-rAU/strings.xml
-index 912a557..153ef0e 100644
+index 4c30b4e..0eec5f5 100644
 --- a/res/values-en-rAU/strings.xml
 +++ b/res/values-en-rAU/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Display white balance"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth display"</string>
@@ -115,10 +115,10 @@ index 912a557..153ef0e 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Highest refresh rate for improved touch responsiveness and animation quality. Increases battery usage."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Screen attention"</string>
 diff --git a/res/values-en-rCA/strings.xml b/res/values-en-rCA/strings.xml
-index 15b1f31..d0ee9c7 100644
+index 0be9c8f..90ce341 100644
 --- a/res/values-en-rCA/strings.xml
 +++ b/res/values-en-rCA/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Display white balance"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth display"</string>
@@ -128,10 +128,10 @@ index 15b1f31..d0ee9c7 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Highest refresh rate for improved touch responsiveness and animation quality. Increases battery usage."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Screen attention"</string>
 diff --git a/res/values-en-rGB/strings.xml b/res/values-en-rGB/strings.xml
-index 19840a7..c1edd13 100644
+index adc98fa..7dc74da 100644
 --- a/res/values-en-rGB/strings.xml
 +++ b/res/values-en-rGB/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Display white balance"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth display"</string>
@@ -141,10 +141,10 @@ index 19840a7..c1edd13 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Highest refresh rate for improved touch responsiveness and animation quality. Increases battery usage."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Screen attention"</string>
 diff --git a/res/values-en-rIN/strings.xml b/res/values-en-rIN/strings.xml
-index 0adec02..89695a8 100644
+index 6645928..3b39543 100644
 --- a/res/values-en-rIN/strings.xml
 +++ b/res/values-en-rIN/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Display white balance"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth display"</string>
@@ -154,10 +154,10 @@ index 0adec02..89695a8 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Highest refresh rate for improved touch responsiveness and animation quality. Increases battery usage."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Screen attention"</string>
 diff --git a/res/values-en-rXC/strings.xml b/res/values-en-rXC/strings.xml
-index c812f7f..1a04b3c 100644
+index e486d2a..6bb22a3 100644
 --- a/res/values-en-rXC/strings.xml
 +++ b/res/values-en-rXC/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‏‎‏‏‏‏‏‎‏‎‎‏‎‎‎‏‏‎‏‏‎‎‎‏‎‎‎‎‎‏‎‎‏‎‏‎‎‎‎‎‎‎‎‏‏‏‎‏‏‎‏‏‏‎‏‏‏‎‏‏‏‏‏‏‏‎‏‎‎‏‎Display white balance‎‏‎‎‏‎"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‏‎‏‏‏‏‎‏‏‏‎‏‎‎‎‎‏‎‎‏‎‏‎‏‏‏‏‎‎‏‎‏‎‎‏‎‏‎‏‎‏‎‏‏‏‏‏‏‎‎‏‎‎‏‎‎‏‎‎‎‎‏‎‏‎‎‏‏‏‎Smooth Display‎‏‎‎‏‎"</string>
@@ -167,10 +167,10 @@ index c812f7f..1a04b3c 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‏‎‏‏‏‏‏‏‏‏‎‏‏‎‎‎‎‏‎‏‎‏‏‏‏‎‏‏‏‎‎‏‏‎‏‏‏‎‎‏‏‎‎‎‏‏‎‎‏‎‏‏‏‏‏‎‎‏‎‎‎‏‏‎‏‎‏‏‎‏‏‎Highest refresh rate for improved touch responsiveness &amp; animation quality. Increases battery usage.‎‏‎‎‏‎"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‏‎‏‏‏‏‏‎‏‎‏‎‎‏‎‏‏‏‎‏‏‏‎‏‎‏‏‏‏‏‏‎‎‏‏‎‎‏‏‎‏‎‏‏‎‏‎‎‏‎‏‎‏‏‎‎‏‏‏‎‎‎‎‎‏‎‎‎‎‏‎Screen attention‎‏‎‎‏‎"</string>
 diff --git a/res/values-gu/strings.xml b/res/values-gu/strings.xml
-index b8b5633..9e92e4e 100644
+index 610bf6d..8dd2f78 100644
 --- a/res/values-gu/strings.xml
 +++ b/res/values-gu/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"વ્હાઇટ બૅલેન્સ ડિસ્પ્લે"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -180,10 +180,10 @@ index b8b5633..9e92e4e 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"સ્પર્શના પ્રતિભાવમાં સુધારણા અને ઍનિમેશનની ક્વૉલિટી માટે ઉચ્ચતમ રિફ્રેશ રેટ. આ સુવિધા બૅટરીનો વપરાશ વધારે છે."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"સ્ક્રીન અટેન્શન"</string>
 diff --git a/res/values-hr/strings.xml b/res/values-hr/strings.xml
-index 8f4fdad..ed2d617 100644
+index 31c69cb..c52340f 100644
 --- a/res/values-hr/strings.xml
 +++ b/res/values-hr/strings.xml
-@@ -1353,7 +1353,7 @@
+@@ -1355,7 +1355,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Prikaz balansa bijele boje"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Glatki prikaz"</string>
@@ -193,10 +193,10 @@ index 8f4fdad..ed2d617 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Najviša učestalost osvježavanja za poboljšano reagiranje na dodir i kvalitetu animacije. Povećava potrošnju baterije."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Pozornost na zaslonu"</string>
 diff --git a/res/values-in/strings.xml b/res/values-in/strings.xml
-index c0c2566..e3d1260 100644
+index 74cf2a0..30cb5a3 100644
 --- a/res/values-in/strings.xml
 +++ b/res/values-in/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"White balance layar"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -206,10 +206,10 @@ index c0c2566..e3d1260 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Rasio pembaruan tertinggi untuk penyempurnaan respons sentuhan &amp; kualitas animasi. Meningkatkan penggunaan baterai."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Fokus ke layar"</string>
 diff --git a/res/values-is/strings.xml b/res/values-is/strings.xml
-index d3e5eef..bb82c3d 100644
+index 90b1b7c..40a0313 100644
 --- a/res/values-is/strings.xml
 +++ b/res/values-is/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Sýna hvítjöfnun"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Hnökralaus skjár"</string>
@@ -219,23 +219,23 @@ index d3e5eef..bb82c3d 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Mesti endurnýjunarhraði fyrir bætta snertisvörun og gæði hreyfimynda. Eykur rafhlöðunotkun."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Skjáskynjun"</string>
 diff --git a/res/values-it/strings.xml b/res/values-it/strings.xml
-index e408720..20f81ed 100644
+index 1afc46b..c9af456 100644
 --- a/res/values-it/strings.xml
 +++ b/res/values-it/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Bilanciamento bianco display"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Display fluido"</string>
--    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Aumenta automaticamente la frequenza di aggiornamento da 60 a 90 Hz per alcuni contenuti. Aumenta l\'utilizzo della batteria."</string>
-+    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Aumenta automaticamente la frequenza di aggiornamento da 60 a 120 Hz per alcuni contenuti. Aumenta l\'utilizzo della batteria."</string>
+-    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Aumenta automaticamente la frequenza di aggiornamento da 60 a 90 Hz per alcuni contenuti; aumenta il consumo della batteria"</string>
++    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Aumenta automaticamente la frequenza di aggiornamento da 60 a 120 Hz per alcuni contenuti; aumenta il consumo della batteria"</string>
      <string name="force_high_refresh_rate_toggle" msgid="3325789621928312050">"Forza frequenza di aggiornamento massima"</string>
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Massima frequenza di aggiornamento per migliore reattività al tocco e qualità dell\'animazione. Aumenta il consumo della batteria."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Schermo vigile"</string>
 diff --git a/res/values-ja/strings.xml b/res/values-ja/strings.xml
-index 9c67fd1..7e02b40 100644
+index c97738d..59e5371 100644
 --- a/res/values-ja/strings.xml
 +++ b/res/values-ja/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"ディスプレイのホワイト バランス"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"スムーズ ディスプレイ"</string>
@@ -245,10 +245,10 @@ index 9c67fd1..7e02b40 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"最高のリフレッシュ レートを適用します。タップの反応とアニメーションの品質が向上します。バッテリー使用量が増えます。"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"スクリーン アテンション"</string>
 diff --git a/res/values-km/strings.xml b/res/values-km/strings.xml
-index 58de8ab..137479d 100644
+index 37e76cd..2bcd761 100644
 --- a/res/values-km/strings.xml
 +++ b/res/values-km/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"បង្ហាញតុល្យភាព​ពណ៌ស"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -258,10 +258,10 @@ index 58de8ab..137479d 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"អត្រា​ផ្ទុកឡើងវិញ​ខ្ពស់បំផុតសម្រាប់​គុណភាពនៃ​រូបមានចលនា និង​ការឆ្លើយតបនៃ​ការចុចប្រសើរជាងមុន។ ប្រើប្រាស់ថ្ម​ច្រើន​ជាងមុន។"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"ការដឹងថាកំពុងនៅប្រើ"</string>
 diff --git a/res/values-lo/strings.xml b/res/values-lo/strings.xml
-index 49e05bb..14494bc 100644
+index bc746b8..c0454e3 100644
 --- a/res/values-lo/strings.xml
 +++ b/res/values-lo/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"ສະແດງສົມດຸນສີຂາວ"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -271,23 +271,23 @@ index 49e05bb..14494bc 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"ຣີເຟຣດເຣດສູງສຸດເພື່ອປັບປຸງການຕອບສະໜອງການສຳຜັດ ແລະ ຄຸນນະພາບອະນິເມຊັນ. ເພີ່ມການນຳໃຊ້ແບັດເຕີຣີ."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"ການເອົາໃຈໃສ່ໜ້າຈໍ"</string>
 diff --git a/res/values-lt/strings.xml b/res/values-lt/strings.xml
-index c5fdb2b..9432c87 100644
+index 3fa5853..0c8b595 100644
 --- a/res/values-lt/strings.xml
 +++ b/res/values-lt/strings.xml
-@@ -1371,7 +1371,7 @@
+@@ -1373,7 +1373,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Pateikti baltos spalv. balansą"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
-     <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
+     <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Ekrano glodinimas"</string>
 -    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Automatiškai padidinamas kai kurio turinio atnaujinimo dažnis nuo 60 iki 90 Hz. Vartojama daugiau akumuliatoriaus energijos."</string>
 +    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Automatiškai padidinamas kai kurio turinio atnaujinimo dažnis nuo 60 iki 120 Hz. Vartojama daugiau akumuliatoriaus energijos."</string>
      <string name="force_high_refresh_rate_toggle" msgid="3325789621928312050">"Priverstinai nustatyti didžiausią atnaujinimo dažnį"</string>
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Didžiausias atnaujinimo dažnis, siekiant patobulinti palietimo atsakomumą ir animacijos kokybę. Vartojama daugiau akumuliatoriaus energijos."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Žiūrėjimas į ekraną"</string>
 diff --git a/res/values-mk/strings.xml b/res/values-mk/strings.xml
-index 1d36096..a896606 100644
+index d0b0629..c16e714 100644
 --- a/res/values-mk/strings.xml
 +++ b/res/values-mk/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Баланс на бела боја на екранот"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Течен приказ"</string>
@@ -297,10 +297,10 @@ index 1d36096..a896606 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Највисока стапка на освежување за подобрена реакција на допир и квалитет на анимацијата. Го зголемува користењето на батеријата."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Вклучен екран"</string>
 diff --git a/res/values-ml/strings.xml b/res/values-ml/strings.xml
-index 24e6c53..ea7dd87 100644
+index eff05d7..b2c3028 100644
 --- a/res/values-ml/strings.xml
 +++ b/res/values-ml/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"വൈറ്റ് ബാലന്‍സ് പ്രദര്‍ശിപ്പിക്കുക"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"സ്‌മൂത്ത് ഡിസ്പ്ലേ"</string>
@@ -310,10 +310,10 @@ index 24e6c53..ea7dd87 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"മെച്ചപ്പെട്ട സ്‌പർശന പ്രതികരണശേഷി, ആനിമേഷൻ നിലവാരം എന്നിവയ്‌ക്കുള്ള ഉയർന്ന പുതുക്കൽ നിരക്ക്. ബാറ്ററി ഉപയോഗം വർദ്ധിപ്പിക്കുന്നു."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"സ്ക്രീൻ ശ്രദ്ധ"</string>
 diff --git a/res/values-ms/strings.xml b/res/values-ms/strings.xml
-index 1ecc106..c350194 100644
+index fab5182..c764358 100644
 --- a/res/values-ms/strings.xml
 +++ b/res/values-ms/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Paparkan imbangan putih"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -323,10 +323,10 @@ index 1ecc106..c350194 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Kadar muat semula tertinggi untuk keresponsifan sentuhan &amp; kualiti animasi yang dipertingkat. Meningkatkan penggunaan bateri."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Perhatian skrin"</string>
 diff --git a/res/values-nb/strings.xml b/res/values-nb/strings.xml
-index 870e518..af00f7b 100644
+index 827cd74..4290767 100644
 --- a/res/values-nb/strings.xml
 +++ b/res/values-nb/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Vis hvitbalanse"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -336,10 +336,10 @@ index 870e518..af00f7b 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Den høyeste oppdateringsfrekvensen for å oppnå bedre trykkfølsomhet og animasjonskvalitet. Øker batteribruken."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Skjermoppmerksomhet"</string>
 diff --git a/res/values-nl/strings.xml b/res/values-nl/strings.xml
-index f8934eb..1f3cfca 100644
+index 21dae8e..d747767 100644
 --- a/res/values-nl/strings.xml
 +++ b/res/values-nl/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Witbalans van scherm"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -349,10 +349,10 @@ index f8934eb..1f3cfca 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"De hoogste vernieuwingssnelheid voor verbeterde responsiviteit voor aanraking en animatiekwaliteit. Het batterijgebruik neemt toe."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Schermaandacht"</string>
 diff --git a/res/values-or/strings.xml b/res/values-or/strings.xml
-index 15edf89..5a99b0a 100644
+index b426363..f2e6935 100644
 --- a/res/values-or/strings.xml
 +++ b/res/values-or/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"ହ୍ବାଇଟ୍ ବ୍ୟାଲେନ୍ସ ପ୍ରଦର୍ଶନ କରନ୍ତୁ"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"ସ୍ମୁଥ୍ ଡିସପ୍ଲେ"</string>
@@ -362,10 +362,10 @@ index 15edf89..5a99b0a 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"ଉନ୍ନତ ସ୍ପର୍ଶ ପ୍ରତିକ୍ରିୟା ଓ ଆନିମେସନ୍ ଗୁଣବତ୍ତା ପାଇଁ ସର୍ବାଧିକ ରିଫ୍ରେସ୍ ରେଟ୍। ବ୍ୟାଟେରୀର ବ୍ୟବହାର ବଢ଼ାଇଥାଏ।"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"ସ୍କ୍ରିନ୍ ଆଟେନ୍‌ସନ୍"</string>
 diff --git a/res/values-pa/strings.xml b/res/values-pa/strings.xml
-index dff9ea7..b34a109 100644
+index ccb4714..056a2e2 100644
 --- a/res/values-pa/strings.xml
 +++ b/res/values-pa/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"ਸਫ਼ੈਦ ਸੰਤੁਲਨ ਦਿਖਾਓ"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"ਸਮੂਥ ਡਿਸਪਲੇ"</string>
@@ -375,10 +375,10 @@ index dff9ea7..b34a109 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"ਬਿਹਤਰ ਸਪਰਸ਼ ਪ੍ਰਤੀਕਿਰਿਆ ਅਤੇ ਐਨੀਮੇਸ਼ਨ ਕੁਆਲਿਟੀ ਲਈ ਉੱਚਤਮ ਰਿਫ੍ਰੈਸ਼ ਦਰ। ਬੈਟਰੀ ਵਰਤੋਂ ਵੱਧ ਜਾਂਦੀ ਹੈ।"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"ਸਕ੍ਰੀਨ ਦਾ ਚੌਕੰਨਾਪਣ"</string>
 diff --git a/res/values-pt-rBR/strings.xml b/res/values-pt-rBR/strings.xml
-index 74f40f9..5f063a0 100644
+index bd26939..3fdde49 100644
 --- a/res/values-pt-rBR/strings.xml
 +++ b/res/values-pt-rBR/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Balanço de branco da tela"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -388,10 +388,10 @@ index 74f40f9..5f063a0 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Maior taxa de atualização para melhoria na resposta tátil e na qualidade das animações. Maior uso da bateria."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Reconhecimento de tela em uso"</string>
 diff --git a/res/values-pt-rPT/strings.xml b/res/values-pt-rPT/strings.xml
-index 3229e98..604d345 100644
+index 8620792..852599c 100644
 --- a/res/values-pt-rPT/strings.xml
 +++ b/res/values-pt-rPT/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Apresentar equilíb. de brancos"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -401,10 +401,10 @@ index 3229e98..604d345 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"A taxa de atualização mais elevada para uma capacidade de resposta tátil e uma qualidade de animação melhoradas. Aumenta a utilização da bateria."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Atenção ao ecrã"</string>
 diff --git a/res/values-pt/strings.xml b/res/values-pt/strings.xml
-index 74f40f9..5f063a0 100644
+index bd26939..3fdde49 100644
 --- a/res/values-pt/strings.xml
 +++ b/res/values-pt/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Balanço de branco da tela"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -414,10 +414,10 @@ index 74f40f9..5f063a0 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Maior taxa de atualização para melhoria na resposta tátil e na qualidade das animações. Maior uso da bateria."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Reconhecimento de tela em uso"</string>
 diff --git a/res/values-ro/strings.xml b/res/values-ro/strings.xml
-index 229096e..2c0f163 100644
+index 2050b3f..3f2d407 100644
 --- a/res/values-ro/strings.xml
 +++ b/res/values-ro/strings.xml
-@@ -1353,7 +1353,7 @@
+@@ -1355,7 +1355,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Balansul de alb al ecranului"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -427,23 +427,23 @@ index 229096e..2c0f163 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Cea mai ridicată rată de actualizare, pentru receptivitate la atingere îmbunătățită și animații de calitate. Mărește utilizarea bateriei."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Atenție la ecran"</string>
 diff --git a/res/values-sq/strings.xml b/res/values-sq/strings.xml
-index a39ba5f..91e1671 100644
+index 45d135f..410b242 100644
 --- a/res/values-sq/strings.xml
 +++ b/res/values-sq/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Shfaq balancimin e të bardhës"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
-     <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Ekrani me butësi"</string>
+     <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
 -    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Rrit automatikisht shpejtësinë e rifreskimit nga 60 në 90 Hz për disa përmbajtje. Rrit përdorimin e baterisë."</string>
 +    <string name="peak_refresh_rate_summary" msgid="1527087897198455042">"Rrit automatikisht shpejtësinë e rifreskimit nga 60 në 120 Hz për disa përmbajtje. Rrit përdorimin e baterisë."</string>
      <string name="force_high_refresh_rate_toggle" msgid="3325789621928312050">"Detyro shpejtësinë maksimale të rifreskimit"</string>
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Shpejtësia më e lartë e rifreskimit për përmirësimin e reagueshmërisë së prekjes dhe cilësisë së animacioneve. Rrit përdorimin e baterisë."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Vëmendja ndaj ekranit"</string>
 diff --git a/res/values-sr/strings.xml b/res/values-sr/strings.xml
-index 218cbc9..11fb269 100644
+index 29e8ed6..b841c34 100644
 --- a/res/values-sr/strings.xml
 +++ b/res/values-sr/strings.xml
-@@ -1351,7 +1351,7 @@
+@@ -1353,7 +1353,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Баланс беле екрана"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Течни приказ"</string>
@@ -453,10 +453,10 @@ index 218cbc9..11fb269 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Највећа учесталост освежавања за побољшан одзив на додир и квалитет анимације. Повећава потрошњу батерије."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Пажња екрана"</string>
 diff --git a/res/values-sv/strings.xml b/res/values-sv/strings.xml
-index 82526a6..74a27ea 100644
+index b2a015a..827c695 100644
 --- a/res/values-sv/strings.xml
 +++ b/res/values-sv/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Skärmens vitbalans"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -466,10 +466,10 @@ index 82526a6..74a27ea 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Den högsta uppdateringsfrekvensen ger bättre tryckkänslighet och animationskvalitet. Ökar batteriförbrukningen."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Blickavkänning"</string>
 diff --git a/res/values-ta/strings.xml b/res/values-ta/strings.xml
-index 727ec7b..3ab4aa3 100644
+index 4de5be6..cc96428 100644
 --- a/res/values-ta/strings.xml
 +++ b/res/values-ta/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"வெண் சமநிலையை காட்சிப்படுத்தல்"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"சீரான காட்சி"</string>
@@ -479,10 +479,10 @@ index 727ec7b..3ab4aa3 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"மேம்பட்ட தொடு இயக்கத்திறனுக்கும் அனிமேஷன் தரத்திற்குமான அதிவேக ரெஃப்ரெஷ் விகிதம். இதனால் பேட்டரி உபயோகம் அதிகரிக்கும்."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"திரை மீது கவனம்"</string>
 diff --git a/res/values-te/strings.xml b/res/values-te/strings.xml
-index 5e76149..988c3fe 100644
+index d30db4c..f99cec9 100644
 --- a/res/values-te/strings.xml
 +++ b/res/values-te/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"తెలుపు సమతుల్యతను ప్రదర్శించండి"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"స్మూత్ డిస్‌ప్లే"</string>
@@ -492,10 +492,10 @@ index 5e76149..988c3fe 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"మెరుగైన స్పర్శ ప్రతిస్పందన &amp; యానిమేషన్ క్వాలిటీ కోసం అత్యధిక రిఫ్రెష్ రేటు. ఇది బ్యాటరీ వినియోగం పెరిగేలా చేస్తుంది."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"స్క్రీన్ అటెన్ష‌న్‌"</string>
 diff --git a/res/values-th/strings.xml b/res/values-th/strings.xml
-index 44d61dd..0a6ad3c 100644
+index 76f3bd0..f1b39d4 100644
 --- a/res/values-th/strings.xml
 +++ b/res/values-th/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"แสดงไวท์บาลานซ์"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -505,10 +505,10 @@ index 44d61dd..0a6ad3c 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"อัตราการรีเฟรชสูงสุดสำหรับการตอบสนองต่อการแตะและคุณภาพของภาพเคลื่อนไหวที่ดียิ่งขึ้น เพิ่มการใช้งานแบตเตอรี่"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"การจดจ่อที่หน้าจอ"</string>
 diff --git a/res/values-tl/strings.xml b/res/values-tl/strings.xml
-index 0589f55..e067dd8 100644
+index 4230430..84181b4 100644
 --- a/res/values-tl/strings.xml
 +++ b/res/values-tl/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"White balance ng display"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth na Display"</string>
@@ -518,10 +518,10 @@ index 0589f55..e067dd8 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Pinakamataas na rate ng pag-refresh para sa pinahusay na pagiging responsive ng pagpindot at kalidad ng animation. Pinapalakas ang paggamit ng baterya."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Atensyon sa screen"</string>
 diff --git a/res/values-tr/strings.xml b/res/values-tr/strings.xml
-index 267be61..a044a2b 100644
+index a299d68..3e42dec 100644
 --- a/res/values-tr/strings.xml
 +++ b/res/values-tr/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Beyaz dengeyi göster"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Smooth Display"</string>
@@ -531,10 +531,10 @@ index 267be61..a044a2b 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Geliştirilmiş dokunma duyarlılığı ve animasyon kalitesi için en yüksek yenileme hızı. Pil kullanımını artırır."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Ekrana dikkat verme"</string>
 diff --git a/res/values-ur/strings.xml b/res/values-ur/strings.xml
-index d50bbd8..f5f59c1 100644
+index b683105..a04d411 100644
 --- a/res/values-ur/strings.xml
 +++ b/res/values-ur/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"وہائٹ بیلنس ڈسپلے کریں"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"ہموار ڈسپلے"</string>
@@ -544,10 +544,10 @@ index d50bbd8..f5f59c1 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"اعلی ترین ریفریش کرنے کی بہتر شرح کے ليے ٹچ کی کارکردگی اور اینیمیشن کوالٹی۔ بیٹری کے استعمال میں اضافہ کرتا ہے۔"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"اسکرین پر توجہ"</string>
 diff --git a/res/values-vi/strings.xml b/res/values-vi/strings.xml
-index 8e055c8..13553bd 100644
+index 53e4eb4..d2c2a96 100644
 --- a/res/values-vi/strings.xml
 +++ b/res/values-vi/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Cân bằng trắng của màn hình"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Hình ảnh mượt"</string>
@@ -557,10 +557,10 @@ index 8e055c8..13553bd 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Tốc độ làm mới cao nhất giúp cải thiện khả năng phản hồi khi chạm và chất lượng ảnh động. Làm tăng mức sử dụng pin."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Chú ý đến màn hình"</string>
 diff --git a/res/values-zh-rCN/strings.xml b/res/values-zh-rCN/strings.xml
-index 3b12cce..9856b0c 100644
+index 8f523e0..545fc6c 100644
 --- a/res/values-zh-rCN/strings.xml
 +++ b/res/values-zh-rCN/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"显示屏白平衡"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"流畅画面"</string>
@@ -570,10 +570,10 @@ index 3b12cce..9856b0c 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"使用最高刷新频率可提升按触操作响应和动画质量，但会增加耗电量。"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"屏幕感知"</string>
 diff --git a/res/values-zh-rHK/strings.xml b/res/values-zh-rHK/strings.xml
-index 5ebad90..ba5aa7f 100644
+index f751c5b..d2b2b0e 100644
 --- a/res/values-zh-rHK/strings.xml
 +++ b/res/values-zh-rHK/strings.xml
-@@ -1333,7 +1333,7 @@
+@@ -1335,7 +1335,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"顯示屏白平衡"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"流暢顯示"</string>
@@ -583,10 +583,10 @@ index 5ebad90..ba5aa7f 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"最高的重新整理頻率，帶來更靈敏的觸控反應和更高畫質的動畫。這會增加電池用量。"</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"螢幕感知"</string>
 diff --git a/res/values-zu/strings.xml b/res/values-zu/strings.xml
-index 703b34e..d8f553e 100644
+index ed568bd..6f55903 100644
 --- a/res/values-zu/strings.xml
 +++ b/res/values-zu/strings.xml
-@@ -1331,7 +1331,7 @@
+@@ -1333,7 +1333,7 @@
      <string name="display_white_balance_title" msgid="2624544323029364713">"Bonisa ibhalansi emhlophe"</string>
      <string name="display_white_balance_summary" msgid="7625456704950209050"></string>
      <string name="peak_refresh_rate_title" msgid="1878771412897140903">"Isibonisi esibushelelezi"</string>
@@ -596,10 +596,10 @@ index 703b34e..d8f553e 100644
      <string name="force_high_refresh_rate_desc" msgid="7794566420873814875">"Inani lokuvuselela eliphezulu kakhulu lokuphendula kokuthinta okuthuthukisiwe nekhwalithi yokugqwayiza. Ikhuphula ukusetshenziswa kwebhethri."</string>
      <string name="adaptive_sleep_title" msgid="2987961991423539233">"Ukunaka isikrini"</string>
 diff --git a/res/values/strings.xml b/res/values/strings.xml
-index 1c84d30..276f6c3 100644
+index dace319..867ccb3 100644
 --- a/res/values/strings.xml
 +++ b/res/values/strings.xml
-@@ -3037,7 +3037,7 @@
+@@ -3041,7 +3041,7 @@
      <!-- Display settings screen, peak refresh rate settings title [CHAR LIMIT=30] -->
      <string name="peak_refresh_rate_title">Smooth Display</string>
      <!-- Display settings screen, peak refresh rate settings summary [CHAR LIMIT=NONE] -->
