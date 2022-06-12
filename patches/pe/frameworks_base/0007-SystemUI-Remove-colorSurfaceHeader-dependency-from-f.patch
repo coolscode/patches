@@ -1,0 +1,136 @@
+From 3d83d79046db5392c43498bc4d61a6c344c0850b Mon Sep 17 00:00:00 2001
+From: jhenrique09 <jhsv09@gmail.com>
+Date: Thu, 7 Apr 2022 22:42:57 +0000
+Subject: [PATCH 9/10] SystemUI: Remove colorSurfaceHeader dependency from framework
+
+* This also fixes color issues on Pixel Launcher app drawer
+
+Change-Id: I5f5cc189ac7f8f12c70b2a7fc8c8f2ce24f7e62f
+---
+ core/res/res/values-night/values.xml                        | 1 -
+ .../SystemUI}/res/color/surface_header_dark_sysui.xml       | 2 +-
+ packages/SystemUI/res/values-night/custom_styles.xml        | 5 +++++
+ packages/SystemUI/res/values-night/styles.xml               | 2 +-
+ packages/SystemUI/res/values/custom_attrs.xml               | 6 ++++++
+ packages/SystemUI/res/values/custom_styles.xml              | 6 ++++++
+ packages/SystemUI/res/values/styles.xml                     | 4 ++--
+ .../android/systemui/statusbar/phone/ScrimController.java   | 2 +-
+ 8 files changed, 22 insertions(+), 6 deletions(-)
+ rename {core/res => packages/SystemUI}/res/color/surface_header_dark_sysui.xml (90%)
+ create mode 100644 packages/SystemUI/res/values-night/custom_styles.xml
+ create mode 100644 packages/SystemUI/res/values/custom_attrs.xml
+ create mode 100644 packages/SystemUI/res/values/custom_styles.xml
+
+diff --git a/core/res/res/values-night/values.xml b/core/res/res/values-night/values.xml
+index 0683c20a4a4c..1571fab66a5b 100644
+--- a/core/res/res/values-night/values.xml
++++ b/core/res/res/values-night/values.xml
+@@ -22,7 +22,6 @@
+         <item name="colorSecondary">@color/secondary_device_default_settings</item>
+         <item name="colorAccent">@color/accent_device_default_dark</item>
+         <item name="colorError">@color/error_color_device_default_dark</item>
+-        <item name="colorSurfaceHeader">@color/surface_header_dark_sysui</item>
+         <item name="colorControlNormal">?attr/textColorPrimary</item>
+         <item name="alertDialogTheme">@style/Theme.DeviceDefault.Dialog.Alert</item>
+         <item name="forceDarkAllowed">false</item>
+diff --git a/core/res/res/color/surface_header_dark_sysui.xml b/packages/SystemUI/res/color/surface_header_dark_sysui.xml
+similarity index 90%
+rename from core/res/res/color/surface_header_dark_sysui.xml
+rename to packages/SystemUI/res/color/surface_header_dark_sysui.xml
+index ec070c96f91a..5ba835b79213 100644
+--- a/core/res/res/color/surface_header_dark_sysui.xml
++++ b/packages/SystemUI/res/color/surface_header_dark_sysui.xml
+@@ -14,5 +14,5 @@
+      limitations under the License.
+ -->
+ <selector xmlns:android="http://schemas.android.com/apk/res/android">
+-    <item android:color="@color/system_neutral1_500" android:lStar="5" />
++    <item android:color="@*android:color/system_neutral1_500" android:lStar="5" />
+ </selector>
+diff --git a/packages/SystemUI/res/values-night/custom_styles.xml b/packages/SystemUI/res/values-night/custom_styles.xml
+new file mode 100644
+index 000000000000..8b5306086ac7
+--- /dev/null
++++ b/packages/SystemUI/res/values-night/custom_styles.xml
+@@ -0,0 +1,5 @@
++<resources>
++    <style name="Theme.DeviceDefault.SystemUI" parent="@*android:Theme.DeviceDefault.SystemUI">
++        <item name="colorSurfaceHeader">@color/surface_header_dark_sysui</item>
++    </style>
++</resources>
+diff --git a/packages/SystemUI/res/values-night/styles.xml b/packages/SystemUI/res/values-night/styles.xml
+index 897f7ae00824..c49dcda80be4 100644
+--- a/packages/SystemUI/res/values-night/styles.xml
++++ b/packages/SystemUI/res/values-night/styles.xml
+@@ -24,7 +24,7 @@
+         <item name="android:windowIsFloating">true</item>
+     </style>
+ 
+-    <style name="Theme.SystemUI.QuickSettings" parent="@*android:style/Theme.DeviceDefault.SystemUI">
++    <style name="Theme.SystemUI.QuickSettings" parent="@style/Theme.DeviceDefault.SystemUI">
+         <item name="lightIconTheme">@style/QSIconTheme</item>
+         <item name="darkIconTheme">@style/QSIconTheme</item>
+         <item name="android:colorError">@*android:color/error_color_material_dark</item>
+diff --git a/packages/SystemUI/res/values/custom_attrs.xml b/packages/SystemUI/res/values/custom_attrs.xml
+new file mode 100644
+index 000000000000..2dc1210bc47b
+--- /dev/null
++++ b/packages/SystemUI/res/values/custom_attrs.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <declare-styleable name="ScrimView">
++        <attr name="colorSurfaceHeader" format="color" />
++    </declare-styleable>
++</resources>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/values/custom_styles.xml b/packages/SystemUI/res/values/custom_styles.xml
+new file mode 100644
+index 000000000000..10a47f4bb4ff
+--- /dev/null
++++ b/packages/SystemUI/res/values/custom_styles.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
++    <style name="Theme.DeviceDefault.SystemUI" parent="@*android:Theme.DeviceDefault.SystemUI">
++        <item name="colorSurfaceHeader">?androidprv:attr/colorSurfaceHeader</item>
++    </style>
++</resources>
+diff --git a/packages/SystemUI/res/values/styles.xml b/packages/SystemUI/res/values/styles.xml
+index ba0361de6e8b..c1979bfcae36 100644
+--- a/packages/SystemUI/res/values/styles.xml
++++ b/packages/SystemUI/res/values/styles.xml
+@@ -269,7 +269,7 @@
+ 
+     <!-- Standard animations for hiding and showing the status bar. -->
+ 
+-    <style name="Theme.SystemUI" parent="@*android:style/Theme.DeviceDefault.SystemUI">
++    <style name="Theme.SystemUI" parent="@style/Theme.DeviceDefault.SystemUI">
+         <item name="lightIconTheme">@style/DualToneLightTheme</item>
+         <item name="darkIconTheme">@style/DualToneDarkTheme</item>
+         <item name="wallpaperTextColor">@*android:color/primary_text_material_dark</item>
+@@ -326,7 +326,7 @@
+         <item name="*android:dotColor">?android:attr/textColorSecondary</item>
+     </style>
+ 
+-    <style name="Theme.SystemUI.QuickSettings" parent="@*android:style/Theme.DeviceDefault.SystemUI">
++    <style name="Theme.SystemUI.QuickSettings" parent="@style/Theme.DeviceDefault.SystemUI">
+         <item name="lightIconTheme">@style/QSIconTheme</item>
+         <item name="darkIconTheme">@style/QSIconTheme</item>
+         <item name="android:colorError">@*android:color/error_color_material_light</item>
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
+index 00db68981eb6..47bc89f0e1a9 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/ScrimController.java
+@@ -1217,7 +1217,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
+         int background = Utils.getColorAttr(mScrimBehind.getContext(),
+                 android.R.attr.colorBackgroundFloating).getDefaultColor();
+         int surfaceBackground = Utils.getColorAttr(mScrimBehind.getContext(),
+-                com.android.internal.R.attr.colorSurfaceHeader).getDefaultColor();
++                R.attr.colorSurfaceHeader).getDefaultColor();
+         int accent = Utils.getColorAccent(mScrimBehind.getContext()).getDefaultColor();
+ 
+         mColors.setMainColor(background);
+-- 
+2.32.0
+

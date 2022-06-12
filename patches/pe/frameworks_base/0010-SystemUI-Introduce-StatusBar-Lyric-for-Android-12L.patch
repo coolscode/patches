@@ -1,0 +1,1926 @@
+From 022bbc0434f0d6d80574a38bf679b123d86c0978 Mon Sep 17 00:00:00 2001
+From: cjybyjk <cjybyjk@users.noreply.github.com>
+Date: Sun, 12 Jun 2022 22:04:37 +0800
+Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L Also
+ modify PixelPropsUtils
+
+Co-authored-by: Undying-yueyue <orgtech007@gmail.com>
+Co-authored-by: AngelaCooljx <cool@gayhub.eu.org>
+Change-Id: Ie95dfffc189c83145f6cca7da91a54fa0a4e4ecf
+---
+ core/api/current.txt                          |   2 +
+ core/java/android/app/Notification.java       |   5 +
+ core/java/android/provider/Settings.java      |   7 +
+ core/java/android/widget/ImageSwitcher.java   |  16 +
+ core/java/android/widget/TextSwitcher.java    |  11 +
+ .../internal/util/custom/PixelPropsUtils.java |  35 ++
+ packages/SystemUI/res/layout/status_bar.xml   |  13 +
+ .../res/layout/status_bar_lyric_ticker.xml    |  61 +++
+ .../SystemUI/res/values/custom_dimens.xml     |   6 +
+ .../SystemUI/res/values/custom_styles.xml     |   6 +
+ .../statusbar/NotificationMediaManager.java   |  15 +
+ .../NotificationEntryManager.java             |  33 ++
+ .../dagger/NotificationsModule.java           |   2 +
+ .../init/NotificationsControllerImpl.kt       |   2 +
+ .../interruption/HeadsUpController.java       |  12 +
+ .../systemui/statusbar/phone/LyricTicker.java | 199 ++++++++
+ .../systemui/statusbar/phone/StatusBar.java   | 230 ++++++++-
+ .../phone/StatusBarNotificationPresenter.java |   5 +
+ .../systemui/statusbar/phone/Ticker.java      | 436 ++++++++++++++++++
+ .../systemui/statusbar/phone/TickerView.java  |  47 ++
+ .../phone/dagger/StatusBarViewModule.java     |   6 +
+ .../fragment/CollapsedStatusBarFragment.java  |  39 ++
+ .../window/StatusBarWindowController.java     |   2 +-
+ .../android/systemui/util/LyricTextView.java  | 142 ++++++
+ 24 files changed, 1327 insertions(+), 5 deletions(-)
+ create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
+ create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
+ create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
+ create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java
+ create mode 100644 packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
+
+diff --git a/core/api/current.txt b/core/api/current.txt
+index 1dd401d0..1ecc42d7 100644
+--- a/core/api/current.txt
++++ b/core/api/current.txt
+@@ -5730,6 +5730,8 @@ package android.app {
+     field public static final int FLAG_BUBBLE = 4096; // 0x1000
+     field public static final int FLAG_FOREGROUND_SERVICE = 64; // 0x40
+     field public static final int FLAG_GROUP_SUMMARY = 512; // 0x200
++    field public static final int FLAG_ALWAYS_SHOW_TICKER = 16777216; // 0x1000000
++    field public static final int FLAG_ONLY_UPDATE_TICKER = 33554432; // 0x2000000
+     field @Deprecated public static final int FLAG_HIGH_PRIORITY = 128; // 0x80
+     field public static final int FLAG_INSISTENT = 4; // 0x4
+     field public static final int FLAG_LOCAL_ONLY = 256; // 0x100
+diff --git a/core/java/android/app/Notification.java b/core/java/android/app/Notification.java
+index 2c02be7d..8b613f3c 100644
+--- a/core/java/android/app/Notification.java
++++ b/core/java/android/app/Notification.java
+@@ -694,6 +694,11 @@ public class Notification implements Parcelable
+      */
+     public static final int FLAG_BUBBLE = 0x00001000;
+ 
++    public static final int FLAG_ALWAYS_SHOW_TICKER = 0x1000000;
++
++    public static final int FLAG_ONLY_UPDATE_TICKER = 0x2000000;
++
++
+     private static final List<Class<? extends Style>> PLATFORM_STYLE_CLASSES = Arrays.asList(
+             BigTextStyle.class, BigPictureStyle.class, InboxStyle.class, MediaStyle.class,
+             DecoratedCustomViewStyle.class, DecoratedMediaCustomViewStyle.class,
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index 62600fc4..d656b74f 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -7216,6 +7216,13 @@ public final class Settings {
+         @Readable
+         public static final String USER_SETUP_COMPLETE = "user_setup_complete";
+ 
++	/**
++         * Whether to show the lyric on the status bar
++         * @hide
++         */
++	@Readable
++        public static final String STATUS_BAR_SHOW_LYRIC = "status_bar_show_lyric";
++
+         /**
+          * Indicates that the user has not started setup personalization.
+          * One of the possible states for {@link #USER_SETUP_PERSONALIZATION_STATE}.
+diff --git a/core/java/android/widget/ImageSwitcher.java b/core/java/android/widget/ImageSwitcher.java
+index 112fcc31..24729230 100644
+--- a/core/java/android/widget/ImageSwitcher.java
++++ b/core/java/android/widget/ImageSwitcher.java
+@@ -82,6 +82,22 @@ public class ImageSwitcher extends ViewSwitcher
+         showNext();
+     }
+ 
++    /**
++     * @hide
++     */
++    public void setImageDrawableTint(Drawable drawable, int tint, boolean isGrayscale)
++    {
++        ImageView image = (ImageView)this.getNextView();
++        if (isGrayscale) {
++            drawable.setTint(tint);
++            image.setImageDrawable(drawable);
++        } else  {
++            image.setImageDrawable(drawable);
++            image.setImageTintList(null);
++        }
++        showNext();
++    }
++
+     /**
+      * Sets a new drawable on the ImageSwitcher.
+      * This will set that drawable on the next ImageView in the switcher and will
+diff --git a/core/java/android/widget/TextSwitcher.java b/core/java/android/widget/TextSwitcher.java
+index ecd9a8cf..ca16c9dc 100644
+--- a/core/java/android/widget/TextSwitcher.java
++++ b/core/java/android/widget/TextSwitcher.java
+@@ -93,4 +93,15 @@ public class TextSwitcher extends ViewSwitcher {
+     public CharSequence getAccessibilityClassName() {
+         return TextSwitcher.class.getName();
+     }
++
++    /**
++     * Sets the color of the text view that is currently showing.
++     *
++     * @param color the text color to display
++     * @hide
++     */
++    public void setTextColor(int color) {
++        ((TextView)getCurrentView()).setTextColor(color);
++    }
++
+ }
+diff --git a/core/java/com/android/internal/util/custom/PixelPropsUtils.java b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
+index 8111d6ea..5db52ef5 100644
+--- a/core/java/com/android/internal/util/custom/PixelPropsUtils.java
++++ b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2020 The Pixel Experience Project
++ * Copyright (C) 2021-2022 Miku UI
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -52,6 +53,16 @@ public class PixelPropsUtils {
+             "com.google.android.apps.photos"
+     };
+ 
++    private static final Map<String, Object> propsToChangeMeizu;
++    private static final String[] packagesToChangeMeizu = {
++            "com.netease.cloudmusic",
++            "com.tencent.qqmusic",
++            "com.kugou.android",
++            "cmccwm.mobilemusic",
++            "cn.kuwo.player",
++            "com.meizu.media.music"
++    };
++
+     private static final Map<String, ArrayList<String>> propsToKeep;
+     private static final String[] extraPackagesToChange = {
+             "com.android.chrome",
+@@ -116,6 +127,13 @@ public class PixelPropsUtils {
+         propsToChangePixelXL.put("PRODUCT", "marlin");
+         propsToChangePixelXL.put("MODEL", "Pixel XL");
+         propsToChangePixelXL.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
++        propsToChangeMeizu = new HashMap<>();
++        propsToChangeMeizu.put("BRAND", "meizu");
++        propsToChangeMeizu.put("MANUFACTURER", "meizu");
++        propsToChangeMeizu.put("DEVICE", "meizu18");
++        propsToChangeMeizu.put("PRODUCT", "meizu_18_CN");
++        propsToChangeMeizu.put("MODEL", "MEIZU 18");
++        propsToChangeMeizu.put("FINGERPRINT", "meizu/meizu_18_CN/meizu18:11/RKQ1.201105.002/1607588916:user/release-keys");
+     }
+ 
+     public static void setProps(String packageName) {
+@@ -151,6 +169,23 @@ public class PixelPropsUtils {
+                 setPropValue(key, value);
+             }
+         }
++        if ((Arrays.asList(packagesToChangeMeizu).contains(packageName))) {
++            Map<String, Object> propsToChange = propsToChangePixel6;
++
++            propsToChange = propsToChangeMeizu;
++
++            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
++            for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
++                String key = prop.getKey();
++                Object value = prop.getValue();
++                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
++                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
++                    continue;
++                }
++                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
++                setPropValue(key, value);
++            }
++        }
+         if (isPixelDevice){
+             if (packageName.equals("com.google.android.gms")){
+                 setPropValue("MODEL", "Pixel 5a");
+diff --git a/packages/SystemUI/res/layout/status_bar.xml b/packages/SystemUI/res/layout/status_bar.xml
+index 2b722f19..9d9d11f0 100644
+--- a/packages/SystemUI/res/layout/status_bar.xml
++++ b/packages/SystemUI/res/layout/status_bar.xml
+@@ -56,6 +56,19 @@
+ 
+             <include layout="@layout/heads_up_status_bar_layout" />
+ 
++            <FrameLayout
++                android:layout_width="match_parent"
++                android:layout_height="match_parent"
++                android:id="@+id/lyric_container">
++                <ViewStub
++                    android:id="@+id/lyric_stub"
++                    android:inflatedId="@+id/lyric"
++                    android:layout="@layout/status_bar_lyric_ticker"
++                    android:layout_width="match_parent"
++                    android:layout_height="match_parent"
++                />
++            </FrameLayout>
++        
+             <!-- The alpha of the left side is controlled by PhoneStatusBarTransitions, and the
+              individual views are controlled by StatusBarManager disable flags DISABLE_CLOCK and
+              DISABLE_NOTIFICATION_ICONS, respectively -->
+diff --git a/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml b/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
+new file mode 100644
+index 00000000..4b618fcb
+--- /dev/null
++++ b/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
+@@ -0,0 +1,61 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++  - Copyright 2014, The Android Open Source Project
++  -           2020 The exTHmUI Open Source Project
++  -
++  - Licensed under the Apache License, Version 2.0 (the "License");
++  - you may not use this file except in compliance with the License.
++  - You may obtain a copy of the License at
++  -
++  -     http://www.apache.org/licenses/LICENSE-2.0
++  -
++  - Unless required by applicable law or agreed to in writing, software
++  - distributed under the License is distributed on an "AS IS" BASIS,
++  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  - See the License for the specific language governing permissions and
++  - limitations under the License.
++  -->
++<com.android.keyguard.AlphaOptimizedLinearLayout
++    android:id="@+id/lyric"
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:gravity="center_vertical"
++    android:animationCache="false"
++    android:orientation="horizontal">
++
++    <ImageSwitcher android:id="@+id/lyricIcon"
++        android:layout_width="@dimen/status_bar_icon_size"
++        android:layout_height="@dimen/status_bar_icon_size"
++        android:layout_marginEnd="@dimen/ticker_icon_end_margin"
++        >
++        <com.android.systemui.statusbar.AnimatedImageView
++            android:layout_width="@dimen/status_bar_icon_size"
++            android:layout_height="@dimen/status_bar_icon_size"
++            android:scaleType="centerInside"
++            />
++        <com.android.systemui.statusbar.AnimatedImageView
++            android:layout_width="@dimen/status_bar_icon_size"
++            android:layout_height="@dimen/status_bar_icon_size"
++            android:scaleType="centerInside"
++            />
++    </ImageSwitcher>
++    <com.android.systemui.statusbar.phone.TickerView android:id="@+id/lyricText"
++        android:layout_width="0dip"
++        android:layout_weight="1"
++        android:layout_height="wrap_content"
++        android:paddingEnd="@dimen/ticker_text_end_padding">
++        <com.android.systemui.util.LyricTextView
++            android:textAppearance="@style/TextAppearance.StatusBar.PhoneTicker"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:singleLine="true"
++            />
++        <com.android.systemui.util.LyricTextView
++            android:textAppearance="@style/TextAppearance.StatusBar.PhoneTicker"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:singleLine="true"
++            />
++    </com.android.systemui.statusbar.phone.TickerView>
++</com.android.keyguard.AlphaOptimizedLinearLayout>
+diff --git a/packages/SystemUI/res/values/custom_dimens.xml b/packages/SystemUI/res/values/custom_dimens.xml
+index a274f66b..1016f972 100644
+--- a/packages/SystemUI/res/values/custom_dimens.xml
++++ b/packages/SystemUI/res/values/custom_dimens.xml
+@@ -11,4 +11,10 @@
+ 
+     <!-- Floating rotation button margin when on 2-button navbar mode -->
+     <dimen name="floating_rotation_button_min_margin_navbar">60dp</dimen>
++
++    <!-- Status bar notification ticker -->
++    <dimen name="ticker_start_padding">6dp</dimen>
++    <dimen name="ticker_icon_end_margin">4dp</dimen>
++    <dimen name="ticker_top_padding">2dp</dimen>
++    <dimen name="ticker_text_end_padding">10dp</dimen>
+ </resources>
+diff --git a/packages/SystemUI/res/values/custom_styles.xml b/packages/SystemUI/res/values/custom_styles.xml
+index 10a47f4b..68182623 100644
+--- a/packages/SystemUI/res/values/custom_styles.xml
++++ b/packages/SystemUI/res/values/custom_styles.xml
+@@ -3,4 +3,10 @@
+     <style name="Theme.DeviceDefault.SystemUI" parent="@*android:Theme.DeviceDefault.SystemUI">
+         <item name="colorSurfaceHeader">?androidprv:attr/colorSurfaceHeader</item>
+     </style>
++    <!-- Status bar notification ticker -->
++    <style name="TextAppearance.StatusBar.PhoneTicker" parent="@*android:style/TextAppearance.StatusBar">
++        <!-- Note: must be dp to fit in status bar -->
++        <item name="android:textSize">14.0sp</item>
++        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
++    </style>
+ </resources>
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
+index 119eed77..8db9a530 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
+@@ -448,6 +448,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable
+ 
+     public void findAndUpdateMediaNotifications() {
+         boolean metaDataChanged;
++        NotificationEntry mediaNotification = null;
++	final Optional<StatusBar> statusBarOptional = mStatusBarOptionalLazy.get();
+         if (mUsingNotifPipeline) {
+             // TODO(b/169655907): get the semi-filtered notifications for current user
+             Collection<NotificationEntry> allNotifications = mNotifPipeline.getAllNotifs();
+@@ -460,6 +462,19 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable
+ 
+             if (metaDataChanged) {
+                 mEntryManager.updateNotifications("NotificationMediaManager - metaDataChanged");
++            if (PlaybackState.STATE_PLAYING ==
++                    getMediaControllerPlaybackState(mMediaController) &&
++                    statusBarOptional.map(StatusBar::isMusicTickerEnabled).orElse(false) &&
++                    mediaNotification != null && mMediaMetadata != null) {
++                StatusBarNotification entry = mediaNotification.getSbn();
++                mMainExecutor.executeDelayed(() -> {
++                    mStatusBarOptionalLazy.get().ifPresent(
++			statusBar -> statusBar.tick(entry, true, true, mMediaMetadata, null)
++		    );
++                }, 600);
++            } else {
++                mStatusBarOptionalLazy.get().ifPresent(StatusBar::resetTrackInfo);
++            }
+             }
+ 
+         }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
+index 8bc41c20..c06f0744 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
+@@ -29,6 +29,7 @@ import android.service.notification.NotificationListenerService;
+ import android.service.notification.NotificationListenerService.Ranking;
+ import android.service.notification.NotificationListenerService.RankingMap;
+ import android.service.notification.StatusBarNotification;
++import android.text.TextUtils;
+ import android.util.ArrayMap;
+ import android.util.ArraySet;
+ import android.util.Log;
+@@ -57,6 +58,7 @@ import com.android.systemui.statusbar.notification.collection.notifcollection.Di
+ import com.android.systemui.statusbar.notification.collection.notifcollection.NotifCollectionListener;
+ import com.android.systemui.statusbar.notification.dagger.NotificationsModule;
+ import com.android.systemui.statusbar.notification.logging.NotificationLogger;
++import com.android.systemui.statusbar.phone.StatusBar;
+ import com.android.systemui.util.Assert;
+ import com.android.systemui.util.leak.LeakDetector;
+ 
+@@ -101,6 +103,11 @@ public class NotificationEntryManager implements
+         VisualStabilityManager.Callback {
+ 
+     private final NotificationEntryManagerLogger mLogger;
++    private final KeyguardEnvironment mKeyguardEnvironment;
++
++    // We need reference to status bar for notification ticker
++    private StatusBar mStatusBar;
++
+     private final NotificationGroupManagerLegacy mGroupManager;
+     private final FeatureFlags mFeatureFlags;
+     private final Lazy<NotificationRowBinder> mNotificationRowBinderLazy;
+@@ -154,6 +161,7 @@ public class NotificationEntryManager implements
+             Lazy<NotificationRemoteInputManager> notificationRemoteInputManagerLazy,
+             LeakDetector leakDetector,
+             ForegroundServiceDismissalFeatureController fgsFeatureController,
++            KeyguardEnvironment keyguardEnvironment,
+             IStatusBarService statusBarService,
+             DumpManager dumpManager
+     ) {
+@@ -165,6 +173,7 @@ public class NotificationEntryManager implements
+         mLeakDetector = leakDetector;
+         mFgsFeatureController = fgsFeatureController;
+         mStatusBarService = statusBarService;
++        mKeyguardEnvironment = keyguardEnvironment;
+         mDumpManager = dumpManager;
+     }
+ 
+@@ -673,6 +682,21 @@ public class NotificationEntryManager implements
+             return;
+         }
+ 
++        Notification n = notification.getNotification();
++        boolean isForCurrentUser = mKeyguardEnvironment
++                .isNotificationForCurrentProfiles(notification);
++        if (DEBUG) {
++            // Is this for you?
++            Log.d(TAG, "notification is " + (isForCurrentUser ? "" : "not ") + "for you");
++        }
++
++        if (mStatusBar != null && isForCurrentUser) {
++            mStatusBar.updateLyricTicker(notification);
++        }
++        if ((n.flags & Notification.FLAG_ONLY_UPDATE_TICKER) != 0) {
++            return;
++        }
++
+         // Notification is updated so it is essentially re-added and thus alive again.  Don't need
+         // to keep its lifetime extended.
+         cancelLifetimeExtension(entry);
+@@ -700,6 +724,10 @@ public class NotificationEntryManager implements
+ 
+         updateNotifications("updateNotificationInternal");
+ 
++        boolean updateTicker = oldSbn.getNotification().tickerText != null
++                && !TextUtils.equals(oldSbn.getNotification().tickerText,
++                entry.getSbn().getNotification().tickerText);
++
+         for (NotificationEntryListener listener : mNotificationEntryListeners) {
+             listener.onPostEntryUpdated(entry);
+         }
+@@ -988,4 +1016,9 @@ public class NotificationEntryManager implements
+      * (e.g. {@link NotificationListenerService#REASON_CANCEL})
+      */
+     public static final int UNDEFINED_DISMISS_REASON = 0;
++
++    public void setStatusBar(StatusBar statusBar) {
++        mStatusBar = statusBar;
++    }
++
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
+index 1eb007e3..743a69e6 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
+@@ -118,6 +118,7 @@ public interface NotificationsModule {
+             Lazy<NotificationRemoteInputManager> notificationRemoteInputManagerLazy,
+             LeakDetector leakDetector,
+             ForegroundServiceDismissalFeatureController fgsFeatureController,
++            NotificationEntryManager.KeyguardEnvironment keyguardEnvironment,
+             IStatusBarService statusBarService,
+             DumpManager dumpManager) {
+         return new NotificationEntryManager(
+@@ -128,6 +129,7 @@ public interface NotificationsModule {
+                 notificationRemoteInputManagerLazy,
+                 leakDetector,
+                 fgsFeatureController,
++                keyguardEnvironment,
+                 statusBarService,
+                 dumpManager);
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt b/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
+index 11b0429d..0a86a779 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
+@@ -129,6 +129,8 @@ class NotificationsControllerImpl @Inject constructor(
+             groupAlertTransferHelper.setHeadsUpManager(headsUpManager)
+ 
+             entryManager.initialize(notificationListener, legacyRanker)
++            entryManager.setStatusBar(statusBar)
++            headsUpController.setStatusBar(statusBar)
+         }
+ 
+         peopleSpaceWidgetManager.attach(notificationListener)
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
+index b1c69e44..8dc0b195 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
+@@ -32,6 +32,7 @@ import com.android.systemui.statusbar.notification.NotificationEntryManager;
+ import com.android.systemui.statusbar.notification.collection.NotificationEntry;
+ import com.android.systemui.statusbar.notification.collection.legacy.VisualStabilityManager;
+ import com.android.systemui.statusbar.notification.collection.notifcollection.NotifCollectionListener;
++import com.android.systemui.statusbar.phone.StatusBar;
+ import com.android.systemui.statusbar.policy.HeadsUpManager;
+ import com.android.systemui.statusbar.policy.OnHeadsUpChangedListener;
+ 
+@@ -52,6 +53,9 @@ public class HeadsUpController {
+     private final NotificationListener mNotificationListener;
+     private final HeadsUpManager mHeadsUpManager;
+ 
++    // We need reference to status bar for notification ticker
++    private StatusBar mStatusBar;
++
+     @Inject
+     HeadsUpController(
+             HeadsUpViewBinder headsUpViewBinder,
+@@ -86,6 +90,10 @@ public class HeadsUpController {
+             if (mInterruptStateProvider.shouldHeadsUp(entry)) {
+                 mHeadsUpViewBinder.bindHeadsUpView(
+                         entry, HeadsUpController.this::showAlertingView);
++            } else {
++                if (mStatusBar != null) {
++                    mStatusBar.tick(entry.getSbn(), true, false, null, null);
++                }
+             }
+         }
+ 
+@@ -181,5 +189,9 @@ public class HeadsUpController {
+         }
+     };
+ 
++    public void setStatusBar(StatusBar statusBar) {
++        mStatusBar = statusBar;
++    }
++
+     private static final String TAG = "HeadsUpBindController";
+ }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
+new file mode 100644
+index 00000000..18841233
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
+@@ -0,0 +1,199 @@
++/*
++ * Copyright (C) 2008 The Android Open Source Project
++ *               2020 The exTHmUI Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.statusbar.phone;
++
++import android.app.Notification;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.res.ColorStateList;
++import android.content.res.Resources;
++import android.graphics.drawable.Drawable;
++import android.graphics.Rect;
++import android.media.MediaMetadata;
++import android.os.Handler;
++import android.service.notification.StatusBarNotification;
++import android.text.Layout.Alignment;
++import android.text.StaticLayout;
++import android.text.TextPaint;
++import android.text.TextUtils;
++import android.view.animation.AlphaAnimation;
++import android.view.animation.Animation;
++import android.view.animation.AnimationUtils;
++import android.view.animation.Interpolator;
++import android.view.View;
++import android.widget.ImageSwitcher;
++import android.widget.TextSwitcher;
++import android.widget.TextView;
++
++import com.android.internal.statusbar.StatusBarIcon;
++import com.android.internal.util.ContrastColorUtil;
++import com.android.systemui.Dependency;
++import com.android.systemui.R;
++import com.android.systemui.plugins.DarkIconDispatcher;
++import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
++import com.android.systemui.statusbar.StatusBarIconView;
++
++import java.util.ArrayList;
++
++public abstract class LyricTicker implements DarkReceiver {
++
++    private Context mContext;
++    private ImageSwitcher mIconSwitcher;
++    private TextSwitcher mTextSwitcher;
++    private int mIconTint =  0xffffffff;
++    private int mTextColor = 0xffffffff;
++
++    private CharSequence mCurrentText;
++    private StatusBarNotification mCurrentNotification;
++
++    private Drawable icon;
++
++    private ContrastColorUtil mNotificationColorUtil;
++
++    private Animation mAnimationIn;
++    private Animation mAnimationOut;
++
++    public LyricTicker(Context context, View tickerLayout) {
++        mContext = context;
++
++        updateAnimation();
++
++        mNotificationColorUtil = ContrastColorUtil.getInstance(mContext);
++
++        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
++    }
++
++    public void updateAnimation() {
++        mAnimationIn = AnimationUtils.loadAnimation(mContext,
++                com.android.internal.R.anim.push_up_in);
++        mAnimationOut = AnimationUtils.loadAnimation(mContext,
++                com.android.internal.R.anim.push_up_out);
++        
++        if (mTextSwitcher != null && mIconSwitcher != null) {
++            setViewAnimations();
++        }
++    }
++
++    private boolean isNotificationEquals(StatusBarNotification a, StatusBarNotification b) {
++        return a != null && b != null && TextUtils.equals(a.getPackageName(), b.getPackageName()) && a.getId() == b.getId();
++    }
++
++    public void updateNotification(StatusBarNotification n) {
++
++        Notification notification = n.getNotification();
++
++        boolean isLyric = ((notification.flags & Notification.FLAG_ALWAYS_SHOW_TICKER) != 0)
++                        && ((notification.flags & Notification.FLAG_ONLY_UPDATE_TICKER) != 0);
++
++        if (!isLyric) {
++            if (isNotificationEquals(n, mCurrentNotification)) {
++                mCurrentNotification = null;
++                stopTicker();
++            }
++            return;
++        }
++
++        mCurrentText = notification.tickerText;
++
++        if (!isNotificationEquals(mCurrentNotification, n) || notification.extras.getBoolean("ticker_icon_switch", false)) {
++            mCurrentNotification = n;
++            int iconId = notification.extras.getInt("ticker_icon", notification.icon);
++            icon = StatusBarIconView.getIcon(mContext, n.getPackageContext(mContext),
++            new StatusBarIcon(n.getPackageName(), n.getUser(), iconId, notification.iconLevel, 0,
++                notification.tickerText));
++
++            mIconSwitcher.setAnimateFirstView(false);
++            mIconSwitcher.reset();
++            setAppIconColor(icon);
++
++            mTextSwitcher.setAnimateFirstView(false);
++            mTextSwitcher.reset();
++            mTextSwitcher.setText(mCurrentText);
++            mTextSwitcher.setTextColor(mTextColor);
++
++            tickerStarting();
++        } else {
++            mTextSwitcher.setText(mCurrentText);
++            mTextSwitcher.setTextColor(mTextColor);
++        }
++
++    }
++
++    public void removeEntry(StatusBarNotification n) {
++        if (isNotificationEquals(n, mCurrentNotification)) {
++            stopTicker();
++        }
++    }
++
++    public void halt() {
++        tickerHalting();
++        mCurrentNotification = null;
++    }
++
++    private void stopTicker() {
++        tickerDone();
++        mCurrentNotification = null;
++    }
++
++    public void setViews(TextSwitcher ts, ImageSwitcher is) {
++        mTextSwitcher = ts;
++        mIconSwitcher = is;
++
++        setViewAnimations();
++    }
++
++    private void setViewAnimations() {
++        if (mIconSwitcher == null || mTextSwitcher == null) return;
++        mTextSwitcher.setInAnimation(mAnimationIn);
++        mTextSwitcher.setOutAnimation(mAnimationOut);
++        mIconSwitcher.setInAnimation(mAnimationIn);
++        mIconSwitcher.setOutAnimation(mAnimationOut);
++    }
++
++    public void reflowText() {
++        mTextSwitcher.setCurrentText(mCurrentText);
++        mTextSwitcher.setTextColor(mTextColor);
++    }
++
++    public abstract void tickerStarting();
++    public abstract void tickerDone();
++    public abstract void tickerHalting();
++
++    public void setTextColor(int color) {
++        mTextColor = color;
++    }
++
++    @Override
++    public void onDarkChanged(Rect area, float darkIntensity, int tint) {}
++
++    public void applyDarkIntensity(Rect area, View v, int tint) {
++        mTextColor = DarkIconDispatcher.getTint(area, v, tint);
++        mIconTint = mTextColor;
++        if (mCurrentNotification == null) return;
++        if (mTextSwitcher != null) mTextSwitcher.setTextColor(mTextColor);
++        if (mIconSwitcher != null) {
++            mIconSwitcher.reset();
++            setAppIconColor(icon);
++        }
++    }
++
++    private void setAppIconColor(Drawable icon) {
++        boolean isGrayscale = mNotificationColorUtil.isGrayscaleIcon(icon);
++        mIconSwitcher.setImageDrawableTint(icon, mIconTint, isGrayscale);
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
+index 58fcb13c..38723f82 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
+@@ -76,6 +76,10 @@ import android.content.pm.ResolveInfo;
+ import android.content.res.Configuration;
+ import android.graphics.Point;
+ import android.graphics.PointF;
++import android.graphics.Rect;
++import android.graphics.drawable.GradientDrawable;
++import android.hardware.display.DisplayManager;
++import android.media.MediaMetadata;
+ import android.hardware.display.DisplayManager;
+ import android.metrics.LogMaker;
+ import android.net.Uri;
+@@ -116,7 +120,16 @@ import android.view.WindowInsetsController.Appearance;
+ import android.view.WindowManager;
+ import android.view.WindowManagerGlobal;
+ import android.view.accessibility.AccessibilityManager;
++import android.view.animation.AlphaAnimation;
++import android.view.animation.Animation;
++import android.view.animation.AnimationUtils;
++import android.view.animation.Interpolator;
+ import android.widget.DateTimeView;
++import android.widget.FrameLayout;
++import android.widget.ImageButton;
++import android.widget.ImageSwitcher;
++import android.widget.ImageView;
++import android.widget.LinearLayout;
+ 
+ import androidx.annotation.NonNull;
+ import androidx.lifecycle.Lifecycle;
+@@ -233,6 +246,8 @@ import com.android.systemui.statusbar.phone.fragment.CollapsedStatusBarFragmentL
+ import com.android.systemui.statusbar.phone.fragment.dagger.StatusBarFragmentComponent;
+ import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallController;
+ import com.android.systemui.statusbar.phone.panelstate.PanelExpansionStateManager;
++import com.android.systemui.statusbar.phone.Ticker;
++import com.android.systemui.statusbar.phone.TickerView;
+ import com.android.systemui.statusbar.policy.BatteryController;
+ import com.android.systemui.statusbar.policy.BrightnessMirrorController;
+ import com.android.systemui.statusbar.policy.BurnInProtectionController;
+@@ -298,6 +313,9 @@ public class StatusBar extends SystemUI implements
+             "com.android.systemui.statusbar.banner_action_cancel";
+     private static final String BANNER_ACTION_SETUP =
+             "com.android.systemui.statusbar.banner_action_setup";
++    private static final String STATUS_BAR_SHOW_LYRIC =
++            Settings.Secure.STATUS_BAR_SHOW_LYRIC;
++
+     public static final String TAG = "StatusBar";
+     public static final boolean DEBUG = false;
+     public static final boolean SPEW = false;
+@@ -544,10 +562,27 @@ public class StatusBar extends SystemUI implements
+     private final StatusBarIconController mStatusBarIconController;
+     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
+ 
++    // viewgroup containing the normal contents of the statusbar
++    LinearLayout mStatusBarContent;
++    // Other views that need hiding for the notification ticker
++    View mCenterArea;
++
++    LinearLayout mStatusBarLeftSide;
++    View mCenteredIconArea;
++
+     // expanded notifications
+     // the sliding/resizing panel within the notification window
+     protected NotificationPanelViewController mNotificationPanelViewController;
+ 
++    // status bar notification ticker
++    private int mTickerEnabled;
++    private Ticker mTicker;
++
++    // lyric ticker
++    public LyricTicker mLyricTicker;
++    private boolean mLyricTicking;
++    public boolean mLyricEnabled;
++
+     // settings
+     private QSPanelController mQSPanelController;
+ 
+@@ -1001,6 +1036,8 @@ public class StatusBar extends SystemUI implements
+ 
+         mDisplayManager = mContext.getSystemService(DisplayManager.class);
+ 
++        mTunerService.addTunable(this, STATUS_BAR_SHOW_LYRIC);
++
+         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+         mDreamManager = IDreamManager.Stub.asInterface(
+                 ServiceManager.checkService(DreamService.DREAM_SERVICE));
+@@ -1245,6 +1282,9 @@ public class StatusBar extends SystemUI implements
+                     mLightsOutNotifController.setLightsOutNotifView(
+                             mStatusBarView.findViewById(R.id.notification_lights_out));
+                     mNotificationShadeWindowViewController.setStatusBarView(mStatusBarView);
++                    mStatusBarContent = (LinearLayout) mStatusBarView.findViewById(R.id.status_bar_contents);
++                    mStatusBarLeftSide = (LinearLayout) mStatusBarView.findViewById(R.id.status_bar_left_side);
++                    mCenteredIconArea = mStatusBarView.findViewById(R.id.centered_icon_area);
+                     checkBarModes();
+                     mBurnInProtectionController.setPhoneStatusBarView(mStatusBarView);
+                 }).getFragmentManager()
+@@ -1721,6 +1761,18 @@ public class StatusBar extends SystemUI implements
+         return mStatusBarWindowController.getStatusBarHeight();
+     }
+ 
++    public void createLyricTicker(Context ctx, View statusBarView,
++                             TickerView tickerTextView, ImageSwitcher tickerIcon, View tickerView) {
++        mLyricEnabled = true;
++        if (mLyricTicker == null) {
++            mLyricTicker = new MyLyricTicker(ctx, statusBarView);
++        }
++        ((MyLyricTicker)mLyricTicker).setView(tickerView);
++        tickerTextView.setLyricTicker(mLyricTicker);
++        mLyricTicker.setViews(tickerTextView, tickerIcon);
++        tickerView.setVisibility(View.GONE);
++    }
++
+     public boolean toggleSplitScreenMode(int metricsDockAction, int metricsUndockAction) {
+         if (!mSplitScreenOptional.isPresent()) {
+             return false;
+@@ -1755,8 +1807,8 @@ public class StatusBar extends SystemUI implements
+      * If the user switcher is simple then disable QS during setup because
+      * the user intends to use the lock screen user switcher, QS in not needed.
+      */
+-    void updateQsExpansionEnabled() {
+-        final boolean expandEnabled = mDeviceProvisionedController.isDeviceProvisioned()
++    public void updateQsExpansionEnabled() {
++        final boolean expandEnabled = isDeviceProvisioned()
+                 && (mUserSetup || mUserSwitcherController == null
+                         || !mUserSwitcherController.isSimpleUserSwitcher())
+                 && !isShadeDisabled()
+@@ -2049,6 +2101,10 @@ public class StatusBar extends SystemUI implements
+         return shouldAnimateLaunch(isActivityIntent, false /* showOverLockscreen */);
+     }
+ 
++    public boolean isDeviceProvisioned() {
++        return mDeviceProvisionedController.isDeviceProvisioned();
++    }
++
+     public boolean isDeviceInVrMode() {
+         return mPresenter.isDeviceInVrMode();
+     }
+@@ -2488,6 +2544,156 @@ public class StatusBar extends SystemUI implements
+         }
+     }
+ 
++    public void tick(StatusBarNotification n, boolean firstTime, boolean isMusic,
++                      MediaMetadata metaMediaData, String notificationText) {
++        if (mTicker == null || mTickerEnabled == 0) return;
++
++        // no ticking on keyguard, we have carrier name in the statusbar
++        if (isKeyguardShowing()) return;
++
++        // no ticking in Setup
++        if (!isDeviceProvisioned()) return;
++
++        // not for you
++        if (!isNotificationForCurrentProfiles(n)) return;
++
++        boolean isLyric = ((n.getNotification().flags & Notification.FLAG_ALWAYS_SHOW_TICKER) != 0)
++                            || ((n.getNotification().flags & Notification.FLAG_ONLY_UPDATE_TICKER) != 0);
++        if (isLyric) return;
++
++
++        // Show the ticker if one is requested. Also don't do this
++        // until status bar window is attached to the window manager,
++        // because...  well, what's the point otherwise?  And trying to
++        // run a ticker without being attached will crash!
++        if ((!isMusic ? (n.getNotification().tickerText != null) : (metaMediaData != null))
++                && mStatusBarWindowController.mStatusBarWindowView != null && mStatusBarWindowController.mStatusBarWindowView.getWindowToken() != null) {
++            if (0 == (mDisabled1 & (StatusBarManager.DISABLE_NOTIFICATION_ICONS
++                    | StatusBarManager.DISABLE_NOTIFICATION_TICKER))) {
++                mTicker.addEntry(n, isMusic, metaMediaData, notificationText);
++            }
++        }
++    }
++
++    public void updateLyricTicker(StatusBarNotification n) {
++        if (!mLyricEnabled || mLyricTicker == null) return;
++        mLyricTicker.updateNotification(n);
++    }
++
++    private class MyLyricTicker extends LyricTicker {
++        // the inflated ViewStub
++        public View mTickerView;
++
++        MyLyricTicker(Context context, View sb) {
++            super(context, sb);
++            if (!mLyricEnabled) {
++                Log.w(TAG, "MyLyricTicker instantiated with mLyricEnabled=false", new Throwable());
++            }
++        }
++
++        public void setView(View tv) {
++            mTickerView = tv;
++        }
++
++        @Override
++        public void tickerStarting() {
++            if (mLyricTicker == null || !mLyricEnabled) return;
++            mLyricTicking = true;
++            Animation outAnim, inAnim;
++            outAnim = loadAnim(com.android.internal.R.anim.push_up_out, null);
++            inAnim = loadAnim(com.android.internal.R.anim.push_up_in, null);
++            mStatusBarLeftSide.setVisibility(View.GONE);
++            mStatusBarLeftSide.startAnimation(outAnim);
++            mCenteredIconArea.setVisibility(View.GONE);
++            mCenteredIconArea.startAnimation(outAnim);
++            if (mTickerView != null) {
++                mTickerView.setVisibility(View.VISIBLE);
++                mTickerView.startAnimation(inAnim);
++            }
++        }
++
++        @Override
++        public void tickerDone() {
++            Animation outAnim, inAnim;
++            outAnim = loadAnim(com.android.internal.R.anim.push_up_out, mTickingDoneListener);
++            inAnim = loadAnim(com.android.internal.R.anim.push_up_in, null);
++            mStatusBarLeftSide.setVisibility(View.VISIBLE);
++            mStatusBarLeftSide.startAnimation(inAnim);
++            mCenteredIconArea.setVisibility(View.VISIBLE);
++            mCenteredIconArea.startAnimation(inAnim);
++            if (mTickerView != null) {
++                mTickerView.setVisibility(View.GONE);
++                mTickerView.startAnimation(outAnim);
++            }
++        }
++
++        @Override
++        public void tickerHalting() {
++            if (mStatusBarLeftSide.getVisibility() != View.VISIBLE) {
++                mStatusBarLeftSide.setVisibility(View.VISIBLE);
++                mStatusBarLeftSide.startAnimation(loadAnim(false, null));
++                mCenteredIconArea.setVisibility(View.VISIBLE);
++                mCenteredIconArea.startAnimation(loadAnim(false, null));
++            }
++            if (mTickerView != null) {
++                mTickerView.setVisibility(View.GONE);
++                // we do not animate the ticker away at this point, just get rid of it (b/6992707)
++            }
++        }
++
++        @Override
++        public void onDarkChanged(Rect area, float darkIntensity, int tint) {
++            applyDarkIntensity(area, mTickerView, tint);
++        }
++
++        Animation.AnimationListener mTickingDoneListener = new Animation.AnimationListener() {
++            public void onAnimationEnd(Animation animation) {
++                mLyricTicking = false;
++            }
++            public void onAnimationRepeat(Animation animation) {
++            }
++            public void onAnimationStart(Animation animation) {
++            }
++        };
++    }
++
++    private Animation loadAnim(boolean outAnim, Animation.AnimationListener listener) {
++        AlphaAnimation animation = new AlphaAnimation((outAnim ? 1.0f : 0.0f), (outAnim ? 0.0f : 1.0f));
++        Interpolator interpolator = AnimationUtils.loadInterpolator(mContext,
++                (outAnim ? android.R.interpolator.accelerate_quad : android.R.interpolator.decelerate_quad));
++        animation.setInterpolator(interpolator);
++        animation.setDuration(350);
++
++        if (listener != null) {
++            animation.setAnimationListener(listener);
++        }
++        return animation;
++    }
++
++    private Animation loadAnim(int id, Animation.AnimationListener listener) {
++        Animation anim = AnimationUtils.loadAnimation(mContext, id);
++        if (listener != null) {
++            anim.setAnimationListener(listener);
++        }
++        return anim;
++    }
++
++    public boolean isMusicTickerEnabled() {
++        return mLyricTicker != null && mLyricEnabled != false;
++    }
++
++    public void resetTrackInfo() {
++        if (mTicker != null) {
++            mTicker.resetShownMediaMetadata();
++        }
++    }
++
++    public void haltLyricTicker() {
++        if (mLyricTicker != null && mLyricEnabled) {
++            mLyricTicker.halt();
++        }
++    }
++
+     public static String viewInfo(View v) {
+         return "[(" + v.getLeft() + "," + v.getTop() + ")(" + v.getRight() + "," + v.getBottom()
+                 + ") " + v.getWidth() + "x" + v.getHeight() + "]";
+@@ -2670,7 +2876,7 @@ public class StatusBar extends SystemUI implements
+             final boolean dismissShade, final boolean disallowEnterPictureInPictureWhileLaunching,
+             final Callback callback, int flags,
+             @Nullable ActivityLaunchAnimator.Controller animationController) {
+-        if (onlyProvisioned && !mDeviceProvisionedController.isDeviceProvisioned()) return;
++        if (onlyProvisioned && !isDeviceProvisioned()) return;
+ 
+         final boolean willLaunchResolverActivity =
+                 mActivityIntentHelper.wouldLaunchResolverActivity(intent,
+@@ -3388,6 +3594,9 @@ public class StatusBar extends SystemUI implements
+      * Switches theme from light to dark and vice-versa.
+      */
+     protected void updateTheme() {
++
++        haltLyricTicker();
++
+         // Lock wallpaper defines the color of the majority of the views, hence we'll use it
+         // to set our default theme.
+         final boolean lockDarkText = mColorExtractor.getNeutralColors().supportsDarkText();
+@@ -4072,6 +4281,15 @@ public class StatusBar extends SystemUI implements
+         return mDeviceInteractive;
+     }
+ 
++    public boolean isNotificationForCurrentProfiles(StatusBarNotification n) {
++        final int notificationUserId = n.getUserId();
++        if (DEBUG && MULTIUSER_DEBUG) {
++            Log.v(TAG, String.format("%s: current userid: %d, notification userid: %d", n,
++                    mLockscreenUserManager.getCurrentUserId(), notificationUserId));
++        }
++        return mLockscreenUserManager.isCurrentProfile(notificationUserId);
++    }
++
+     private final BroadcastReceiver mBannerActionBroadcastReceiver = new BroadcastReceiver() {
+         @Override
+         public void onReceive(Context context, Intent intent) {
+@@ -4129,7 +4347,7 @@ public class StatusBar extends SystemUI implements
+      */
+     private void executeActionDismissingKeyguard(Runnable action, boolean afterKeyguardGone,
+             boolean collapsePanel, boolean willAnimateOnKeyguard) {
+-        if (!mDeviceProvisionedController.isDeviceProvisioned()) return;
++        if (!isDeviceProvisioned()) return;
+ 
+         OnDismissAction onDismissAction = new OnDismissAction() {
+             @Override
+@@ -4413,6 +4631,10 @@ public class StatusBar extends SystemUI implements
+ 
+     @Override
+     public void onTuningChanged(String key, String newValue) {
++        if (STATUS_BAR_SHOW_LYRIC.equals(key)) {
++            mLyricEnabled =
++                    TunerService.parseIntegerSwitch(newValue, false);
++        }
+         if (NAVIGATION_BAR_SHOW.equals(key) && mDisplayId == Display.DEFAULT_DISPLAY &&
+                 mWindowManagerService != null) {
+             boolean navbarEnabled = NavbarUtils.isEnabled(mContext);
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
+index ecd5c985..9b424250 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
+@@ -225,6 +225,11 @@ public class StatusBarNotificationPresenter implements NotificationPresenter,
+                 && !mNotificationPanel.isQsExpanded()
+                 && mStatusBarStateController.getState() == StatusBarState.SHADE_LOCKED
+                 && !isCollapsing()) {
++            /** if (mStatusBar != null && mStatusBar.mLyricTicker != null && mStatusBar.mLyricEnabled) {
++                try {
++                    mStatusBar.mLyricTicker.removeEntry(old);
++                } catch (Exception e) {}
++            } */
+             mStatusBarStateController.setState(StatusBarState.KEYGUARD);
+         }
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
+new file mode 100644
+index 00000000..76757d1d
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
+@@ -0,0 +1,436 @@
++/*
++ * Copyright (C) 2008 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.statusbar.phone;
++
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.res.ColorStateList;
++import android.content.res.Resources;
++import android.graphics.drawable.Drawable;
++import android.graphics.Rect;
++import android.media.MediaMetadata;
++import android.os.Handler;
++import android.service.notification.StatusBarNotification;
++import android.text.Layout.Alignment;
++import android.text.StaticLayout;
++import android.text.TextPaint;
++import android.view.animation.AlphaAnimation;
++import android.view.animation.Animation;
++import android.view.animation.AnimationUtils;
++import android.view.animation.Interpolator;
++import android.view.View;
++import android.widget.ImageSwitcher;
++import android.widget.TextSwitcher;
++import android.widget.TextView;
++
++import com.android.internal.statusbar.StatusBarIcon;
++import com.android.internal.util.ContrastColorUtil;
++import com.android.systemui.R;
++import com.android.systemui.Dependency;
++import com.android.systemui.plugins.DarkIconDispatcher;
++import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
++
++import com.android.systemui.statusbar.StatusBarIconView;
++
++import java.util.ArrayList;
++
++public abstract class Ticker implements DarkReceiver {
++
++    private Context mContext;
++    private Handler mHandler = new Handler();
++    private ArrayList<Segment> mSegments = new ArrayList();
++    private TextPaint mPaint;
++    private ImageSwitcher mIconSwitcher;
++    private TextSwitcher mTextSwitcher;
++    private float mIconScale;
++    private int mIconTint =  0xffffffff;
++    private int mTextColor = 0xffffffff;
++    private int mTickerSegmentDelay = 3000;
++
++    private MediaMetadata mShowingMediaMetadata;
++    private String mShowingNotificationText;
++
++    private ContrastColorUtil mNotificationColorUtil;
++
++    public static boolean isGraphicOrEmoji(char c) {
++        int gc = Character.getType(c);
++        return     gc != Character.CONTROL
++                && gc != Character.FORMAT
++                && gc != Character.UNASSIGNED
++                && gc != Character.LINE_SEPARATOR
++                && gc != Character.PARAGRAPH_SEPARATOR
++                && gc != Character.SPACE_SEPARATOR;
++    }
++
++    private Animation mAnimationIn;
++    private Animation mAnimationOut;
++
++    private final class Segment {
++        StatusBarNotification notification;
++        Drawable icon;
++        CharSequence text;
++        int current;
++        int next;
++        boolean first;
++
++        StaticLayout getLayout(CharSequence substr) {
++            int w = mTextSwitcher.getWidth() - mTextSwitcher.getPaddingLeft()
++                    - mTextSwitcher.getPaddingRight();
++            if (w > 0) {
++                return new StaticLayout(substr, mPaint, w, Alignment.ALIGN_NORMAL, 1, 0, true);
++            }
++            return null;
++        }
++
++        CharSequence rtrim(CharSequence substr, int start, int end) {
++            while (end > start && !isGraphicOrEmoji(substr.charAt(end-1))) {
++                end--;
++            }
++            if (end > start) {
++                return substr.subSequence(start, end);
++            }
++            return null;
++        }
++
++        /** returns null if there is no more text */
++        CharSequence getText() {
++            if (this.current > this.text.length()) {
++                return null;
++            }
++            CharSequence substr = this.text.subSequence(this.current, this.text.length());
++            StaticLayout l = getLayout(substr);
++            if (l == null) {
++                return null;
++            }
++            int lineCount = l.getLineCount();
++            if (lineCount > 0) {
++                int start = l.getLineStart(0);
++                int end = l.getLineEnd(0);
++                this.next = this.current + end;
++                return rtrim(substr, start, end);
++            } else {
++                throw new RuntimeException("lineCount=" + lineCount + " current=" + current +
++                        " text=" + text);
++            }
++        }
++
++        /** returns null if there is no more text */
++        CharSequence advance() {
++            this.first = false;
++            int index = this.next;
++            final int len = this.text.length();
++            while (index < len && !isGraphicOrEmoji(this.text.charAt(index))) {
++                index++;
++            }
++            if (index >= len) {
++                return null;
++            }
++
++            CharSequence substr = this.text.subSequence(index, this.text.length());
++            StaticLayout l = getLayout(substr);
++            if (l == null) {
++                return null;
++            }
++            final int lineCount = l.getLineCount();
++            int i;
++            for (i=0; i<lineCount; i++) {
++                int start = l.getLineStart(i);
++                int end = l.getLineEnd(i);
++                if (i == lineCount-1) {
++                    this.next = len;
++                } else {
++                    this.next = index + l.getLineStart(i+1);
++                }
++                CharSequence result = rtrim(substr, start, end);
++                if (result != null) {
++                    this.current = index + start;
++                    return result;
++                }
++            }
++            this.current = len;
++            return null;
++        }
++
++        Segment(StatusBarNotification n, Drawable icon, CharSequence text) {
++            this.notification = n;
++            this.icon = icon;
++            this.text = text;
++            int index = 0;
++            final int len = text.length();
++            while (index < len && !isGraphicOrEmoji(text.charAt(index))) {
++                index++;
++            }
++            this.current = index;
++            this.next = index;
++            this.first = true;
++        }
++    };
++
++    public Ticker(Context context, View tickerLayout, int animationMode, int tickDuration) {
++        mContext = context;
++        final Resources res = context.getResources();
++        final int outerBounds = res.getDimensionPixelSize(R.dimen.status_bar_icon_size);
++        final int imageBounds = res.getDimensionPixelSize(R.dimen.status_bar_icon_drawing_size);
++        mIconScale = (float)imageBounds / (float)outerBounds;
++
++        updateAnimation(animationMode);
++        updateTickDuration(tickDuration);
++
++        mNotificationColorUtil = ContrastColorUtil.getInstance(mContext);
++
++        Dependency.get(DarkIconDispatcher.class).addDarkReceiver(this);
++    }
++
++    public void updateAnimation(int animationMode) {
++        if (animationMode == 1) {
++            mAnimationIn = AnimationUtils.loadAnimation(mContext,
++                    com.android.internal.R.anim.push_up_in);
++            mAnimationOut = AnimationUtils.loadAnimation(mContext,
++                    com.android.internal.R.anim.push_up_out);
++        } else {
++            mAnimationIn = new AlphaAnimation(0.0f, 1.0f);
++            Interpolator interpolatorIn = AnimationUtils.loadInterpolator(mContext,
++                    android.R.interpolator.decelerate_quad);
++            mAnimationIn.setInterpolator(interpolatorIn);
++            mAnimationIn.setDuration(350);
++
++            mAnimationOut = new AlphaAnimation(1.0f, 0.0f);
++            Interpolator interpolatorOut = AnimationUtils.loadInterpolator(mContext,
++                    android.R.interpolator.accelerate_quad);
++            mAnimationOut.setInterpolator(interpolatorOut);
++            mAnimationOut.setDuration(350);
++        }
++        if (mTextSwitcher != null && mIconSwitcher != null) {
++            setViewAnimations();
++        }
++    }
++
++    public void updateTickDuration(int duration) {
++        mTickerSegmentDelay = duration;
++    }
++
++
++    public void addEntry(StatusBarNotification n, boolean isMusic, MediaMetadata mediaMetaData, String notificationText) {
++        int initialCount = mSegments.size();
++        ContentResolver resolver = mContext.getContentResolver();
++
++        if (isMusic && mediaMetaData != null) {
++            CharSequence artist = mediaMetaData.getText(MediaMetadata.METADATA_KEY_ARTIST);
++            CharSequence album = mediaMetaData.getText(MediaMetadata.METADATA_KEY_ALBUM);
++            CharSequence title = mediaMetaData.getText(MediaMetadata.METADATA_KEY_TITLE);
++            if (artist != null || album != null || title != null) {
++                if (mShowingMediaMetadata == mediaMetaData) {
++                    // Already shown
++                    return;
++                }
++                mShowingMediaMetadata = mediaMetaData;
++                String builder = "";
++                if (artist != null)
++                    builder = artist.toString();
++                if (artist != null && album != null)
++                    builder = builder + " - ";
++                if (album != null)
++                    builder = builder + album.toString();
++                if ((artist != null || album != null) && title != null)
++                    builder = builder + " - ";
++                if (title != null)
++                    builder = builder + title.toString();
++
++                n.getNotification().tickerText = builder;
++            } else if (notificationText != null) {
++                if (mShowingNotificationText != null && notificationText.equals(mShowingNotificationText)) {
++                    // Already shown
++                    return;
++                }
++                mShowingNotificationText = notificationText;
++                n.getNotification().tickerText = notificationText;
++            } else {
++                return;
++            }
++        }
++
++        // If what's being displayed has the same text and icon, just drop it
++        // (which will let the current one finish, this happens when apps do
++        // a notification storm).
++        if (initialCount > 0) {
++            final Segment seg = mSegments.get(0);
++            if (n.getPackageName().equals(seg.notification.getPackageName())
++                    && n.getNotification().icon == seg.notification.getNotification().icon
++                    && n.getNotification().iconLevel == seg.notification.getNotification().iconLevel
++                    && charSequencesEqual(seg.notification.getNotification().tickerText,
++                    n.getNotification().tickerText)) {
++                return;
++            }
++        }
++
++        final Drawable icon = StatusBarIconView.getIcon(mContext, n.getPackageContext(mContext),
++            new StatusBarIcon(n.getPackageName(), n.getUser(), n.getNotification().icon, n.getNotification().iconLevel, 0,
++                        n.getNotification().tickerText));
++        final CharSequence text = n.getNotification().tickerText;
++        final Segment newSegment = new Segment(n, icon, text);
++
++        // If there's already a notification schedule for this package and id, remove it.
++        for (int i=0; i<mSegments.size(); i++) {
++            Segment seg = mSegments.get(i);
++            if (n.getId() == seg.notification.getId() && n.getPackageName().equals(seg.notification.getPackageName())) {
++                // just update that one to use this new data instead
++                mSegments.remove(i--); // restart iteration here
++            }
++        }
++
++        mSegments.add(newSegment);
++
++        if (initialCount == 0 && mSegments.size() > 0) {
++            Segment seg = mSegments.get(0);
++            seg.first = false;
++
++            mIconSwitcher.setAnimateFirstView(false);
++            mIconSwitcher.reset();
++            setAppIconColor(seg.icon);
++
++            mTextSwitcher.setAnimateFirstView(false);
++            mTextSwitcher.reset();
++            mTextSwitcher.setText(seg.getText());
++            mTextSwitcher.setTextColor(mTextColor);
++
++            tickerStarting();
++            scheduleAdvance();
++        }
++    }
++
++    private static boolean charSequencesEqual(CharSequence a, CharSequence b) {
++        if (a.length() != b.length()) {
++            return false;
++        }
++
++        int length = a.length();
++        for (int i = 0; i < length; i++) {
++            if (a.charAt(i) != b.charAt(i)) {
++                return false;
++            }
++        }
++        return true;
++    }
++
++    public void removeEntry(StatusBarNotification n) {
++        for (int i=mSegments.size()-1; i>=0; i--) {
++            Segment seg = mSegments.get(i);
++            if (n.getId() == seg.notification.getId() && n.getPackageName().equals(seg.notification.getPackageName())) {
++                mSegments.remove(i);
++            }
++        }
++    }
++
++    public void halt() {
++        mHandler.removeCallbacks(mAdvanceTicker);
++        mSegments.clear();
++        tickerHalting();
++    }
++
++    public void resetShownMediaMetadata() {
++        mShowingMediaMetadata = null;
++        mShowingNotificationText = null;
++    }
++
++    public void setViews(TextSwitcher ts, ImageSwitcher is) {
++        mTextSwitcher = ts;
++        // Copy the paint style of one of the TextSwitchers children to use later for measuring
++        TextView text = (TextView) mTextSwitcher.getChildAt(0);
++        mPaint = text.getPaint();
++
++        mIconSwitcher = is;
++        mIconSwitcher.setScaleX(mIconScale);
++        mIconSwitcher.setScaleY(mIconScale);
++
++        setViewAnimations();
++    }
++
++    private void setViewAnimations() {
++        mTextSwitcher.setInAnimation(mAnimationIn);
++        mTextSwitcher.setOutAnimation(mAnimationOut);
++        mIconSwitcher.setInAnimation(mAnimationIn);
++        mIconSwitcher.setOutAnimation(mAnimationOut);
++    }
++
++    public void reflowText() {
++        if (mSegments.size() > 0) {
++            Segment seg = mSegments.get(0);
++            CharSequence text = seg.getText();
++            mTextSwitcher.setCurrentText(text);
++            mTextSwitcher.setTextColor(mTextColor);
++        }
++    }
++
++    private Runnable mAdvanceTicker = new Runnable() {
++        public void run() {
++            while (mSegments.size() > 0) {
++                Segment seg = mSegments.get(0);
++
++                if (seg.first) {
++                    // this makes the icon slide in for the first one for a given
++                    // notification even if there are two notifications with the
++                    // same icon in a row
++                    setAppIconColor(seg.icon);
++                }
++                CharSequence text = seg.advance();
++                if (text == null) {
++                    mSegments.remove(0);
++                    continue;
++                }
++                mTextSwitcher.setText(text);
++                mTextSwitcher.setTextColor(mTextColor);
++
++                scheduleAdvance();
++                break;
++            }
++            if (mSegments.size() == 0) {
++                tickerDone();
++            }
++        }
++    };
++
++    private void scheduleAdvance() {
++        mHandler.postDelayed(mAdvanceTicker, mTickerSegmentDelay);
++    }
++
++    public abstract void tickerStarting();
++    public abstract void tickerDone();
++    public abstract void tickerHalting();
++
++    public void setTextColor(int color) {
++        mTextColor = color;
++    }
++
++    @Override
++    public void onDarkChanged(Rect area, float darkIntensity, int tint) {}
++
++    public void applyDarkIntensity(Rect area, View v, int tint) {
++        mTextColor = DarkIconDispatcher.getTint(area, v, tint);
++        mIconTint = mTextColor;
++        if (mSegments.size() > 0) {
++            Segment seg = mSegments.get(0);
++            mTextSwitcher.setTextColor(mTextColor);
++            mIconSwitcher.reset();
++            setAppIconColor(seg.icon);
++        }
++    }
++
++    private void setAppIconColor(Drawable icon) {
++        boolean isGrayscale = mNotificationColorUtil.isGrayscaleIcon(icon);
++        mIconSwitcher.setImageDrawableTint(icon, mIconTint, isGrayscale);
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java
+new file mode 100644
+index 00000000..d7abbb61
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2008 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.statusbar.phone;
++
++import android.content.Context;
++import android.util.AttributeSet;
++import android.widget.TextSwitcher;
++import com.android.systemui.statusbar.phone.Ticker;
++
++public class TickerView extends TextSwitcher
++{
++    private Ticker mTicker;
++    private LyricTicker mLyricTicker;
++
++    public TickerView(Context context, AttributeSet attrs) {
++        super(context, attrs);
++    }
++
++    @Override
++    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
++        super.onSizeChanged(w, h, oldw, oldh);
++        if (mTicker != null) mTicker.reflowText();
++        if (mLyricTicker != null) mLyricTicker.reflowText();
++    }
++
++    public void setTicker(Ticker t) {
++        mTicker = t;
++    }
++
++    public void setLyricTicker(LyricTicker t) {
++        mLyricTicker = t;
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
+index 8750845e..cf8d9f59 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
+@@ -46,6 +46,7 @@ import com.android.systemui.statusbar.phone.NotificationPanelView;
+ import com.android.systemui.statusbar.phone.NotificationPanelViewController;
+ import com.android.systemui.statusbar.phone.NotificationShadeWindowView;
+ import com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer;
++import com.android.systemui.statusbar.phone.StatusBar;
+ import com.android.systemui.statusbar.phone.StatusBarHideIconsForBouncerManager;
+ import com.android.systemui.statusbar.phone.StatusBarIconController;
+ import com.android.systemui.statusbar.phone.StatusBarLocationPublisher;
+@@ -62,10 +63,13 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
+ import com.android.systemui.tuner.TunerService;
+ import com.android.systemui.util.settings.SecureSettings;
+ 
++import java.util.Optional;
++
+ import java.util.concurrent.Executor;
+ 
+ import javax.inject.Named;
+ 
++import dagger.Lazy;
+ import dagger.Module;
+ import dagger.Provides;
+ 
+@@ -252,6 +256,7 @@ public abstract class StatusBarViewModule {
+             NotificationIconAreaController notificationIconAreaController,
+             PanelExpansionStateManager panelExpansionStateManager,
+             FeatureFlags featureFlags,
++            Lazy<Optional<StatusBar>> statusBarOptionalLazy,
+             StatusBarIconController statusBarIconController,
+             StatusBarHideIconsForBouncerManager statusBarHideIconsForBouncerManager,
+             KeyguardStateController keyguardStateController,
+@@ -271,6 +276,7 @@ public abstract class StatusBarViewModule {
+                 notificationIconAreaController,
+                 panelExpansionStateManager,
+                 featureFlags,
++                statusBarOptionalLazy,
+                 statusBarIconController,
+                 statusBarHideIconsForBouncerManager,
+                 keyguardStateController,
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
+index 9bba47d6..cc8a1e27 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
+@@ -39,6 +39,7 @@ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.view.ViewStub;
++import android.widget.ImageSwitcher;
+ import android.widget.LinearLayout;
+ 
+ import com.android.systemui.Dependency;
+@@ -63,6 +64,7 @@ import com.android.systemui.statusbar.phone.ClockController;
+ import com.android.systemui.statusbar.phone.NotificationIconAreaController;
+ import com.android.systemui.statusbar.phone.NotificationPanelViewController;
+ import com.android.systemui.statusbar.phone.PhoneStatusBarView;
++import com.android.systemui.statusbar.phone.StatusBar;
+ import com.android.systemui.statusbar.phone.StatusBarHideIconsForBouncerManager;
+ import com.android.systemui.statusbar.phone.StatusBarIconController;
+ import com.android.systemui.statusbar.phone.StatusBarIconController.DarkIconManager;
+@@ -71,6 +73,7 @@ import com.android.systemui.statusbar.phone.fragment.dagger.StatusBarFragmentCom
+ import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallController;
+ import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallListener;
+ import com.android.systemui.statusbar.phone.panelstate.PanelExpansionStateManager;
++import com.android.systemui.statusbar.phone.TickerView;
+ import com.android.systemui.statusbar.policy.EncryptionHelper;
+ import com.android.systemui.statusbar.policy.KeyguardStateController;
+ import com.android.systemui.tuner.TunerService;
+@@ -82,9 +85,12 @@ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.List;
+ import java.util.concurrent.Executor;
++import java.util.Optional;
+ 
+ import javax.inject.Inject;
+ 
++import dagger.Lazy;
++
+ /**
+  * Contains the collapsed status bar and handles hiding/showing based on disable flags
+  * and keyguard state. Also manages lifecycle to make sure the views it contains are being
+@@ -111,11 +117,14 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+     private View mCenteredIconArea;
+     private int mDisabled1;
+     private int mDisabled2;
++    private Lazy<Optional<StatusBar>> mStatusBarOptionalLazy;
+     private DarkIconManager mDarkIconManager;
+     private final StatusBarFragmentComponent.Factory mStatusBarFragmentComponentFactory;
+     private final CommandQueue mCommandQueue;
+     private final CollapsedStatusBarFragmentLogger mCollapsedStatusBarFragmentLogger;
+     private final OperatorNameViewController.Factory mOperatorNameViewControllerFactory;
++    private View mLyricViewFromStub;
++    private View mLyricViewContainer;
+     private final OngoingCallController mOngoingCallController;
+     private final SystemStatusAnimationScheduler mAnimationScheduler;
+     private final StatusBarLocationPublisher mLocationPublisher;
+@@ -155,6 +164,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+             NotificationIconAreaController notificationIconAreaController,
+             PanelExpansionStateManager panelExpansionStateManager,
+             FeatureFlags featureFlags,
++            Lazy<Optional<StatusBar>> statusBarOptionalLazy,
+             StatusBarIconController statusBarIconController,
+             StatusBarHideIconsForBouncerManager statusBarHideIconsForBouncerManager,
+             KeyguardStateController keyguardStateController,
+@@ -174,6 +184,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+         mNotificationIconAreaController = notificationIconAreaController;
+         mPanelExpansionStateManager = panelExpansionStateManager;
+         mFeatureFlags = featureFlags;
++        mStatusBarOptionalLazy = statusBarOptionalLazy;
+         mStatusBarIconController = statusBarIconController;
+         mStatusBarHideIconsForBouncerManager = statusBarHideIconsForBouncerManager;
+         mKeyguardStateController = keyguardStateController;
+@@ -218,6 +229,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+         showClock(false);
+         initEmergencyCryptkeeperText();
+         initOperatorName();
++        initLyricView();
+         initNotificationIconArea();
+         mAnimationScheduler.addCallback(this);
+         Dependency.get(TunerService.class).addTunable(this, StatusBarIconController.ICON_HIDE_LIST);
+@@ -352,9 +364,11 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+             if ((state1 & DISABLE_SYSTEM_INFO) != 0 || ((state2 & DISABLE2_SYSTEM_ICONS) != 0)) {
+                 hideSystemIconArea(animate);
+                 hideOperatorName(animate);
++                hideLyric(animate);
+             } else {
+                 showSystemIconArea(animate);
+                 showOperatorName(animate);
++                showLyric(animate);
+             }
+         }
+ 
+@@ -471,6 +485,18 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+         }
+     }
+ 
++    public void showLyric(boolean animate) {
++        if (mLyricViewContainer != null) {
++            animateShow(mLyricViewContainer, animate);
++        }
++    }
++
++    public void hideLyric(boolean animate) {
++        if (mLyricViewContainer != null) {
++            animateHide(mLyricViewContainer, animate);
++        }
++    }
++
+     private void hideClock(boolean animate) {
+         animateHiddenState(mClockController.getClock(), clockHiddenMode(), animate);
+     }
+@@ -616,6 +642,19 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
+         disable(getContext().getDisplayId(), mDisabled1, mDisabled2, false /* animate */);
+     }
+ 
++    private void initLyricView() {
++        mLyricViewContainer = mStatusBar.findViewById(R.id.lyric_container);
++        View lyricStub = mStatusBar.findViewById(R.id.lyric_stub);
++        if (mLyricViewFromStub == null && lyricStub != null) {
++            mLyricViewFromStub = ((ViewStub) lyricStub).inflate();
++        }
++        TickerView tickerView = (TickerView) mStatusBar.findViewById(R.id.lyricText);
++        ImageSwitcher tickerIcon = (ImageSwitcher) mStatusBar.findViewById(R.id.lyricIcon);
++        mStatusBarOptionalLazy.get().ifPresent(
++                statusBar -> statusBar.createLyricTicker(
++               getContext(), mStatusBar, tickerView, tickerIcon, mLyricViewFromStub));
++    }
++
+     @Override
+     public void onSystemChromeAnimationStart() {
+         if (mAnimationScheduler.getAnimationState() == ANIMATING_OUT
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java b/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
+index 85a6cd22..6b69c386 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
+@@ -70,7 +70,7 @@ public class StatusBarWindowController {
+     private int mBarHeight = -1;
+     private final State mCurrentState = new State();
+ 
+-    private final ViewGroup mStatusBarWindowView;
++    public final ViewGroup mStatusBarWindowView;
+     // The container in which we should run launch animations started from the status bar and
+     //   expanding into the opening window.
+     private final ViewGroup mLaunchAnimationContainer;
+diff --git a/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java b/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
+new file mode 100644
+index 00000000..667ae876
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
+@@ -0,0 +1,142 @@
++/*
++ * Copyright (C) 2019 The Android Open Source Project
++ *               2020 The exTHmUI Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.util;
++
++import android.content.Context;
++import android.graphics.Canvas;
++import android.graphics.Paint;
++import android.text.TextUtils;
++import android.util.AttributeSet;
++import android.widget.TextView;
++
++public class LyricTextView extends TextView {
++
++    private boolean isStop = true;
++    private float textLength = 0f;
++    private float viewWidth = 0f;
++    private float speed = 4f;
++    private float x = 0f;
++    private String text;
++
++    public static final int startScrollDelay = 500;
++    public static final int invalidateDelay = 10;
++
++    private Paint mPaint;
++
++    Runnable mStartScrollRunnable = new Runnable(){
++        @Override
++        public void run() {
++            startScroll();
++        }
++    };
++
++    public LyricTextView(Context context) {
++        this(context, null);
++    }
++
++    public LyricTextView(Context context, AttributeSet attrs) {
++        this(context, attrs, com.android.internal.R.attr.textViewStyle);
++    }
++
++    public LyricTextView(Context context, AttributeSet attrs, int defStyleAttr) {
++        this(context, attrs, defStyleAttr, 0);
++    }
++
++    public LyricTextView(Context context, AttributeSet attrs, int defStyleAttr,
++            int defStyleRes) {
++        super(context, attrs, defStyleAttr, defStyleRes);
++        mPaint = getPaint();
++    }
++
++    private void init() {
++        x = 0;
++        textLength = getTextLength();
++        viewWidth = getWidth();
++    }
++
++    @Override
++    protected void onDetachedFromWindow() {
++        removeCallbacks(mStartScrollRunnable);
++        super.onDetachedFromWindow();
++    }
++
++    @Override
++    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
++        super.onTextChanged(text, start, lengthBefore, lengthAfter);
++        stopScroll();
++        this.text = text.toString();
++        init();
++        postInvalidate();
++        postDelayed(mStartScrollRunnable, startScrollDelay);
++    }
++
++    @Override
++    public void setTextColor(int color) {
++        if (mPaint != null) mPaint.setColor(color);
++        postInvalidate();
++    }
++
++    @Override
++    protected void onDraw(Canvas canvas) {
++        if (canvas != null && text != null) {
++            float y = getHeight() / 2 + Math.abs(mPaint.ascent() + mPaint.descent()) / 2;
++            canvas.drawText(text, x, y, mPaint);
++        } 
++        if (!isStop) {
++            if (viewWidth - x + speed >= textLength) {
++                x = viewWidth > textLength ? 0 : viewWidth - textLength;
++                stopScroll();
++            } else {
++                x -= speed;
++            }
++            invalidateAfter(invalidateDelay);
++        }
++    }
++
++    private void invalidateAfter(long delay) {
++        removeCallbacks(invalidateRunnable);
++        postDelayed(invalidateRunnable, delay);
++    }
++
++    private Runnable invalidateRunnable = new Runnable() {
++        @Override
++        public void run() {
++            invalidate();
++        }
++    };
++
++    public void startScroll() {
++        init();
++        isStop = false;
++        postInvalidate();
++    }
++
++    public void stopScroll() {
++        isStop = true;
++        removeCallbacks(mStartScrollRunnable);
++        postInvalidate();
++    }
++
++    private float getTextLength() {
++        return mPaint == null ? 0 : mPaint.measureText(text);
++    }
++
++    public void setSpeed(float speed) {
++        this.speed = speed;
++    }
++}
+-- 
+2.36.1
+

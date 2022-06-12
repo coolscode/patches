@@ -20,7 +20,14 @@ done
 
 if [ $1 = kosp ];then
 echo ""
-echo "Adapt AOSP Krypton to CEZANNE"
+echo "Adapt AOSP-Krypton to CEZANNE"
+echo "Executing in 5 seconds - CTRL-C to exit"
+echo ""
+fi
+
+if [ $1 = pe ];then
+echo ""
+echo "Adapt Pixel-Experience to CEZANNE"
 echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 fi
