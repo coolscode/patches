@@ -3,14 +3,15 @@
 ### AOSP-Krypton 
 - Adapt to CEZANNE
 - StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)
-- More...
-### PixelExperience
+- Maybe more...
+### PixelExperience-Plus
 - Bring back kdrag0n's fix for the QS background on light theme (Thanks to [ponces'patch](https://github.com/ponces/treble_build_pe))
 - Adapt to CEZANNE
-- StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)
-- More...
+- StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)  
+(Note, patches are only suitable for ___twelve-plus___ branch!)
+- Maybe more...  
 
-First, please synchronize the source code of AOSP-Krypton
+First, please synchronize the source code of AOSP-Krypton or PixelExperience-Plus
 
 ```shell
 cd sourcedirectory
