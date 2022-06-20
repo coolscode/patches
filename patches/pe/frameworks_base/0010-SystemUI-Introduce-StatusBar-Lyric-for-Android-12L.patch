@@ -1,12 +1,13 @@
-From 022bbc0434f0d6d80574a38bf679b123d86c0978 Mon Sep 17 00:00:00 2001
+From fdab5f565f763c9bd35da825c91aa60ddfd25b4f Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@users.noreply.github.com>
-Date: Sun, 12 Jun 2022 22:04:37 +0800
-Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L Also
- modify PixelPropsUtils
+Date: Mon, 20 Jun 2022 10:44:59 +0800
+Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L
+
+Also modify PixelPropsUtils
 
 Co-authored-by: Undying-yueyue <orgtech007@gmail.com>
 Co-authored-by: AngelaCooljx <cool@gayhub.eu.org>
-Change-Id: Ie95dfffc189c83145f6cca7da91a54fa0a4e4ecf
+Change-Id: I2710f08b2e69f938ad533611f15b1820f0a594c9
 ---
  core/api/current.txt                          |   2 +
  core/java/android/app/Notification.java       |   5 +
@@ -24,7 +25,7 @@ Change-Id: Ie95dfffc189c83145f6cca7da91a54fa0a4e4ecf
  .../init/NotificationsControllerImpl.kt       |   2 +
  .../interruption/HeadsUpController.java       |  12 +
  .../systemui/statusbar/phone/LyricTicker.java | 199 ++++++++
- .../systemui/statusbar/phone/StatusBar.java   | 230 ++++++++-
+ .../systemui/statusbar/phone/StatusBar.java   | 229 ++++++++-
  .../phone/StatusBarNotificationPresenter.java |   5 +
  .../systemui/statusbar/phone/Ticker.java      | 436 ++++++++++++++++++
  .../systemui/statusbar/phone/TickerView.java  |  47 ++
@@ -32,7 +33,7 @@ Change-Id: Ie95dfffc189c83145f6cca7da91a54fa0a4e4ecf
  .../fragment/CollapsedStatusBarFragment.java  |  39 ++
  .../window/StatusBarWindowController.java     |   2 +-
  .../android/systemui/util/LyricTextView.java  | 142 ++++++
- 24 files changed, 1327 insertions(+), 5 deletions(-)
+ 24 files changed, 1326 insertions(+), 5 deletions(-)
  create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
@@ -321,7 +322,7 @@ index 10a47f4b..68182623 100644
 +    </style>
  </resources>
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
-index 119eed77..8db9a530 100644
+index 119eed77..cda04b01 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
 @@ -448,6 +448,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable
@@ -337,19 +338,19 @@ index 119eed77..8db9a530 100644
  
              if (metaDataChanged) {
                  mEntryManager.updateNotifications("NotificationMediaManager - metaDataChanged");
-+            if (PlaybackState.STATE_PLAYING ==
-+                    getMediaControllerPlaybackState(mMediaController) &&
-+                    statusBarOptional.map(StatusBar::isMusicTickerEnabled).orElse(false) &&
-+                    mediaNotification != null && mMediaMetadata != null) {
-+                StatusBarNotification entry = mediaNotification.getSbn();
-+                mMainExecutor.executeDelayed(() -> {
-+                    mStatusBarOptionalLazy.get().ifPresent(
-+			statusBar -> statusBar.tick(entry, true, true, mMediaMetadata, null)
-+		    );
-+                }, 600);
-+            } else {
-+                mStatusBarOptionalLazy.get().ifPresent(StatusBar::resetTrackInfo);
-+            }
++                if (PlaybackState.STATE_PLAYING ==
++                        getMediaControllerPlaybackState(mMediaController) &&
++                        statusBarOptional.map(StatusBar::isMusicTickerEnabled).orElse(false) &&
++                        mediaNotification != null && mMediaMetadata != null) {
++                    StatusBarNotification entry = mediaNotification.getSbn();
++                    mMainExecutor.executeDelayed(() -> {
++                        mStatusBarOptionalLazy.get().ifPresent(
++                            statusBar -> statusBar.tick(entry, true, true, mMediaMetadata, null)
++                            );
++                    }, 600);
++                } else {
++                    mStatusBarOptionalLazy.get().ifPresent(StatusBar::resetTrackInfo);
++                }
              }
  
          }
@@ -726,21 +727,21 @@ index 00000000..18841233
 +    }
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
-index 58fcb13c..38723f82 100644
+index 58fcb13c..08cfa992 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
-@@ -76,6 +76,10 @@ import android.content.pm.ResolveInfo;
+@@ -76,7 +76,10 @@ import android.content.pm.ResolveInfo;
  import android.content.res.Configuration;
  import android.graphics.Point;
  import android.graphics.PointF;
 +import android.graphics.Rect;
 +import android.graphics.drawable.GradientDrawable;
-+import android.hardware.display.DisplayManager;
-+import android.media.MediaMetadata;
  import android.hardware.display.DisplayManager;
++import android.media.MediaMetadata;
  import android.metrics.LogMaker;
  import android.net.Uri;
-@@ -116,7 +120,16 @@ import android.view.WindowInsetsController.Appearance;
+ import android.os.AsyncTask;
+@@ -116,7 +119,16 @@ import android.view.WindowInsetsController.Appearance;
  import android.view.WindowManager;
  import android.view.WindowManagerGlobal;
  import android.view.accessibility.AccessibilityManager;
@@ -757,7 +758,7 @@ index 58fcb13c..38723f82 100644
  
  import androidx.annotation.NonNull;
  import androidx.lifecycle.Lifecycle;
-@@ -233,6 +246,8 @@ import com.android.systemui.statusbar.phone.fragment.CollapsedStatusBarFragmentL
+@@ -233,6 +245,8 @@ import com.android.systemui.statusbar.phone.fragment.CollapsedStatusBarFragmentL
  import com.android.systemui.statusbar.phone.fragment.dagger.StatusBarFragmentComponent;
  import com.android.systemui.statusbar.phone.ongoingcall.OngoingCallController;
  import com.android.systemui.statusbar.phone.panelstate.PanelExpansionStateManager;
@@ -766,7 +767,7 @@ index 58fcb13c..38723f82 100644
  import com.android.systemui.statusbar.policy.BatteryController;
  import com.android.systemui.statusbar.policy.BrightnessMirrorController;
  import com.android.systemui.statusbar.policy.BurnInProtectionController;
-@@ -298,6 +313,9 @@ public class StatusBar extends SystemUI implements
+@@ -298,6 +312,9 @@ public class StatusBar extends SystemUI implements
              "com.android.systemui.statusbar.banner_action_cancel";
      private static final String BANNER_ACTION_SETUP =
              "com.android.systemui.statusbar.banner_action_setup";
@@ -776,7 +777,7 @@ index 58fcb13c..38723f82 100644
      public static final String TAG = "StatusBar";
      public static final boolean DEBUG = false;
      public static final boolean SPEW = false;
-@@ -544,10 +562,27 @@ public class StatusBar extends SystemUI implements
+@@ -544,10 +561,27 @@ public class StatusBar extends SystemUI implements
      private final StatusBarIconController mStatusBarIconController;
      private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
  
@@ -804,16 +805,16 @@ index 58fcb13c..38723f82 100644
      // settings
      private QSPanelController mQSPanelController;
  
-@@ -1001,6 +1036,8 @@ public class StatusBar extends SystemUI implements
- 
-         mDisplayManager = mContext.getSystemService(DisplayManager.class);
+@@ -994,6 +1028,8 @@ public class StatusBar extends SystemUI implements
+         mStatusBarStateController.addCallback(mStateListener,
+                 SysuiStatusBarStateController.RANK_STATUS_BAR);
  
 +        mTunerService.addTunable(this, STATUS_BAR_SHOW_LYRIC);
 +
-         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-         mDreamManager = IDreamManager.Stub.asInterface(
-                 ServiceManager.checkService(DreamService.DREAM_SERVICE));
-@@ -1245,6 +1282,9 @@ public class StatusBar extends SystemUI implements
+         mTunerService.addTunable(this, NAVIGATION_BAR_SHOW);
+         mTunerService.addTunable(this, SCREEN_BRIGHTNESS_MODE);
+         mTunerService.addTunable(this, STATUS_BAR_BRIGHTNESS_CONTROL);
+@@ -1245,6 +1281,9 @@ public class StatusBar extends SystemUI implements
                      mLightsOutNotifController.setLightsOutNotifView(
                              mStatusBarView.findViewById(R.id.notification_lights_out));
                      mNotificationShadeWindowViewController.setStatusBarView(mStatusBarView);
@@ -823,7 +824,7 @@ index 58fcb13c..38723f82 100644
                      checkBarModes();
                      mBurnInProtectionController.setPhoneStatusBarView(mStatusBarView);
                  }).getFragmentManager()
-@@ -1721,6 +1761,18 @@ public class StatusBar extends SystemUI implements
+@@ -1721,6 +1760,18 @@ public class StatusBar extends SystemUI implements
          return mStatusBarWindowController.getStatusBarHeight();
      }
  
@@ -842,7 +843,7 @@ index 58fcb13c..38723f82 100644
      public boolean toggleSplitScreenMode(int metricsDockAction, int metricsUndockAction) {
          if (!mSplitScreenOptional.isPresent()) {
              return false;
-@@ -1755,8 +1807,8 @@ public class StatusBar extends SystemUI implements
+@@ -1755,8 +1806,8 @@ public class StatusBar extends SystemUI implements
       * If the user switcher is simple then disable QS during setup because
       * the user intends to use the lock screen user switcher, QS in not needed.
       */
@@ -853,7 +854,7 @@ index 58fcb13c..38723f82 100644
                  && (mUserSetup || mUserSwitcherController == null
                          || !mUserSwitcherController.isSimpleUserSwitcher())
                  && !isShadeDisabled()
-@@ -2049,6 +2101,10 @@ public class StatusBar extends SystemUI implements
+@@ -2049,6 +2100,10 @@ public class StatusBar extends SystemUI implements
          return shouldAnimateLaunch(isActivityIntent, false /* showOverLockscreen */);
      }
  
@@ -864,7 +865,7 @@ index 58fcb13c..38723f82 100644
      public boolean isDeviceInVrMode() {
          return mPresenter.isDeviceInVrMode();
      }
-@@ -2488,6 +2544,156 @@ public class StatusBar extends SystemUI implements
+@@ -2488,6 +2543,156 @@ public class StatusBar extends SystemUI implements
          }
      }
  
@@ -1021,7 +1022,7 @@ index 58fcb13c..38723f82 100644
      public static String viewInfo(View v) {
          return "[(" + v.getLeft() + "," + v.getTop() + ")(" + v.getRight() + "," + v.getBottom()
                  + ") " + v.getWidth() + "x" + v.getHeight() + "]";
-@@ -2670,7 +2876,7 @@ public class StatusBar extends SystemUI implements
+@@ -2670,7 +2875,7 @@ public class StatusBar extends SystemUI implements
              final boolean dismissShade, final boolean disallowEnterPictureInPictureWhileLaunching,
              final Callback callback, int flags,
              @Nullable ActivityLaunchAnimator.Controller animationController) {
@@ -1030,7 +1031,7 @@ index 58fcb13c..38723f82 100644
  
          final boolean willLaunchResolverActivity =
                  mActivityIntentHelper.wouldLaunchResolverActivity(intent,
-@@ -3388,6 +3594,9 @@ public class StatusBar extends SystemUI implements
+@@ -3388,6 +3593,9 @@ public class StatusBar extends SystemUI implements
       * Switches theme from light to dark and vice-versa.
       */
      protected void updateTheme() {
@@ -1040,7 +1041,7 @@ index 58fcb13c..38723f82 100644
          // Lock wallpaper defines the color of the majority of the views, hence we'll use it
          // to set our default theme.
          final boolean lockDarkText = mColorExtractor.getNeutralColors().supportsDarkText();
-@@ -4072,6 +4281,15 @@ public class StatusBar extends SystemUI implements
+@@ -4072,6 +4280,15 @@ public class StatusBar extends SystemUI implements
          return mDeviceInteractive;
      }
  
@@ -1056,7 +1057,7 @@ index 58fcb13c..38723f82 100644
      private final BroadcastReceiver mBannerActionBroadcastReceiver = new BroadcastReceiver() {
          @Override
          public void onReceive(Context context, Intent intent) {
-@@ -4129,7 +4347,7 @@ public class StatusBar extends SystemUI implements
+@@ -4129,7 +4346,7 @@ public class StatusBar extends SystemUI implements
       */
      private void executeActionDismissingKeyguard(Runnable action, boolean afterKeyguardGone,
              boolean collapsePanel, boolean willAnimateOnKeyguard) {
@@ -1065,7 +1066,7 @@ index 58fcb13c..38723f82 100644
  
          OnDismissAction onDismissAction = new OnDismissAction() {
              @Override
-@@ -4413,6 +4631,10 @@ public class StatusBar extends SystemUI implements
+@@ -4413,6 +4630,10 @@ public class StatusBar extends SystemUI implements
  
      @Override
      public void onTuningChanged(String key, String newValue) {
