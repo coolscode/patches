@@ -1,0 +1,122 @@
+From 9714d4b86969745fb22e21673541fe70f00b7aec Mon Sep 17 00:00:00 2001
+From: TheScarastic <warabhishek@gmail.com>
+Date: Mon, 27 Jun 2022 10:26:11 +0800
+Subject: [PATCH] udfps: Add support for udfps on aod without having dedicated 
+ sensor
+
+* make it overlayable while at it
+
+Change-Id: Iaeabd1fd6475dd621ce0543b0c8373a56eec2f61
+---
+ .../fingerprint/IUdfpsOverlayController.aidl     |  3 +++
+ packages/SystemUI/res/values/lineage_config.xml  |  3 +++
+ .../systemui/biometrics/UdfpsController.java     | 16 ++++++++++++++++
+ .../hidl/FingerprintAuthenticationClient.java    | 11 +++++++++++
+ 4 files changed, 33 insertions(+)
+
+diff --git a/core/java/android/hardware/fingerprint/IUdfpsOverlayController.aidl b/core/java/android/hardware/fingerprint/IUdfpsOverlayController.aidl
+index 648edda6..f5d9a76e 100644
+--- a/core/java/android/hardware/fingerprint/IUdfpsOverlayController.aidl
++++ b/core/java/android/hardware/fingerprint/IUdfpsOverlayController.aidl
+@@ -40,4 +40,7 @@ oneway interface IUdfpsOverlayController {
+ 
+     // Shows debug messages on the UDFPS overlay.
+     void setDebugMessage(int sensorId, String message);
++
++    // Useful for Legacy devices not having dedicated aod sensor
++    void onAcquired(int sensorId, int acquiredInfo, int vendorCode);
+ }
+diff --git a/packages/SystemUI/res/values/lineage_config.xml b/packages/SystemUI/res/values/lineage_config.xml
+index c72eb023..87e89ce1 100644
+--- a/packages/SystemUI/res/values/lineage_config.xml
++++ b/packages/SystemUI/res/values/lineage_config.xml
+@@ -37,6 +37,9 @@
+     <!-- Udfps HBM provider class name -->
+     <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
+ 
++    <!-- Udfps vendor code -->
++    <integer name="config_udfps_vendor_code">22</integer>
++
+     <!-- Flag to enable framework dimming for udfps -->
+     <bool name="config_udfpsFrameworkDimming">false</bool>
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+index 77e155c5..6fdcc30c 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+@@ -166,6 +166,7 @@ public class UdfpsController implements DozeReceiver {
+     private Runnable mAodInterruptRunnable;
+     private boolean mOnFingerDown;
+     private boolean mAttemptedToDismissKeyguard;
++    private final int mUdfpsVendorCode;
+     private Set<Callback> mCallbacks = new HashSet<>();
+ 
+     private boolean mFrameworkDimming;
+@@ -344,6 +345,19 @@ public class UdfpsController implements DozeReceiver {
+                 mView.setDebugMessage(message);
+             });
+         }
++
++        @Override
++        public void onAcquired(int sensorId, int acquiredInfo, int vendorCode) {
++            mFgExecutor.execute(() -> {
++                if (acquiredInfo == 6 && (mStatusBarStateController.isDozing() || !mScreenOn)) {
++                    if (vendorCode == mUdfpsVendorCode) {
++                        mPowerManager.wakeUp(mSystemClock.uptimeMillis(),
++                                PowerManager.WAKE_REASON_GESTURE, TAG);
++                        onAodInterrupt(0, 0, 0, 0); // To-Do pass proper values
++                    }
++                }
++            });
++        }
+     }
+ 
+     /**
+@@ -674,6 +688,8 @@ public class UdfpsController implements DozeReceiver {
+         context.registerReceiver(mBroadcastReceiver, filter);
+ 
+         udfpsHapticsSimulator.setUdfpsController(this);
++
++        mUdfpsVendorCode = mContext.getResources().getInteger(R.integer.config_udfps_vendor_code);
+     }
+ 
+     /**
+diff --git a/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java b/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
+index 03574579..4153453f 100644
+--- a/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
++++ b/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
+@@ -53,6 +53,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+     private static final String TAG = "Biometrics/FingerprintAuthClient";
+ 
+     private final LockoutFrameworkImpl mLockoutFrameworkImpl;
++    @Nullable private final IUdfpsOverlayController mUdfpsOverlayController;
+     @NonNull private final SensorOverlays mSensorOverlays;
+     @NonNull private final FingerprintSensorPropertiesInternal mSensorProps;
+     @NonNull private final CallbackWithProbe<Probe> mALSProbeCallback;
+@@ -78,6 +79,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+                 false /* isKeyguardBypassEnabled */);
+         setRequestId(requestId);
+         mLockoutFrameworkImpl = lockoutTracker;
++        mUdfpsOverlayController = udfpsOverlayController;
+         mSensorOverlays = new SensorOverlays(udfpsOverlayController, sidefpsController);
+         mSensorProps = sensorProps;
+         mALSProbeCallback = createALSCallback(false /* startWithClient */);
+@@ -101,6 +103,15 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+         return new CompositeCallback(mALSProbeCallback, callback);
+     }
+ 
++    @Override
++    public void onAcquired(int acquiredInfo, int vendorCode) {
++        super.onAcquired(acquiredInfo, vendorCode);
++        try {
++            mUdfpsOverlayController.onAcquired(getSensorId(), acquiredInfo, vendorCode);
++        } catch (Exception e) {
++        }
++    }
++
+     @Override
+     public void onAuthenticated(BiometricAuthenticator.Identifier identifier,
+             boolean authenticated, ArrayList<Byte> token) {
+-- 
+2.36.1
+

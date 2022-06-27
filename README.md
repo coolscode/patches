@@ -1,9 +1,10 @@
 # Patches
 
-### AOSP-Krypton 
+### AOSP-Krypton
 - Adapt to CEZANNE
 - StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)
 - Maybe more...
+
 ### PixelExperience-Plus
 - Bring back kdrag0n's fix for the QS background on light theme (Thanks to [ponces'patch](https://github.com/ponces/treble_build_pe))
 - Adapt to CEZANNE
@@ -11,7 +12,12 @@
 (Note, patches are only suitable for ___twelve-plus___ branch!)
 - Maybe more...  
 
-First, please synchronize the source code of AOSP-Krypton or PixelExperience-Plus
+### LineageOS
+- Adapt to CEZANNE
+- Support screen-off FOD
+- Maybe more...
+
+First, please synchronize the source code of AOSP-Krypton, PixelExperience-Plus or LineageOS
 
 ```shell
 cd sourcedirectory
@@ -25,7 +31,7 @@ git clone https://github.com/coolscode/patches
 Then apply the patches
 
 ```shell
-bash patches/apply.sh (kosp/pe)[Optional]
+bash patches/apply.sh (kosp/pe/lineage)[Optional]
 ```
 
 There may be more in the future...

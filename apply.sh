@@ -32,6 +32,13 @@ echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 fi
 
+if [ $1 = lineage ];then
+echo ""
+echo "Adapt LineageOS to CEZANNE"
+echo "Executing in 5 seconds - CTRL-C to exit"
+echo ""
+fi
+
 sleep 5
 
 echo "Applying patches"

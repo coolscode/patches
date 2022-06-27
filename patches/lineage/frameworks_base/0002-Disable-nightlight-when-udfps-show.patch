@@ -1,0 +1,61 @@
+From b22596f0f122c8aeaa21c6f861a9f630cf67e4ff Mon Sep 17 00:00:00 2001
+From: wfhtqp <wfhtqp@gmail.com>
+Date: Fri, 3 Jun 2022 19:54:59 +0800
+Subject: [PATCH] Disable nightlight when udfps show
+
+---
+ .../systemui/biometrics/UdfpsController.java  | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+index 123f9dba..6476de6f 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+@@ -35,6 +35,7 @@ import android.graphics.Point;
+ import android.graphics.RectF;
+ import android.hardware.biometrics.BiometricOverlayConstants;
+ import android.hardware.biometrics.SensorLocationInternal;
++import android.hardware.display.ColorDisplayManager;
+ import android.hardware.display.DisplayManager;
+ import android.hardware.fingerprint.FingerprintManager;
+ import android.hardware.fingerprint.FingerprintSensorPropertiesInternal;
+@@ -256,10 +257,28 @@ public class UdfpsController implements DozeReceiver, UdfpsHbmProvider {
+     }
+ 
+     public class UdfpsOverlayController extends IUdfpsOverlayController.Stub {
++        private boolean mNightModeActive;
++        private int mAutoModeState;
++
++        private void setNightMode() {
++            ColorDisplayManager colorDisplayManager = mContext.getSystemService(ColorDisplayManager.class);
++            colorDisplayManager.setNightDisplayAutoMode(0);
++            if (mAutoModeState == 0) {
++                colorDisplayManager.setNightDisplayActivated(mNightModeActive);
++            } else if (mAutoModeState == 1 || mAutoModeState == 2) {
++                colorDisplayManager.setNightDisplayAutoMode(mAutoModeState);
++            }
++        }
++
+         @Override
+         public void showUdfpsOverlay(int sensorId, int reason,
+                 @NonNull IUdfpsOverlayControllerCallback callback) {
+             mFgExecutor.execute(() -> {
++                ColorDisplayManager colorDisplayManager = mContext.getSystemService(ColorDisplayManager.class);
++                mAutoModeState = colorDisplayManager.getNightDisplayAutoMode();
++                mNightModeActive = colorDisplayManager.isNightDisplayActivated();
++                colorDisplayManager.setNightDisplayActivated(false);
++
+                 final UdfpsEnrollHelper enrollHelper;
+                 if (reason == BiometricOverlayConstants.REASON_ENROLL_FIND_SENSOR
+                         || reason == BiometricOverlayConstants.REASON_ENROLL_ENROLLING) {
+@@ -282,6 +301,7 @@ public class UdfpsController implements DozeReceiver, UdfpsHbmProvider {
+                             + "mKeyguardUpdateMonitor.isFingerprintDetectionRunning()=true");
+                 }
+ 
++                setNightMode();
+                 mServerRequest = null;
+                 updateOverlay();
+             });
+-- 
+2.36.1
+
