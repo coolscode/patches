@@ -1,9 +1,9 @@
-From 5b7b27ceed61844a6e3ce074e2702fe5c2c48609 Mon Sep 17 00:00:00 2001
+From 343a11030adba1140b6dd71a20246df1e02e3502 Mon Sep 17 00:00:00 2001
 From: Undying-yueyue <orgtech007@gmail.com>
-Date: Sun, 12 Jun 2022 22:23:40 +0800
+Date: Thu, 7 Jul 2022 11:42:51 +0800
 Subject: [PATCH] Add StatusBar Lyric to Settings
 
-Change-Id: Icca337f88cbf4e64144411b733df8088cd3ada56
+Change-Id: I89fc0c07fffda7cd769cca0812eb6b01f305448c
 ---
  res/values-zh-rCN/custom_strings.xml | 3 +++
  res/values/custom_strings.xml        | 3 +++
@@ -11,11 +11,11 @@ Change-Id: Icca337f88cbf4e64144411b733df8088cd3ada56
  3 files changed, 13 insertions(+)
 
 diff --git a/res/values-zh-rCN/custom_strings.xml b/res/values-zh-rCN/custom_strings.xml
-index 8e04940..f3aa162 100644
+index bd91408..05ec2ff 100644
 --- a/res/values-zh-rCN/custom_strings.xml
 +++ b/res/values-zh-rCN/custom_strings.xml
 @@ -79,4 +79,7 @@
-     <string name="high_touch_polling_rate_summary">提高触摸屏采样率</string>
+     <string name="high_touch_polling_rate_summary">提高屏幕的触控采样率</string>
      <string name="screen_off_fod_title">息屏指纹</string>
      <string name="screen_off_fod_summary">当屏幕关闭时，保持屏下指纹启用</string>
 +    <!-- Status Bar Lyric -->
@@ -53,5 +53,5 @@ index 659de93..cf99f08 100644
          android:title="@string/status_bar_icons_title">
          <Preference
 -- 
-2.36.1
+2.37.0
 
