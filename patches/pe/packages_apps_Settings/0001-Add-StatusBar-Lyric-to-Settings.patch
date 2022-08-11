@@ -1,41 +1,42 @@
-From 343a11030adba1140b6dd71a20246df1e02e3502 Mon Sep 17 00:00:00 2001
+From cd19a9dbfea4ff8531aebe6800e50f845bf66062 Mon Sep 17 00:00:00 2001
 From: Undying-yueyue <orgtech007@gmail.com>
-Date: Thu, 7 Jul 2022 11:42:51 +0800
+Date: Fri, 12 Aug 2022 01:13:03 +0800
 Subject: [PATCH] Add StatusBar Lyric to Settings
 
 Change-Id: I89fc0c07fffda7cd769cca0812eb6b01f305448c
 ---
  res/values-zh-rCN/custom_strings.xml | 3 +++
- res/values/custom_strings.xml        | 3 +++
+ res/values/custom_strings.xml        | 4 ++++
  res/xml/status_bar_settings.xml      | 7 +++++++
- 3 files changed, 13 insertions(+)
+ 3 files changed, 14 insertions(+)
 
 diff --git a/res/values-zh-rCN/custom_strings.xml b/res/values-zh-rCN/custom_strings.xml
-index bd91408..05ec2ff 100644
+index 9ab2759..71ddcf4 100644
 --- a/res/values-zh-rCN/custom_strings.xml
 +++ b/res/values-zh-rCN/custom_strings.xml
-@@ -79,4 +79,7 @@
+@@ -77,4 +77,7 @@
+     <string name="face_unlock_method_swipe">在锁定屏幕上滑动时</string>
+     <string name="high_touch_polling_rate_title">高触控采样率</string>
      <string name="high_touch_polling_rate_summary">提高屏幕的触控采样率</string>
-     <string name="screen_off_fod_title">息屏指纹</string>
-     <string name="screen_off_fod_summary">当屏幕关闭时，保持屏下指纹启用</string>
 +    <!-- Status Bar Lyric -->
 +    <string name="status_bar_show_lyric_title">状态栏歌词（需要应用支持哦）</string>
 +    <string name="status_bar_show_lyric_summary">感谢Shelling和AmeChan的贡献~</string>
  </resources>
 diff --git a/res/values/custom_strings.xml b/res/values/custom_strings.xml
-index f462e7e..018f5f1 100644
+index 556a80b..a279449 100644
 --- a/res/values/custom_strings.xml
 +++ b/res/values/custom_strings.xml
-@@ -117,4 +117,7 @@
-     <string name="screen_off_fod_title">Screen off FOD</string>
-     <string name="screen_off_fod_summary">Keep FOD enabled when the screen is off</string>
+@@ -123,4 +123,8 @@
+     <string name="fingerprint_wake_unlock_touch">Listens for events while the screen is off</string>
+     <string name="fingerprint_wake_unlock_press">Only listens for events once the screen is on</string>
  
 +    <!-- Status Bar Lyric -->
 +    <string name="status_bar_show_lyric_title">Status bar lyric (need App support)</string>
 +    <string name="status_bar_show_lyric_summary">Show lyric in status bar. Thanks to @cjybyjk and @AmeChanRain! (from @exTHmUI)</string>
++
  </resources>
 diff --git a/res/xml/status_bar_settings.xml b/res/xml/status_bar_settings.xml
-index 659de93..cf99f08 100644
+index ca6e603..96610a4 100644
 --- a/res/xml/status_bar_settings.xml
 +++ b/res/xml/status_bar_settings.xml
 @@ -10,6 +10,13 @@
@@ -53,5 +54,5 @@ index 659de93..cf99f08 100644
          android:title="@string/status_bar_icons_title">
          <Preference
 -- 
-2.37.0
+2.37.1
 
