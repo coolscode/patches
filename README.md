@@ -17,7 +17,11 @@
 - Support screen-off FOD
 - Maybe more...
 
-First, please synchronize the source code of AOSP-Krypton, PixelExperience-Plus or LineageOS
+### AcmeUI
+- Adapt to CEZANNE
+- Maybe more...
+  
+First, please synchronize the source code of AOSP-Krypton, PixelExperience-Plus, LineageOS or AcmeUI
 
 ```shell
 cd sourcedirectory
@@ -31,7 +35,7 @@ git clone https://github.com/coolscode/patches
 Then apply the patches
 
 ```shell
-bash patches/apply.sh (kosp/pe/lineage)[Optional]
+bash patches/apply.sh (kosp/pe/lineage/acme)[Optional]
 ```
 
 There may be more in the future...

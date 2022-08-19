@@ -39,6 +39,13 @@ echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 fi
 
+if [ $1 = acme ];then
+echo ""
+echo "Adapt AcmeUI to CEZANNE"
+echo "Executing in 5 seconds - CTRL-C to exit"
+echo ""
+fi
+
 sleep 5
 
 echo "Applying patches"
