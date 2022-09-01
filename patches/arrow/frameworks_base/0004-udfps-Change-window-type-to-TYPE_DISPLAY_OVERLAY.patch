@@ -1,0 +1,46 @@
+From cf92bf3156d248a11b92b5361a02d06f538c3736 Mon Sep 17 00:00:00 2001
+From: TheScarastic <warabhishek@gmail.com>
+Date: Wed, 6 Oct 2021 07:04:50 +0000
+Subject: [PATCH 4/8] udfps: Change window type to TYPE_DISPLAY_OVERLAY
+
+ * TYPE_KEYGUARD_DIALOG was below volume and navbar and would
+   have caused cause issues when HBM was enabled
+
+ * BiometricPrompt uses different layer which again is below
+   navbar and causes bright volume and navbar
+
+Change-Id: Ia37930ffd7a28fc8785f26ada3b69a02df0d4891
+---
+ .../src/com/android/systemui/biometrics/AuthContainerView.java  | 2 +-
+ .../com/android/systemui/biometrics/UdfpsControllerOverlay.kt   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/AuthContainerView.java b/packages/SystemUI/src/com/android/systemui/biometrics/AuthContainerView.java
+index 6da2f50aa..c498e2abc 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/AuthContainerView.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/AuthContainerView.java
+@@ -729,7 +729,7 @@ public class AuthContainerView extends LinearLayout
+         final WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                 ViewGroup.LayoutParams.MATCH_PARENT,
+                 ViewGroup.LayoutParams.MATCH_PARENT,
+-                WindowManager.LayoutParams.TYPE_STATUS_BAR_ADDITIONAL,
++                WindowManager.LayoutParams.TYPE_DISPLAY_OVERLAY,
+                 windowFlags,
+                 PixelFormat.TRANSLUCENT);
+         lp.privateFlags |= WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS;
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
+index ec720579f..baa448814 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
+@@ -94,7 +94,7 @@ class UdfpsControllerOverlay(
+     private var overlayTouchListener: TouchExplorationStateChangeListener? = null
+ 
+     private val coreLayoutParams = WindowManager.LayoutParams(
+-        WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG,
++        WindowManager.LayoutParams.TYPE_DISPLAY_OVERLAY,
+         0 /* flags set in computeLayoutParams() */,
+         PixelFormat.TRANSLUCENT
+     ).apply {
+-- 
+2.37.2
+

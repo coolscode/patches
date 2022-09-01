@@ -1,0 +1,25 @@
+From e4a9789fb0bf2273c5e76bd3b4259be11522298f Mon Sep 17 00:00:00 2001
+From: AngelaCooljx <cool@gayhub.eu.org>
+Date: Mon, 29 Aug 2022 17:27:29 +0800
+Subject: [PATCH] Commented out this line to prevent bootloop on some devices
+
+Change-Id: Ie7e5f0298367f0ffb39257d3991b618f8061357d
+---
+ common/private/property_contexts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/common/private/property_contexts b/common/private/property_contexts
+index 22859bd..88d2e21 100644
+--- a/common/private/property_contexts
++++ b/common/private/property_contexts
+@@ -1,6 +1,6 @@
+ # Aux camera
+ vendor.camera.aux.packageexcludelist   u:object_r:exported_system_prop:s0
+-vendor.camera.aux.packagelist          u:object_r:exported_system_prop:s0
++#vendor.camera.aux.packagelist          u:object_r:exported_system_prop:s0
+ 
+ # Radio
+ ro.telephony.use_old_mnc_mcc_format    u:object_r:telephony_config_prop:s0
+-- 
+2.37.2
+

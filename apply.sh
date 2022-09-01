@@ -18,34 +18,30 @@ for project in $(cd $patches/patches/$tree; echo *);do
 done
 }
 
+echo ""
+
 if [ $1 = kosp ];then
-echo ""
 echo "Adapt AOSP-Krypton to CEZANNE"
-echo "Executing in 5 seconds - CTRL-C to exit"
-echo ""
 fi
 
 if [ $1 = pe ];then
-echo ""
 echo "Adapt Pixel-Experience to CEZANNE"
-echo "Executing in 5 seconds - CTRL-C to exit"
-echo ""
 fi
 
 if [ $1 = lineage ];then
-echo ""
 echo "Adapt LineageOS to CEZANNE"
-echo "Executing in 5 seconds - CTRL-C to exit"
-echo ""
 fi
 
 if [ $1 = acme ];then
-echo ""
 echo "Adapt AcmeUI to CEZANNE"
-echo "Executing in 5 seconds - CTRL-C to exit"
-echo ""
 fi
 
+if [ $1 = arrow ];then
+echo "Adapt ArrowOS to CEZANNE"
+fi
+
+echo "Executing in 5 seconds - CTRL-C to exit"
+echo ""
 sleep 5
 
 echo "Applying patches"

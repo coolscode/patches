@@ -1,0 +1,237 @@
+From b9a25a4b71cd7ffac628e6e74753304368c0ddfa Mon Sep 17 00:00:00 2001
+From: Arian <arian.kulmer@web.de>
+Date: Sat, 20 Aug 2022 23:38:25 +0200
+Subject: [PATCH 1/8] udfps: Restore illumination dot for global hbm
+
+UdfpsSurfaceView.java is imported from android-12.1.0_r22
+
+Change-Id: Id734ea5415b20dcd1b3645303be1c18d2f1e7ed0
+---
+ packages/SystemUI/res/layout/udfps_view.xml   |   6 +
+ .../systemui/biometrics/UdfpsSurfaceView.java | 126 ++++++++++++++++++
+ .../android/systemui/biometrics/UdfpsView.kt  |  28 +++-
+ 3 files changed, 158 insertions(+), 2 deletions(-)
+ create mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+
+diff --git a/packages/SystemUI/res/layout/udfps_view.xml b/packages/SystemUI/res/layout/udfps_view.xml
+index 257d238f5..0fcbfa161 100644
+--- a/packages/SystemUI/res/layout/udfps_view.xml
++++ b/packages/SystemUI/res/layout/udfps_view.xml
+@@ -28,4 +28,10 @@
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"/>
+ 
++    <com.android.systemui.biometrics.UdfpsSurfaceView
++        android:id="@+id/hbm_view"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:visibility="invisible"/>
++
+ </com.android.systemui.biometrics.UdfpsView>
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+new file mode 100644
+index 000000000..eec2d8e19
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+@@ -0,0 +1,126 @@
++/*
++ * Copyright (C) 2021 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.android.systemui.biometrics;
++import android.annotation.NonNull;
++import android.annotation.Nullable;
++import android.content.Context;
++import android.graphics.Canvas;
++import android.graphics.Paint;
++import android.graphics.PixelFormat;
++import android.graphics.RectF;
++import android.util.AttributeSet;
++import android.util.Log;
++import android.view.Surface;
++import android.view.SurfaceHolder;
++import android.view.SurfaceView;
++/**
++ * Surface View for providing the Global High-Brightness Mode (GHBM) illumination for UDFPS.
++ */
++public class UdfpsSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
++    private static final String TAG = "UdfpsSurfaceView";
++    /**
++     * Notifies {@link UdfpsView} when to enable GHBM illumination.
++     */
++    interface GhbmIlluminationListener {
++        /**
++         * @param surface the surface for which GHBM should be enabled.
++         * @param onIlluminatedRunnable a runnable that should be run after GHBM is enabled.
++         */
++        void enableGhbm(@NonNull Surface surface, @Nullable Runnable onIlluminatedRunnable);
++    }
++    @NonNull private final SurfaceHolder mHolder;
++    @NonNull private final Paint mSensorPaint;
++    @Nullable private GhbmIlluminationListener mGhbmIlluminationListener;
++    @Nullable private Runnable mOnIlluminatedRunnable;
++    boolean mAwaitingSurfaceToStartIllumination;
++    boolean mHasValidSurface;
++    public UdfpsSurfaceView(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        // Make this SurfaceView draw on top of everything else in this window. This allows us to
++        // 1) Always show the HBM circle on top of everything else, and
++        // 2) Properly composite this view with any other animations in the same window no matter
++        //    what contents are added in which order to this view hierarchy.
++        setZOrderOnTop(true);
++        mHolder = getHolder();
++        mHolder.addCallback(this);
++        mHolder.setFormat(PixelFormat.RGBA_8888);
++        mSensorPaint = new Paint(0 /* flags */);
++        mSensorPaint.setAntiAlias(true);
++        mSensorPaint.setARGB(255, 255, 255, 255);
++        mSensorPaint.setStyle(Paint.Style.FILL);
++    }
++    @Override public void surfaceCreated(SurfaceHolder holder) {
++        mHasValidSurface = true;
++        if (mAwaitingSurfaceToStartIllumination) {
++            doIlluminate(mOnIlluminatedRunnable);
++            mOnIlluminatedRunnable = null;
++            mAwaitingSurfaceToStartIllumination = false;
++        }
++    }
++    @Override
++    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
++        // Unused.
++    }
++    @Override public void surfaceDestroyed(SurfaceHolder holder) {
++        mHasValidSurface = false;
++    }
++    void setGhbmIlluminationListener(@Nullable GhbmIlluminationListener listener) {
++        mGhbmIlluminationListener = listener;
++    }
++    /**
++     * Note: there is no corresponding method to stop GHBM illumination. It is expected that
++     * {@link UdfpsView} will hide this view, which would destroy the surface and remove the
++     * illumination dot.
++     */
++    void startGhbmIllumination(@Nullable Runnable onIlluminatedRunnable) {
++        if (mGhbmIlluminationListener == null) {
++            Log.e(TAG, "startIllumination | mGhbmIlluminationListener is null");
++            return;
++        }
++        if (mHasValidSurface) {
++            doIlluminate(onIlluminatedRunnable);
++        } else {
++            mAwaitingSurfaceToStartIllumination = true;
++            mOnIlluminatedRunnable = onIlluminatedRunnable;
++        }
++    }
++    private void doIlluminate(@Nullable Runnable onIlluminatedRunnable) {
++        if (mGhbmIlluminationListener == null) {
++            Log.e(TAG, "doIlluminate | mGhbmIlluminationListener is null");
++            return;
++        }
++        mGhbmIlluminationListener.enableGhbm(mHolder.getSurface(), onIlluminatedRunnable);
++    }
++    /**
++     * Immediately draws the illumination dot on this SurfaceView's surface.
++     */
++    void drawIlluminationDot(@NonNull RectF sensorRect) {
++        if (!mHasValidSurface) {
++            Log.e(TAG, "drawIlluminationDot | the surface is destroyed or was never created.");
++            return;
++        }
++        Canvas canvas = null;
++        try {
++            canvas = mHolder.lockCanvas();
++            canvas.drawOval(sensorRect, mSensorPaint);
++        } finally {
++            // Make sure the surface is never left in a bad state.
++            if (canvas != null) {
++                mHolder.unlockCanvasAndPost(canvas);
++            }
++        }
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+index 245c2252d..5f0c53c9b 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+@@ -24,6 +24,7 @@ import android.graphics.RectF
+ import android.util.AttributeSet
+ import android.util.Log
+ import android.view.MotionEvent
++import android.view.Surface
+ import android.widget.FrameLayout
+ import com.android.systemui.R
+ import com.android.systemui.doze.DozeReceiver
+@@ -60,6 +61,9 @@ class UdfpsView(
+         com.android.internal.R.integer.config_udfps_illumination_transition_ms
+     ).toLong()
+ 
++    // Only used for UdfpsHbmTypes.GLOBAL_HBM.
++    private var ghbmView: UdfpsSurfaceView? = null
++
+     /** View controller (can be different for enrollment, BiometricPrompt, Keyguard, etc.). */
+     var animationViewController: UdfpsAnimationViewController<*>? = null
+ 
+@@ -89,6 +93,10 @@ class UdfpsView(
+         return (animationViewController == null || !animationViewController!!.shouldPauseAuth())
+     }
+ 
++    override fun onFinishInflate() {
++        ghbmView = findViewById(R.id.hbm_view)
++    }
++
+     override fun dozeTimeTick() {
+         animationViewController?.dozeTimeTick()
+     }
+@@ -153,13 +161,25 @@ class UdfpsView(
+     override fun startIllumination(onIlluminatedRunnable: Runnable?) {
+         isIlluminationRequested = true
+         animationViewController?.onIlluminationStarting()
+-        doIlluminate(onIlluminatedRunnable)
++        val gView = ghbmView
++        if (gView != null) {
++            gView.setGhbmIlluminationListener(this::doIlluminate)
++            gView.visibility = VISIBLE
++            gView.startGhbmIllumination(onIlluminatedRunnable)
++        } else {
++            doIlluminate(null /* surface */, onIlluminatedRunnable)
++        }
+     }
+ 
+-    private fun doIlluminate(onIlluminatedRunnable: Runnable?) {
++    private fun doIlluminate(surface: Surface?, onIlluminatedRunnable: Runnable?) {
++        if (ghbmView != null && surface == null) {
++            Log.e(TAG, "doIlluminate | surface must be non-null for GHBM")
++        }
++
+         // TODO(b/231335067): enableHbm with halControlsIllumination=true shouldn't make sense.
+         // This only makes sense now because vendor code may rely on the side effects of enableHbm.
+         hbmProvider?.enableHbm(halControlsIllumination) {
++            ghbmView?.drawIlluminationDot(sensorRect)
+             if (onIlluminatedRunnable != null) {
+                 if (halControlsIllumination) {
+                     onIlluminatedRunnable.run()
+@@ -177,6 +197,10 @@ class UdfpsView(
+     override fun stopIllumination() {
+         isIlluminationRequested = false
+         animationViewController?.onIlluminationStopped()
++        ghbmView?.let { view ->
++            view.setGhbmIlluminationListener(null)
++            view.visibility = INVISIBLE
++        }
+         hbmProvider?.disableHbm(null /* onHbmDisabled */)
+     }
+ }
+-- 
+2.37.2
+

@@ -1,0 +1,34 @@
+From fdbcb35fe020d8a4b645bec0f235b37a71216980 Mon Sep 17 00:00:00 2001
+From: Arian <arian.kulmer@web.de>
+Date: Tue, 12 Oct 2021 22:47:04 +0200
+Subject: [PATCH 2/8] udfps: Trigger onFingerDown with regular action down
+ events too
+
+Previously it was necessary to swipe over the udfps area before
+HBM gets enabled.
+
+Change-Id: Icf333f13bccfed9ba4ec030716d2bcf83841ef55
+---
+ .../src/com/android/systemui/biometrics/UdfpsController.java | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+index 6e2dcae47..a43ee9e30 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+@@ -444,7 +444,12 @@ public class UdfpsController implements DozeReceiver {
+                     // We need to persist its ID to track it during ACTION_MOVE that could include
+                     // data for many other pointers because of multi-touch support.
+                     mActivePointerId = event.getPointerId(0);
++                    final int idx = mActivePointerId == -1
++                            ? event.getPointerId(0)
++                            : event.findPointerIndex(mActivePointerId);
+                     mVelocityTracker.addMovement(event);
++                    onFingerDown(requestId, (int) event.getRawX(), (int) event.getRawY(),
++                            (int) event.getTouchMinor(idx), (int) event.getTouchMajor(idx));
+                     handled = true;
+                     mAcquiredReceived = false;
+                 }
+-- 
+2.37.2
+

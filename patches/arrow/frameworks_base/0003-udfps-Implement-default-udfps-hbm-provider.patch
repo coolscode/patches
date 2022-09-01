@@ -1,0 +1,153 @@
+From ed7c5779bc640eec955356288f51016e15cc5cf0 Mon Sep 17 00:00:00 2001
+From: LuK1337 <priv.luk@gmail.com>
+Date: Mon, 21 Feb 2022 23:33:58 +0100
+Subject: [PATCH 3/8] udfps: Implement default udfps hbm provider
+
+This should let us choose between multiple UdfpsHbmProvider
+implementations.
+
+Change-Id: I9b93e32644feaf1398cdac69e9696d8ec195f246
+---
+ packages/SystemUI/proguard.flags              |  3 ++
+ packages/SystemUI/res/values/arrow_config.xml | 19 +++++++++++
+ .../biometrics/DummyUdfpsHbmProvider.kt       | 32 +++++++++++++++++++
+ .../systemui/biometrics/UdfpsController.java  |  4 +--
+ .../systemui/dagger/SystemUIModule.java       | 14 ++++++--
+ 5 files changed, 68 insertions(+), 4 deletions(-)
+ create mode 100644 packages/SystemUI/res/values/arrow_config.xml
+ create mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/DummyUdfpsHbmProvider.kt
+
+diff --git a/packages/SystemUI/proguard.flags b/packages/SystemUI/proguard.flags
+index e74b6c78e..c6cfe5fdd 100644
+--- a/packages/SystemUI/proguard.flags
++++ b/packages/SystemUI/proguard.flags
+@@ -10,6 +10,9 @@
+ -keep class com.android.systemui.tv.TvSystemUIFactory
+ -keep class * extends com.android.systemui.CoreStartable
+ -keep class * implements com.android.systemui.CoreStartable$Injector
++-keep class * implements com.android.systemui.biometrics.UdfpsHbmProvider {
++    public <init>(...);
++}
+ 
+ -keepclasseswithmembers class * {
+     public <init>(android.content.Context, android.util.AttributeSet);
+diff --git a/packages/SystemUI/res/values/arrow_config.xml b/packages/SystemUI/res/values/arrow_config.xml
+new file mode 100644
+index 000000000..39c440dad
+--- /dev/null
++++ b/packages/SystemUI/res/values/arrow_config.xml
+@@ -0,0 +1,19 @@
++<!--
++     Copyright (C) 2022 ArrowOS
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources>
++    <!-- Udfps HBM provider class name -->
++    <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
++</resources>
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/DummyUdfpsHbmProvider.kt b/packages/SystemUI/src/com/android/systemui/biometrics/DummyUdfpsHbmProvider.kt
+new file mode 100644
+index 000000000..ab0cc33f1
+--- /dev/null
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/DummyUdfpsHbmProvider.kt
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (C) 2022 The LineageOS Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.systemui.biometrics
++
++import android.content.Context
++import android.view.Surface
++
++class DummyUdfpsHbmProvider constructor(
++    private val context: Context
++): UdfpsHbmProvider {
++    override fun enableHbm(halControlsIllumination: Boolean, onHbmEnabled: Runnable?) {
++        onHbmEnabled?.run()
++    }
++
++    override fun disableHbm(onHbmDisabled: Runnable?) {
++        onHbmDisabled?.run()
++    }
++}
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+index a43ee9e30..52bf47bed 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
+@@ -598,7 +598,7 @@ public class UdfpsController implements DozeReceiver {
+             @NonNull VibratorHelper vibrator,
+             @NonNull UdfpsHapticsSimulator udfpsHapticsSimulator,
+             @NonNull UdfpsShell udfpsShell,
+-            @NonNull Optional<UdfpsHbmProvider> hbmProvider,
++            @NonNull UdfpsHbmProvider hbmProvider,
+             @NonNull KeyguardStateController keyguardStateController,
+             @NonNull DisplayManager displayManager,
+             @Main Handler mainHandler,
+@@ -630,7 +630,7 @@ public class UdfpsController implements DozeReceiver {
+         mPowerManager = powerManager;
+         mAccessibilityManager = accessibilityManager;
+         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
+-        mHbmProvider = hbmProvider.orElse(null);
++        mHbmProvider = hbmProvider;
+         screenLifecycle.addObserver(mScreenObserver);
+         mScreenOn = screenLifecycle.getScreenState() == ScreenLifecycle.SCREEN_ON;
+         mConfigurationController = configurationController;
+diff --git a/packages/SystemUI/src/com/android/systemui/dagger/SystemUIModule.java b/packages/SystemUI/src/com/android/systemui/dagger/SystemUIModule.java
+index 366ef2651..e462f0e0f 100644
+--- a/packages/SystemUI/src/com/android/systemui/dagger/SystemUIModule.java
++++ b/packages/SystemUI/src/com/android/systemui/dagger/SystemUIModule.java
+@@ -89,6 +89,7 @@ import com.android.systemui.util.time.SystemClock;
+ import com.android.systemui.util.time.SystemClockImpl;
+ import com.android.systemui.wallet.dagger.WalletModule;
+ import com.android.systemui.wmshell.BubblesManager;
++import com.android.systemui.R;
+ import com.android.wm.shell.bubbles.Bubbles;
+ import com.android.wm.shell.dagger.DynamicOverride;
+ 
+@@ -188,8 +189,17 @@ public abstract class SystemUIModule {
+     @BindsOptionalOf
+     abstract CentralSurfaces optionalCentralSurfaces();
+ 
+-    @BindsOptionalOf
+-    abstract UdfpsHbmProvider optionalUdfpsHbmProvider();
++    @Provides
++    static UdfpsHbmProvider getUdfpsHbmProvider(Context context) {
++        String className = context.getString(R.string.config_udfpsHbmProviderComponent);
++        try {
++            Class<?> clazz = context.getClassLoader().loadClass(className);
++            return (UdfpsHbmProvider) clazz.getDeclaredConstructor(
++                    new Class[] { Context.class }).newInstance(context);
++        } catch (Throwable t) {
++            throw new RuntimeException("Error loading UdfpsHbmProvider " + className, t);
++        }
++    }
+ 
+     @BindsOptionalOf
+     abstract AlternateUdfpsTouchProvider optionalUdfpsTouchProvider();
+-- 
+2.37.2
+

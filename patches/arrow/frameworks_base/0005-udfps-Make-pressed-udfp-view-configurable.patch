@@ -1,0 +1,101 @@
+From 82d30c3bff88ea5add41268a618d65b83c2468b0 Mon Sep 17 00:00:00 2001
+From: TheScarastic <warabhishek@gmail.com>
+Date: Wed, 6 Oct 2021 06:44:17 +0000
+Subject: [PATCH 5/8] udfps: Make pressed udfp view configurable
+
+ * set a solid color by configuring config_udfpsColor
+ * set a custom image by setting udfps_icon_pressed and making config_udfpsColor #00ffffff (transparent)
+
+Change-Id: I2460f6196d32fe46eb97f9a5c767bde5c9976681
+---
+ .../res/drawable-nodpi/udfps_icon_pressed.png | Bin 0 -> 108 bytes
+ packages/SystemUI/res/values/arrow_config.xml |   3 +++
+ .../systemui/biometrics/UdfpsSurfaceView.java |  18 +++++++++++++++++-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+ create mode 100644 packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png
+
+diff --git a/packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png b/packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..4102e28c1300b49323b50625d8cfaa73b006561f
+GIT binary patch
+literal 108
+zcmeAS@N?(olHy`uVBq!ia0vp^j3CUx1|;Q0k8}bl$r9IylHmNblJdl&R0hYC{G?O`
+z&)mfH)S%SFl*+=BsWw1Ge4Z|jAr-fh5*U~o7?>FtSQ!{^cTT<plwt66^>bP0l+XkK
+D@OB!I
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/values/arrow_config.xml b/packages/SystemUI/res/values/arrow_config.xml
+index 39c440dad..cc82a006a 100644
+--- a/packages/SystemUI/res/values/arrow_config.xml
++++ b/packages/SystemUI/res/values/arrow_config.xml
+@@ -16,4 +16,7 @@
+ <resources>
+     <!-- Udfps HBM provider class name -->
+     <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
++
++    <!-- Color of the UDFPS pressed view -->
++    <color name="config_udfpsColor">#ffffffff</color>
+ </resources>
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+index eec2d8e19..a99527acb 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+@@ -17,6 +17,7 @@ package com.android.systemui.biometrics;
+ import android.annotation.NonNull;
+ import android.annotation.Nullable;
+ import android.content.Context;
++import android.graphics.drawable.Drawable;
+ import android.graphics.Canvas;
+ import android.graphics.Paint;
+ import android.graphics.PixelFormat;
+@@ -26,6 +27,9 @@ import android.util.Log;
+ import android.view.Surface;
+ import android.view.SurfaceHolder;
+ import android.view.SurfaceView;
++
++import com.android.systemui.R;
++
+ /**
+  * Surface View for providing the Global High-Brightness Mode (GHBM) illumination for UDFPS.
+  */
+@@ -47,6 +51,9 @@ public class UdfpsSurfaceView extends SurfaceView implements SurfaceHolder.Callb
+     @Nullable private Runnable mOnIlluminatedRunnable;
+     boolean mAwaitingSurfaceToStartIllumination;
+     boolean mHasValidSurface;
++
++    private Drawable mUdfpsIconPressed;
++
+     public UdfpsSurfaceView(Context context, AttributeSet attrs) {
+         super(context, attrs);
+         // Make this SurfaceView draw on top of everything else in this window. This allows us to
+@@ -59,8 +66,10 @@ public class UdfpsSurfaceView extends SurfaceView implements SurfaceHolder.Callb
+         mHolder.setFormat(PixelFormat.RGBA_8888);
+         mSensorPaint = new Paint(0 /* flags */);
+         mSensorPaint.setAntiAlias(true);
+-        mSensorPaint.setARGB(255, 255, 255, 255);
++        mSensorPaint.setColor(context.getColor(R.color.config_udfpsColor));
+         mSensorPaint.setStyle(Paint.Style.FILL);
++
++        mUdfpsIconPressed = context.getDrawable(R.drawable.udfps_icon_pressed);
+     }
+     @Override public void surfaceCreated(SurfaceHolder holder) {
+         mHasValidSurface = true;
+@@ -115,6 +124,13 @@ public class UdfpsSurfaceView extends SurfaceView implements SurfaceHolder.Callb
+         Canvas canvas = null;
+         try {
+             canvas = mHolder.lockCanvas();
++            mUdfpsIconPressed.setBounds(
++                    Math.round(sensorRect.left),
++                    Math.round(sensorRect.top),
++                    Math.round(sensorRect.right),
++                    Math.round(sensorRect.bottom)
++            );
++            mUdfpsIconPressed.draw(canvas);
+             canvas.drawOval(sensorRect, mSensorPaint);
+         } finally {
+             // Make sure the surface is never left in a bad state.
+-- 
+2.37.2
+
