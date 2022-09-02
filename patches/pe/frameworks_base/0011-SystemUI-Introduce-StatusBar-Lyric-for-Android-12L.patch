@@ -1,6 +1,6 @@
-From b8eb4d8c68e3de7368bfeb0ba145b560a15cee9d Mon Sep 17 00:00:00 2001
+From be0d00937546f73f9c449f17ff22dbf7f61e78c3 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Thu, 7 Jul 2022 11:50:58 +0800
+Date: Fri, 2 Sep 2022 23:38:37 +0800
 Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 Also modify PixelPropsUtils
@@ -14,7 +14,7 @@ Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
  core/java/android/provider/Settings.java      |   7 +
  core/java/android/widget/ImageSwitcher.java   |  16 +
  core/java/android/widget/TextSwitcher.java    |  11 +
- .../internal/util/custom/PixelPropsUtils.java |  35 ++
+ .../internal/util/custom/PixelPropsUtils.java |  22 +
  packages/SystemUI/res/layout/status_bar.xml   |  13 +
  .../res/layout/status_bar_lyric_ticker.xml    |  61 +++
  .../SystemUI/res/values/custom_dimens.xml     |   6 +
@@ -33,7 +33,7 @@ Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
  .../fragment/CollapsedStatusBarFragment.java  |  39 ++
  .../window/StatusBarWindowController.java     |   2 +-
  .../android/systemui/util/LyricTextView.java  | 142 ++++++
- 24 files changed, 1326 insertions(+), 5 deletions(-)
+ 24 files changed, 1313 insertions(+), 5 deletions(-)
  create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
@@ -70,10 +70,10 @@ index 2c02be7d..8b613f3c 100644
              BigTextStyle.class, BigPictureStyle.class, InboxStyle.class, MediaStyle.class,
              DecoratedCustomViewStyle.class, DecoratedMediaCustomViewStyle.class,
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 62600fc4..d656b74f 100644
+index 59bbc87c..ccc1c41d 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
-@@ -7216,6 +7216,13 @@ public final class Settings {
+@@ -7215,6 +7215,13 @@ public final class Settings {
          @Readable
          public static final String USER_SETUP_COMPLETE = "user_setup_complete";
  
@@ -135,7 +135,7 @@ index ecd9a8cf..ca16c9dc 100644
 +
  }
 diff --git a/core/java/com/android/internal/util/custom/PixelPropsUtils.java b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
-index 221472bf..4f6b7aee 100644
+index 3db36602..e9f49a3c 100644
 --- a/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 @@ -1,5 +1,6 @@
@@ -145,7 +145,7 @@ index 221472bf..4f6b7aee 100644
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
-@@ -53,6 +54,16 @@ public class PixelPropsUtils {
+@@ -52,6 +53,16 @@ public class PixelPropsUtils {
              "com.google.android.apps.photos"
      };
  
@@ -176,30 +176,17 @@ index 221472bf..4f6b7aee 100644
      }
  
      public static void setProps(Application app) {
-@@ -155,6 +173,23 @@ public class PixelPropsUtils {
-                 setPropValue(key, value);
+@@ -143,6 +161,10 @@ public class PixelPropsUtils {
+                 propsToChange = propsToChangePixelXL;
              }
-         }
-+        if ((Arrays.asList(packagesToChangeMeizu).contains(packageName))) {
-+            Map<String, Object> propsToChange = propsToChangePixel6;
-+
-+            propsToChange = propsToChangeMeizu;
-+
-+            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-+            for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
-+                String key = prop.getKey();
-+                Object value = prop.getValue();
-+                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
-+                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
-+                    continue;
-+                }
-+                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
-+                setPropValue(key, value);
+ 
++            if (Arrays.asList(packagesToChangeMeizu).contains(packageName)) {
++                propsToChange = propsToChangeMeizu;
 +            }
-+        }
-         if (isPixelDevice){
-             if (packageName.equals(PACKAGE_GMS) &&
-                     processName.equals(PACKAGE_GMS + ".unstable")){
++
+             if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
+             for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
+                 String key = prop.getKey();
 diff --git a/packages/SystemUI/res/layout/status_bar.xml b/packages/SystemUI/res/layout/status_bar.xml
 index 2b722f19..9d9d11f0 100644
 --- a/packages/SystemUI/res/layout/status_bar.xml
@@ -1923,5 +1910,5 @@ index 00000000..667ae876
 +    }
 +}
 -- 
-2.37.0
+2.37.3
 
