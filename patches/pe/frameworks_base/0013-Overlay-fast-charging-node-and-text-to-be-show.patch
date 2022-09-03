@@ -1,0 +1,264 @@
+From 5adddbd48b260134eee7df833093496a0412a822 Mon Sep 17 00:00:00 2001
+From: SagarMakhar <sagarmakhar@gmail.com>
+Date: Sun, 4 Sep 2022 02:19:42 +0800
+Subject: [PATCH] Overlay fast charging node and text to be show
+
+Change-Id: Ib620abc61b00db5f3a8b2612bd947714b9b32d59
+---
+ core/java/android/os/BatteryManager.java      |  7 +++++
+ core/res/res/values/custom_strings.xml        |  3 ++
+ core/res/res/values/custom_symbols.xml        |  2 ++
+ .../settingslib/fuelgauge/BatteryStatus.java  | 10 +++++--
+ .../SystemUI/res/values/custom_config.xml     |  1 +
+ .../keyguard/KeyguardUpdateMonitor.java       |  7 ++++-
+ .../KeyguardIndicationController.java         | 15 ++++++++--
+ .../com/android/server/BatteryService.java    | 30 +++++++++++++++++--
+ 8 files changed, 68 insertions(+), 7 deletions(-)
+
+diff --git a/core/java/android/os/BatteryManager.java b/core/java/android/os/BatteryManager.java
+index 26d4269368c8..10858706622d 100644
+--- a/core/java/android/os/BatteryManager.java
++++ b/core/java/android/os/BatteryManager.java
+@@ -207,6 +207,13 @@ public class BatteryManager {
+      */
+     public static final String EXTRA_PLUGGED_RAW = "plugged_raw";
+ 
++    /**
++     * Extra for {@link android.content.Intent#ACTION_BATTERY_CHANGED}:
++     * boolean value to detect fast charging
++     * {@hide}
++     */
++    public static final String EXTRA_OEM_FAST_CHARGER = "oem_fast_charger";
++
+     /** @hide */
+     public static final int BATTERY_PROPERTY_MOD_CHARGE_FULL = 100;
+     /** @hide */
+diff --git a/core/res/res/values/custom_strings.xml b/core/res/res/values/custom_strings.xml
+index 10f9ec0d8771..db9a833609b6 100644
+--- a/core/res/res/values/custom_strings.xml
++++ b/core/res/res/values/custom_strings.xml
+@@ -1,4 +1,7 @@
+ <resources>
+     <!-- Face unlock -->
+     <string name="face_unlock_disabled_idle">Face unlock disabled due to inactivity</string>
++
++    <!-- Whether device has oem fast charging support -->
++    <string name="config_oemFastChargeNodePath">/sys/class/power_supply/usb/fastcharge_mode</string>
+ </resources>
+diff --git a/core/res/res/values/custom_symbols.xml b/core/res/res/values/custom_symbols.xml
+index b24e81606c7d..d0f03458ff8e 100644
+--- a/core/res/res/values/custom_symbols.xml
++++ b/core/res/res/values/custom_symbols.xml
+@@ -104,4 +104,6 @@
+     <!-- Whether devices suports in-display fingerprint when screen is off -->
+     <java-symbol type="bool" name="config_supportsScreenOffUdfps" />
+ 
++    <!-- Whether device has oem fast charging support -->
++    <java-symbol type="string" name="config_oemFastChargeNodePath" />
+ </resources>
+diff --git a/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java b/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
+index b56ae3864fb7..f5cbc085a227 100644
+--- a/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
++++ b/packages/SettingsLib/src/com/android/settingslib/fuelgauge/BatteryStatus.java
+@@ -27,6 +27,7 @@ import static android.os.BatteryManager.EXTRA_MAX_CHARGING_VOLTAGE;
+ import static android.os.BatteryManager.EXTRA_PLUGGED;
+ import static android.os.BatteryManager.EXTRA_PRESENT;
+ import static android.os.BatteryManager.EXTRA_STATUS;
++import static android.os.BatteryManager.EXTRA_OEM_FAST_CHARGER;
+ 
+ import android.content.Context;
+ import android.content.Intent;
+@@ -45,6 +46,7 @@ public class BatteryStatus {
+     public static final int CHARGING_SLOWLY = 0;
+     public static final int CHARGING_REGULAR = 1;
+     public static final int CHARGING_FAST = 2;
++    public static final int CHARGING_OEM_FAST = 3;
+ 
+     public final int status;
+     public final int level;
+@@ -52,15 +54,17 @@ public class BatteryStatus {
+     public final int health;
+     public final int maxChargingWattage;
+     public final boolean present;
++    public final boolean oemFastChargeStatus;
+ 
+     public BatteryStatus(int status, int level, int plugged, int health,
+-            int maxChargingWattage, boolean present) {
++            int maxChargingWattage, boolean present, boolean oemFastChargeStatus) {
+         this.status = status;
+         this.level = level;
+         this.plugged = plugged;
+         this.health = health;
+         this.maxChargingWattage = maxChargingWattage;
+         this.present = present;
++        this.oemFastChargeStatus = oemFastChargeStatus;
+     }
+ 
+     public BatteryStatus(Intent batteryChangedIntent) {
+@@ -69,6 +73,7 @@ public class BatteryStatus {
+         level = batteryChangedIntent.getIntExtra(EXTRA_LEVEL, 0);
+         health = batteryChangedIntent.getIntExtra(EXTRA_HEALTH, BATTERY_HEALTH_UNKNOWN);
+         present = batteryChangedIntent.getBooleanExtra(EXTRA_PRESENT, true);
++        oemFastChargeStatus = batteryChangedIntent.getBooleanExtra(EXTRA_OEM_FAST_CHARGER, false);
+ 
+         final int maxChargingMicroAmp = batteryChangedIntent.getIntExtra(EXTRA_MAX_CHARGING_CURRENT,
+                 -1);
+@@ -156,7 +161,8 @@ public class BatteryStatus {
+                 R.integer.config_chargingSlowlyThreshold);
+         final int fastThreshold = context.getResources().getInteger(
+                 R.integer.config_chargingFastThreshold);
+-        return maxChargingWattage <= 0 ? CHARGING_UNKNOWN :
++        return oemFastChargeStatus ? CHARGING_OEM_FAST :
++                maxChargingWattage <= 0 ? CHARGING_UNKNOWN :
+                 maxChargingWattage < slowThreshold ? CHARGING_SLOWLY :
+                         maxChargingWattage > fastThreshold ? CHARGING_FAST :
+                                 CHARGING_REGULAR;
+diff --git a/packages/SystemUI/res/values/custom_config.xml b/packages/SystemUI/res/values/custom_config.xml
+index d8e9d630c11e..452c55ccbe8d 100644
+--- a/packages/SystemUI/res/values/custom_config.xml
++++ b/packages/SystemUI/res/values/custom_config.xml
+@@ -80,4 +80,5 @@
+     <!-- Doze: does the long press sensor need a proximity check? -->
+     <bool name="doze_long_press_proximity_check">false</bool>
+ 
++    <string name="keyguard_plugged_in_oem_fast_charging">SonicCharge 3.0</string>
+ </resources>
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+index 90c15ae114c6..abb3e00c0d22 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+@@ -1990,7 +1990,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
+         }
+ 
+         // Take a guess at initial SIM state, battery status and PLMN until we get an update
+-        mBatteryStatus = new BatteryStatus(BATTERY_STATUS_UNKNOWN, 100, 0, 0, 0, true);
++        mBatteryStatus = new BatteryStatus(BATTERY_STATUS_UNKNOWN, 100, 0, 0, 0, true, false);
+ 
+         // Watch for interesting updates
+         final IntentFilter filter = new IntentFilter();
+@@ -3136,6 +3136,11 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
+             return true;
+         }
+ 
++        // change in oem fast charging while plugged in
++        if (nowPluggedIn && current.oemFastChargeStatus != old.oemFastChargeStatus) {
++            return true;
++        }
++
+         return false;
+     }
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+index 2c9716380374..46dd66217d34 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+@@ -879,10 +879,21 @@ public class KeyguardIndicationController {
+         if (hasChargingTime) {
+             String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
+                     mContext, mChargingTimeRemaining);
+-            return mContext.getResources().getString(chargingId, chargingTimeFormatted,
++            String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted,
+                     percentage);
++            if (mChargingSpeed == BatteryStatus.CHARGING_OEM_FAST) {
++                chargingText = percentage + " • " +
++                        mContext.getResources().getString(R.string.keyguard_plugged_in_oem_fast_charging) + "(" +
++                        chargingTimeFormatted + "Until full)";
++            }
++            return chargingText;
+         } else {
+-            return mContext.getResources().getString(chargingId, percentage);
++            String chargingText =  mContext.getResources().getString(chargingId, percentage);
++            if (mChargingSpeed == BatteryStatus.CHARGING_OEM_FAST) {
++                chargingText = percentage + " • " +
++                        mContext.getResources().getString(R.string.keyguard_plugged_in_oem_fast_charging);
++            }
++            return chargingText;
+         }
+     }
+ 
+diff --git a/services/core/java/com/android/server/BatteryService.java b/services/core/java/com/android/server/BatteryService.java
+index 56310c0b5b3b..4a74f0da0c91 100644
+--- a/services/core/java/com/android/server/BatteryService.java
++++ b/services/core/java/com/android/server/BatteryService.java
+@@ -81,6 +81,7 @@ import com.android.server.lights.LogicalLight;
+ import java.io.BufferedReader;
+ import java.io.File;
+ import java.io.FileDescriptor;
++import java.io.FileNotFoundException;
+ import java.io.FileOutputStream;
+ import java.io.FileReader;
+ import java.io.IOException;
+@@ -188,6 +189,10 @@ public final class BatteryService extends SystemService {
+ 
+     private boolean mBatteryLevelLow;
+ 
++    private boolean mOemFastCharger;
++    private boolean mHasOemFastCharger;
++    private boolean mLastOemFastCharger;
++
+     private long mDischargeStartTime;
+     private int mDischargeStartLevel;
+ 
+@@ -636,6 +641,8 @@ public final class BatteryService extends SystemService {
+         shutdownIfNoPowerLocked();
+         shutdownIfOverTempLocked();
+ 
++        mOemFastCharger = isOemFastCharger();
++
+         if (force || (mHealthInfo.batteryStatus != mLastBatteryStatus ||
+                 mHealthInfo.batteryHealth != mLastBatteryHealth ||
+                 mHealthInfo.batteryPresent != mLastBatteryPresent ||
+@@ -651,7 +658,8 @@ public final class BatteryService extends SystemService {
+                 mBatteryModProps.modStatus != mLastModStatus ||
+                 mBatteryModProps.modFlag != mLastModFlag ||
+                 mBatteryModProps.modType != mLastModType ||
+-                mBatteryModProps.modPowerSource != mLastModPowerSource)) {
++                mBatteryModProps.modPowerSource != mLastModPowerSource ||
++                mOemFastCharger != mLastOemFastCharger)) {
+ 
+             if (mPlugType != mLastPlugType) {
+                 if (mLastPlugType == BATTERY_PLUGGED_NONE) {
+@@ -827,7 +835,7 @@ public final class BatteryService extends SystemService {
+             mLastModFlag = mBatteryModProps.modFlag;
+             mLastModType = mBatteryModProps.modType;
+             mLastModPowerSource = mBatteryModProps.modPowerSource;
+-
++            mLastOemFastCharger = mOemFastCharger;
+         }
+     }
+ 
+@@ -861,6 +869,7 @@ public final class BatteryService extends SystemService {
+         intent.putExtra(BatteryManager.EXTRA_PLUGGED_RAW, mPlugType);
+         intent.putExtra(BatteryManager.EXTRA_MOD_TYPE, mBatteryModProps.modType);
+         intent.putExtra(BatteryManager.EXTRA_MOD_POWER_SOURCE, mBatteryModProps.modPowerSource);
++        intent.putExtra(BatteryManager.EXTRA_OEM_FAST_CHARGER, mOemFastCharger);
+         if (DEBUG) {
+             Slog.d(TAG, "Sending ACTION_BATTERY_CHANGED. scale:" + BATTERY_SCALE
+                     + ", info:" + mHealthInfo.toString());
+@@ -915,6 +924,23 @@ public final class BatteryService extends SystemService {
+         mLastBatteryLevelChangedSentMs = SystemClock.elapsedRealtime();
+     }
+ 
++    private boolean isOemFastCharger() {
++        String filePath = mContext.getResources().getString(
++                com.android.internal.R.string.config_oemFastChargeNodePath);
++        if (filePath == null || filePath.isEmpty()) return false;
++        try {
++            FileReader file = new FileReader(filePath);
++            BufferedReader br = new BufferedReader(file);
++            String state = br.readLine();
++            br.close();
++            file.close();
++            return "1".equals(state);
++        } catch (FileNotFoundException e) {
++        } catch (IOException e) {
++        }
++        return false;
++    }
++
+     // TODO: Current code doesn't work since "--unplugged" flag in BSS was purposefully removed.
+     private void logBatteryStatsLocked() {
+         IBinder batteryInfoService = ServiceManager.getService(BatteryStats.SERVICE_NAME);
+-- 
+2.37.3
+
