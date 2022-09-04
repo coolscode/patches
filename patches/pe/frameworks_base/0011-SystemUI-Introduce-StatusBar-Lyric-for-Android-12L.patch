@@ -1,6 +1,6 @@
-From be0d00937546f73f9c449f17ff22dbf7f61e78c3 Mon Sep 17 00:00:00 2001
+From 9bf4a1c7fc5b6cd2f606e2de98278a0b92bb1885 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Fri, 2 Sep 2022 23:38:37 +0800
+Date: Sun, 4 Sep 2022 08:34:03 +0800
 Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 Also modify PixelPropsUtils
@@ -14,7 +14,7 @@ Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
  core/java/android/provider/Settings.java      |   7 +
  core/java/android/widget/ImageSwitcher.java   |  16 +
  core/java/android/widget/TextSwitcher.java    |  11 +
- .../internal/util/custom/PixelPropsUtils.java |  22 +
+ .../internal/util/custom/PixelPropsUtils.java |  35 ++
  packages/SystemUI/res/layout/status_bar.xml   |  13 +
  .../res/layout/status_bar_lyric_ticker.xml    |  61 +++
  .../SystemUI/res/values/custom_dimens.xml     |   6 +
@@ -33,7 +33,7 @@ Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
  .../fragment/CollapsedStatusBarFragment.java  |  39 ++
  .../window/StatusBarWindowController.java     |   2 +-
  .../android/systemui/util/LyricTextView.java  | 142 ++++++
- 24 files changed, 1313 insertions(+), 5 deletions(-)
+ 24 files changed, 1326 insertions(+), 5 deletions(-)
  create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
@@ -41,7 +41,7 @@ Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
  create mode 100644 packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
 
 diff --git a/core/api/current.txt b/core/api/current.txt
-index 1dd401d0..1ecc42d7 100644
+index 1dd401d04e2b..1ecc42d78c2d 100644
 --- a/core/api/current.txt
 +++ b/core/api/current.txt
 @@ -5730,6 +5730,8 @@ package android.app {
@@ -54,7 +54,7 @@ index 1dd401d0..1ecc42d7 100644
      field public static final int FLAG_INSISTENT = 4; // 0x4
      field public static final int FLAG_LOCAL_ONLY = 256; // 0x100
 diff --git a/core/java/android/app/Notification.java b/core/java/android/app/Notification.java
-index 2c02be7d..8b613f3c 100644
+index 2c02be7dc6b9..8b613f3cef8b 100644
 --- a/core/java/android/app/Notification.java
 +++ b/core/java/android/app/Notification.java
 @@ -694,6 +694,11 @@ public class Notification implements Parcelable
@@ -70,7 +70,7 @@ index 2c02be7d..8b613f3c 100644
              BigTextStyle.class, BigPictureStyle.class, InboxStyle.class, MediaStyle.class,
              DecoratedCustomViewStyle.class, DecoratedMediaCustomViewStyle.class,
 diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
-index 59bbc87c..ccc1c41d 100644
+index 59bbc87caed8..ccc1c41dc7c7 100644
 --- a/core/java/android/provider/Settings.java
 +++ b/core/java/android/provider/Settings.java
 @@ -7215,6 +7215,13 @@ public final class Settings {
@@ -88,7 +88,7 @@ index 59bbc87c..ccc1c41d 100644
           * Indicates that the user has not started setup personalization.
           * One of the possible states for {@link #USER_SETUP_PERSONALIZATION_STATE}.
 diff --git a/core/java/android/widget/ImageSwitcher.java b/core/java/android/widget/ImageSwitcher.java
-index 112fcc31..24729230 100644
+index 112fcc313366..247292309e37 100644
 --- a/core/java/android/widget/ImageSwitcher.java
 +++ b/core/java/android/widget/ImageSwitcher.java
 @@ -82,6 +82,22 @@ public class ImageSwitcher extends ViewSwitcher
@@ -115,7 +115,7 @@ index 112fcc31..24729230 100644
       * Sets a new drawable on the ImageSwitcher.
       * This will set that drawable on the next ImageView in the switcher and will
 diff --git a/core/java/android/widget/TextSwitcher.java b/core/java/android/widget/TextSwitcher.java
-index ecd9a8cf..ca16c9dc 100644
+index ecd9a8cfb3d1..ca16c9dc6013 100644
 --- a/core/java/android/widget/TextSwitcher.java
 +++ b/core/java/android/widget/TextSwitcher.java
 @@ -93,4 +93,15 @@ public class TextSwitcher extends ViewSwitcher {
@@ -135,7 +135,7 @@ index ecd9a8cf..ca16c9dc 100644
 +
  }
 diff --git a/core/java/com/android/internal/util/custom/PixelPropsUtils.java b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
-index 3db36602..e9f49a3c 100644
+index 3db366020def..8668455297d6 100644
 --- a/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 @@ -1,5 +1,6 @@
@@ -176,19 +176,32 @@ index 3db36602..e9f49a3c 100644
      }
  
      public static void setProps(Application app) {
-@@ -143,6 +161,10 @@ public class PixelPropsUtils {
-                 propsToChange = propsToChangePixelXL;
+@@ -155,6 +173,23 @@ public class PixelPropsUtils {
+                 setPropValue(key, value);
              }
- 
-+            if (Arrays.asList(packagesToChangeMeizu).contains(packageName)) {
-+                propsToChange = propsToChangeMeizu;
-+            }
+         }
++        if ((Arrays.asList(packagesToChangeMeizu).contains(packageName))) {
++            Map<String, Object> propsToChange = propsToChangePixel6;
 +
-             if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-             for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
-                 String key = prop.getKey();
++            propsToChange = propsToChangeMeizu;
++
++            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
++            for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
++                String key = prop.getKey();
++                Object value = prop.getValue();
++                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
++                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
++                    continue;
++                }
++                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
++                setPropValue(key, value);
++            }
++        }
+         if (sIsGms) {
+                 setPropValue("FINGERPRINT", "google/angler/angler:6.0/MDB08L/2343525:user/release-keys");
+                 setPropValue("MODEL", "angler");
 diff --git a/packages/SystemUI/res/layout/status_bar.xml b/packages/SystemUI/res/layout/status_bar.xml
-index 2b722f19..9d9d11f0 100644
+index 2b722f19812b..9d9d11f0aaad 100644
 --- a/packages/SystemUI/res/layout/status_bar.xml
 +++ b/packages/SystemUI/res/layout/status_bar.xml
 @@ -56,6 +56,19 @@
@@ -213,7 +226,7 @@ index 2b722f19..9d9d11f0 100644
               DISABLE_NOTIFICATION_ICONS, respectively -->
 diff --git a/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml b/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
 new file mode 100644
-index 00000000..4b618fcb
+index 000000000000..4b618fcb72e2
 --- /dev/null
 +++ b/packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
 @@ -0,0 +1,61 @@
@@ -279,7 +292,7 @@ index 00000000..4b618fcb
 +    </com.android.systemui.statusbar.phone.TickerView>
 +</com.android.keyguard.AlphaOptimizedLinearLayout>
 diff --git a/packages/SystemUI/res/values/custom_dimens.xml b/packages/SystemUI/res/values/custom_dimens.xml
-index a274f66b..1016f972 100644
+index a274f66bd0fa..1016f972a70a 100644
 --- a/packages/SystemUI/res/values/custom_dimens.xml
 +++ b/packages/SystemUI/res/values/custom_dimens.xml
 @@ -11,4 +11,10 @@
@@ -294,7 +307,7 @@ index a274f66b..1016f972 100644
 +    <dimen name="ticker_text_end_padding">10dp</dimen>
  </resources>
 diff --git a/packages/SystemUI/res/values/custom_styles.xml b/packages/SystemUI/res/values/custom_styles.xml
-index 10a47f4b..68182623 100644
+index 10a47f4bb4ff..6818262394a7 100644
 --- a/packages/SystemUI/res/values/custom_styles.xml
 +++ b/packages/SystemUI/res/values/custom_styles.xml
 @@ -3,4 +3,10 @@
@@ -309,7 +322,7 @@ index 10a47f4b..68182623 100644
 +    </style>
  </resources>
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
-index 119eed77..cda04b01 100644
+index 119eed7705a9..cda04b014ce4 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationMediaManager.java
 @@ -448,6 +448,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable
@@ -342,7 +355,7 @@ index 119eed77..cda04b01 100644
  
          }
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
-index 8bc41c20..c06f0744 100644
+index 8bc41c20caaf..c06f07444550 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/NotificationEntryManager.java
 @@ -29,6 +29,7 @@ import android.service.notification.NotificationListenerService;
@@ -433,7 +446,7 @@ index 8bc41c20..c06f0744 100644
 +
  }
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
-index 1eb007e3..743a69e6 100644
+index 1eb007e345ec..743a69e689e1 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/dagger/NotificationsModule.java
 @@ -118,6 +118,7 @@ public interface NotificationsModule {
@@ -453,7 +466,7 @@ index 1eb007e3..743a69e6 100644
                  dumpManager);
      }
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt b/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
-index 11b0429d..0a86a779 100644
+index 11b0429d2cf9..0a86a7796591 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/init/NotificationsControllerImpl.kt
 @@ -129,6 +129,8 @@ class NotificationsControllerImpl @Inject constructor(
@@ -466,7 +479,7 @@ index 11b0429d..0a86a779 100644
  
          peopleSpaceWidgetManager.attach(notificationListener)
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
-index b1c69e44..8dc0b195 100644
+index b1c69e44da12..8dc0b1953bfb 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/notification/interruption/HeadsUpController.java
 @@ -32,6 +32,7 @@ import com.android.systemui.statusbar.notification.NotificationEntryManager;
@@ -510,7 +523,7 @@ index b1c69e44..8dc0b195 100644
  }
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
 new file mode 100644
-index 00000000..18841233
+index 000000000000..18841233226e
 --- /dev/null
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
 @@ -0,0 +1,199 @@
@@ -714,7 +727,7 @@ index 00000000..18841233
 +    }
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
-index 58fcb13c..08cfa992 100644
+index 58fcb13c79cb..08cfa992c195 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBar.java
 @@ -76,7 +76,10 @@ import android.content.pm.ResolveInfo;
@@ -1065,7 +1078,7 @@ index 58fcb13c..08cfa992 100644
                  mWindowManagerService != null) {
              boolean navbarEnabled = NavbarUtils.isEnabled(mContext);
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
-index ecd5c985..9b424250 100644
+index ecd5c985154c..9b4242508d93 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationPresenter.java
 @@ -225,6 +225,11 @@ public class StatusBarNotificationPresenter implements NotificationPresenter,
@@ -1082,7 +1095,7 @@ index ecd5c985..9b424250 100644
      }
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
 new file mode 100644
-index 00000000..76757d1d
+index 000000000000..76757d1dbe8e
 --- /dev/null
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
 @@ -0,0 +1,436 @@
@@ -1524,7 +1537,7 @@ index 00000000..76757d1d
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java
 new file mode 100644
-index 00000000..d7abbb61
+index 000000000000..d7abbb61b94c
 --- /dev/null
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/TickerView.java
 @@ -0,0 +1,47 @@
@@ -1576,7 +1589,7 @@ index 00000000..d7abbb61
 +    }
 +}
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
-index 8750845e..cf8d9f59 100644
+index 8750845e57a8..cf8d9f59f528 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/dagger/StatusBarViewModule.java
 @@ -46,6 +46,7 @@ import com.android.systemui.statusbar.phone.NotificationPanelView;
@@ -1618,7 +1631,7 @@ index 8750845e..cf8d9f59 100644
                  statusBarHideIconsForBouncerManager,
                  keyguardStateController,
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
-index b1d37d86..3df1ca7b 100644
+index b1d37d862b2c..3df1ca7bc19f 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/fragment/CollapsedStatusBarFragment.java
 @@ -39,6 +39,7 @@ import android.view.LayoutInflater;
@@ -1749,7 +1762,7 @@ index b1d37d86..3df1ca7b 100644
      public void onSystemChromeAnimationStart() {
          if (mAnimationScheduler.getAnimationState() == ANIMATING_OUT
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java b/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
-index 85a6cd22..6b69c386 100644
+index 85a6cd224b5f..6b69c386cf61 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/window/StatusBarWindowController.java
 @@ -70,7 +70,7 @@ public class StatusBarWindowController {
@@ -1763,7 +1776,7 @@ index 85a6cd22..6b69c386 100644
      private final ViewGroup mLaunchAnimationContainer;
 diff --git a/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java b/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
 new file mode 100644
-index 00000000..667ae876
+index 000000000000..667ae876f42a
 --- /dev/null
 +++ b/packages/SystemUI/src/com/android/systemui/util/LyricTextView.java
 @@ -0,0 +1,142 @@
