@@ -1,0 +1,60 @@
+From 09574cc1b1bd69918d302e1b89dd9d71c1561a1d Mon Sep 17 00:00:00 2001
+From: Richard Raya <rdxzv.dev@gmail.com>
+Date: Wed, 20 Jul 2022 21:25:07 -0300
+Subject: [PATCH] GameSpace: Remove Lineage SDK dependency
+
+Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+---
+ app/src/main/Android.bp                                    | 1 -
+ .../preferences/SystemSettingSwitchPreference.java         | 7 ++-----
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/app/src/main/Android.bp b/app/src/main/Android.bp
+index 9d256a0..df18d0a 100644
+--- a/app/src/main/Android.bp
++++ b/app/src/main/Android.bp
+@@ -26,7 +26,6 @@ android_app {
+         "kotlinx-coroutines-android",
+         "gson-prebuilt-jar",
+         "hilt_android",
+-        "org.lineageos.platform.internal",
+     ],
+     kotlincflags: [
+         "-Xuse-experimental=kotlin.Experimental",
+diff --git a/app/src/main/java/com/crdroid/settings/preferences/SystemSettingSwitchPreference.java b/app/src/main/java/com/crdroid/settings/preferences/SystemSettingSwitchPreference.java
+index 98526e4..75b2474 100644
+--- a/app/src/main/java/com/crdroid/settings/preferences/SystemSettingSwitchPreference.java
++++ b/app/src/main/java/com/crdroid/settings/preferences/SystemSettingSwitchPreference.java
+@@ -20,9 +20,9 @@ import android.provider.Settings;
+ import android.os.UserHandle;
+ import android.util.AttributeSet;
+ 
+-import lineageos.preference.SelfRemovingSwitchPreference;
++import androidx.preference.SwitchPreference;
+ 
+-public class SystemSettingSwitchPreference extends SelfRemovingSwitchPreference {
++public class SystemSettingSwitchPreference extends SwitchPreference {
+ 
+     public SystemSettingSwitchPreference(Context context, AttributeSet attrs, int defStyle) {
+         super(context, attrs, defStyle);
+@@ -36,17 +36,14 @@ public class SystemSettingSwitchPreference extends SelfRemovingSwitchPreference
+         super(context);
+     }
+ 
+-    @Override
+     protected boolean isPersisted() {
+         return Settings.System.getString(getContext().getContentResolver(), getKey()) != null;
+     }
+ 
+-    @Override
+     protected void putBoolean(String key, boolean value) {
+         Settings.System.putIntForUser(getContext().getContentResolver(), key, value ? 1 : 0, UserHandle.USER_CURRENT);
+     }
+ 
+-    @Override
+     protected boolean getBoolean(String key, boolean defaultValue) {
+         return Settings.System.getIntForUser(getContext().getContentResolver(),
+                 key, defaultValue ? 1 : 0, UserHandle.USER_CURRENT) != 0;
+-- 
+2.37.3
+
