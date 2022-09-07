@@ -30,6 +30,8 @@ elif [ $1 = acme  ] ;then
 PROJECT="AcmeUI"
 elif [ $1 = arrow  ] ;then
 PROJECH="ArrowOS"
+elif [ -d $PD/$1/packages_apps_GameSpace ] || [ ! -d packages/apps/GameSpace ] ;then
+git clone https://github.com/crdroidandroid/android_packages_apps_GameSpace -b 12.1 packages/apps/GameSpace
 fi
 
 echo "Adapt $PROJECT for $DEVICE"
