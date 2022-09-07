@@ -18,28 +18,21 @@ for project in $(cd $patches/patches/$tree; echo *);do
 done
 }
 
-echo ""
+DEVICE="Cezanne" 
 
-if [ $1 = kosp ];then
-echo "Adapt AOSP-Krypton to CEZANNE"
+if [ $1 = kosp ] ;then
+PROJECT="AOSP-Krypton"
+elif [ $1 = pe  ] ;then
+PROJECT="Pixel-Experience"
+elif [ $1 = lineage  ] ;then
+PROJECT="LineageOS"
+elif [ $1 = acme  ] ;then
+PROJECT="AcmeUI"
+elif [ $1 = arrow  ] ;then
+PROJECH="ArrowOS"
 fi
 
-if [ $1 = pe ];then
-echo "Adapt Pixel-Experience to CEZANNE"
-fi
-
-if [ $1 = lineage ];then
-echo "Adapt LineageOS to CEZANNE"
-fi
-
-if [ $1 = acme ];then
-echo "Adapt AcmeUI to CEZANNE"
-fi
-
-if [ $1 = arrow ];then
-echo "Adapt ArrowOS to CEZANNE"
-fi
-
+echo "Adapt $PROJECT to $DEVICE"
 echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 sleep 5
