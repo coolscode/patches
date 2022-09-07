@@ -32,7 +32,7 @@ elif [ $1 = arrow  ] ;then
 PROJECH="ArrowOS"
 fi
 
-echo "Adapt $PROJECT to $DEVICE"
+echo "Adapt $PROJECT for $DEVICE"
 echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
 sleep 5
