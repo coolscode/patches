@@ -1,7 +1,7 @@
-From bf258bd06284df94c2872e677679299d2498b4df Mon Sep 17 00:00:00 2001
+From e246e1a556b8979e77a6ddc8737377b1700a14ed Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Wed, 6 Oct 2021 18:40:30 -0700
-Subject: [PATCH 2/10] Revert "Make QS always use dark theme colors"
+Subject: [PATCH 01/17] Revert "Make QS always use dark theme colors"
 
 This reverts commit d62f7249f9e3222da95ecf6816601c408aac6be5.
 
@@ -15,7 +15,7 @@ Change-Id: Iac4c96ccb3845812ca3df820bf27dc533816f72e
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/packages/SystemUI/res/layout/quick_qs_status_icons.xml b/packages/SystemUI/res/layout/quick_qs_status_icons.xml
-index 542a1c9d22bd..7a370d8cbc48 100644
+index 4299c6bd8e60..1f6a6bbcb4c7 100644
 --- a/packages/SystemUI/res/layout/quick_qs_status_icons.xml
 +++ b/packages/SystemUI/res/layout/quick_qs_status_icons.xml
 @@ -24,7 +24,7 @@
@@ -50,5 +50,5 @@ index f26159f5176a..e2665f879e5e 100644
          <item name="darkIconTheme">@style/QSHeaderDarkTheme</item>
      </style>
 -- 
-2.25.1
+2.37.3
 

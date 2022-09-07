@@ -1,7 +1,7 @@
-From dc81ab2729689f570fa04c72496b20ea98792706 Mon Sep 17 00:00:00 2001
+From 482fa092e2d292f6d8b01bebd68d616c8805d78c Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Fri, 18 Mar 2022 23:19:54 -0700
-Subject: [PATCH 8/10] monet: Fix overly low chroma for tones below 90
+Subject: [PATCH 07/17] monet: Fix overly low chroma for tones below 90
 
 Chroma is capped to 40 for light colors of L* 90 and above for valid
 reasons. However, assigning the capped value to "chroma" fails to
@@ -37,5 +37,5 @@ index aab3538e3c4c..c5b9458614e1 100644
          return shades;
      }
 -- 
-2.25.1
+2.37.3
 

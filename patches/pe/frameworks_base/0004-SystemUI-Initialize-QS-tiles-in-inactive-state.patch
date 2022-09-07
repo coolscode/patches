@@ -1,7 +1,7 @@
-From cee09b3e6dfdf780f6dab8d4d679a5a4c6ef9d23 Mon Sep 17 00:00:00 2001
+From 02d105ffa5f1708c57d183affe85568db59fb6e2 Mon Sep 17 00:00:00 2001
 From: Danny Lin <danny@kdrag0n.dev>
 Date: Mon, 11 Oct 2021 19:25:02 -0700
-Subject: [PATCH 5/10] SystemUI: Initialize QS tiles in inactive state
+Subject: [PATCH 04/17] SystemUI: Initialize QS tiles in inactive state
 
 Now that the QS fragment is recreated when changing the UI mode (so that
 it follows light/dark themes), all tiles flash with active color briefly
@@ -17,7 +17,7 @@ Change-Id: I048171d503f5533e91bab486b8805ac15c329f31
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/packages/SystemUI/plugin/src/com/android/systemui/plugins/qs/QSTile.java b/packages/SystemUI/plugin/src/com/android/systemui/plugins/qs/QSTile.java
-index 77018d736163..9e02b140175b 100644
+index 7fae481ae96f..1b38aa44972f 100644
 --- a/packages/SystemUI/plugin/src/com/android/systemui/plugins/qs/QSTile.java
 +++ b/packages/SystemUI/plugin/src/com/android/systemui/plugins/qs/QSTile.java
 @@ -148,7 +148,7 @@ public interface QSTile {
@@ -30,5 +30,5 @@ index 77018d736163..9e02b140175b 100644
          public Icon icon;
          public Supplier<Icon> iconSupplier;
 -- 
-2.25.1
+2.37.3
 

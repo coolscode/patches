@@ -1,7 +1,7 @@
-From ec3e3baee700a24a1d4e47f68fd833fde993ff68 Mon Sep 17 00:00:00 2001
+From 2ed19a0e6085283178adbf5cf47f774ce5f65338 Mon Sep 17 00:00:00 2001
 From: wfhtqp <wfhtqp@gmail.com>
 Date: Sun, 12 Jun 2022 22:19:21 +0800
-Subject: [PATCH] Disable nightlight when udfps show
+Subject: [PATCH 10/17] Disable nightlight when udfps show
 
 Change-Id: I020749789a00a5a055260346269e137628beecc9
 ---
@@ -9,7 +9,7 @@ Change-Id: I020749789a00a5a055260346269e137628beecc9
  1 file changed, 20 insertions(+)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
-index 980f754e..2a258720 100644
+index 980f754e9774..2a258720b785 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 @@ -36,6 +36,7 @@ import android.graphics.RectF;
@@ -58,5 +58,5 @@ index 980f754e..2a258720 100644
                  updateOverlay();
              });
 -- 
-2.36.1
+2.37.3
 

@@ -1,7 +1,7 @@
 From 9bf4a1c7fc5b6cd2f606e2de98278a0b92bb1885 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
 Date: Sun, 4 Sep 2022 08:34:03 +0800
-Subject: [PATCH] SystemUI: Introduce StatusBar Lyric for Android 12L
+Subject: [PATCH 11/17] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 Also modify PixelPropsUtils
 
