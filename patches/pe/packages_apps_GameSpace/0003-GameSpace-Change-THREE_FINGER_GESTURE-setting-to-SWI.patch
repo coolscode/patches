@@ -1,0 +1,33 @@
+From 3b8893e9c4e8197448f479e8103204dbc75cc974 Mon Sep 17 00:00:00 2001
+From: Joey Huab <joey@evolution-x.org>
+Date: Tue, 17 May 2022 23:24:49 +0900
+Subject: [PATCH 3/3] GameSpace: Change THREE_FINGER_GESTURE setting to
+ SWIPE_TO_SCREENSHOT
+
+* Follows https://github.com/Evolution-X/packages_apps_Settings/commit/955be01c1ddcc91dbfa8a4522033a2b1505d084c.
+---
+ .../java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt     | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+index b1a2c93..85b43f2 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+@@ -61,12 +61,12 @@ class SystemSettings @Inject constructor(
+ 
+     var threeScreenshot
+         get() = Settings.System.getIntForUser(
+-            resolver, Settings.System.THREE_FINGER_GESTURE, 0,
++            resolver, Settings.System.SWIPE_TO_SCREENSHOT, 0,
+             UserHandle.USER_CURRENT
+         ) == 1
+         set(it) {
+             Settings.System.putIntForUser(
+-                resolver, Settings.System.THREE_FINGER_GESTURE,
++                resolver, Settings.System.SWIPE_TO_SCREENSHOT,
+                 it.toInt(), UserHandle.USER_CURRENT
+             )
+         }
+-- 
+2.37.3
+

@@ -1,0 +1,38 @@
+From 956532a0a592468ea71e9ae86efea6552265f980 Mon Sep 17 00:00:00 2001
+From: cristianvaz <cristianvaz81993@gmail.com>
+Date: Thu, 23 Jun 2022 11:40:34 +0200
+Subject: [PATCH 18/19] base: define missing config_lightFontFamily
+
+Change-Id: I854570cf513c9d447d7c25b2bbf280806f898588
+---
+ core/res/res/values/config.xml  | 3 +++
+ core/res/res/values/symbols.xml | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index 90841ab58a65..d6e56b5fa4d7 100644
+--- a/core/res/res/values/config.xml
++++ b/core/res/res/values/config.xml
+@@ -5292,4 +5292,7 @@
+     <string-array name="config_serviceStateLocationAllowedPackages">
+         <item>"com.android.phone"</item>
+     </string-array>
++
++    <string name="config_lightFontFamily" translatable="false">sans-serif</string>
++
+ </resources>
+diff --git a/core/res/res/values/symbols.xml b/core/res/res/values/symbols.xml
+index 4508cc9f0084..d121a131c9ee 100644
+--- a/core/res/res/values/symbols.xml
++++ b/core/res/res/values/symbols.xml
+@@ -4492,4 +4492,7 @@
+   <java-symbol type="array" name="config_builtInDisplayIsRoundArray" />
+   <java-symbol type="array" name="config_serviceStateLocationAllowedPackages" />
+   <java-symbol type="dimen" name="status_bar_height_default" />
++
++  <!-- Light / Regular style fonts -->
++  <java-symbol type="string" name="config_lightFontFamily" />
+ </resources>
+-- 
+2.37.3
+

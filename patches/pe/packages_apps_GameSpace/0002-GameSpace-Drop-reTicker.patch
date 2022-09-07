@@ -1,0 +1,164 @@
+From f9b327057b1b72ee4f05e24020582171c476f20f Mon Sep 17 00:00:00 2001
+From: Richard Raya <rdxzv.dev@gmail.com>
+Date: Wed, 7 Sep 2022 22:53:17 +0800
+Subject: [PATCH 2/3] GameSpace: Drop reTicker
+
+Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+---
+ .../io/chaldeaprjkt/gamespace/data/GameSession.kt  |  5 -----
+ .../io/chaldeaprjkt/gamespace/data/SessionState.kt |  1 -
+ .../chaldeaprjkt/gamespace/data/SystemSettings.kt  | 14 --------------
+ .../gamespace/widget/tiles/NotificationTile.kt     | 11 +----------
+ app/src/main/res/values/arrays.xml                 |  2 --
+ app/src/main/res/values/strings.xml                |  2 --
+ 6 files changed, 1 insertion(+), 34 deletions(-)
+
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/data/GameSession.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/data/GameSession.kt
+index 2dd3287..9bda29c 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/data/GameSession.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/data/GameSession.kt
+@@ -59,7 +59,6 @@ class GameSession @Inject constructor(
+             autoBrightness = systemSettings.autoBrightness,
+             threeScreenshot = systemSettings.threeScreenshot,
+             headsUp = systemSettings.headsUp,
+-            reTicker = systemSettings.reTicker,
+             ringerMode = audioManager.ringerModeInternal,
+             adbEnabled = systemSettings.adbEnabled,
+         )
+@@ -74,13 +73,10 @@ class GameSession @Inject constructor(
+         }
+         if (appSettings.notificationMode == 0 || appSettings.notificationMode == 3) {
+             systemSettings.headsUp = false
+-            systemSettings.reTicker = false
+         } else if (appSettings.notificationMode == 1) {
+             systemSettings.headsUp = true
+-            systemSettings.reTicker = false
+         } else {
+             systemSettings.headsUp = true
+-            systemSettings.reTicker = true
+         }
+         if (appSettings.ringerMode != 3) {
+             audioManager.ringerModeInternal = appSettings.ringerMode
+@@ -99,7 +95,6 @@ class GameSession @Inject constructor(
+             orig.adbEnabled?.let { systemSettings.adbEnabled = it }
+         }
+         orig.headsUp?.let { systemSettings.headsUp = it }
+-        orig.reTicker?.let { systemSettings.reTicker = it }
+         if (appSettings.ringerMode != 3) {
+             audioManager.ringerModeInternal = orig.ringerMode
+         }
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SessionState.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SessionState.kt
+index f556f9a..1236092 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SessionState.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SessionState.kt
+@@ -25,7 +25,6 @@ data class SessionState(
+     var autoBrightness: Boolean? = null,
+     var threeScreenshot: Boolean? = null,
+     var headsUp: Boolean? = null,
+-    var reTicker: Boolean? = null,
+     var ringerMode: Int = AudioManager.RINGER_MODE_NORMAL,
+     var adbEnabled: Boolean? = null,
+ )
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+index 9a86b9c..b1a2c93 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+@@ -40,20 +40,6 @@ class SystemSettings @Inject constructor(
+             )
+         }
+ 
+-    var reTicker
+-        get() =
+-            Settings.System.getIntForUser(
+-                resolver, Settings.System.RETICKER_STATUS, 0,
+-                UserHandle.USER_CURRENT) == 1
+-        set(it) {
+-            Settings.System.putIntForUser(
+-                resolver,
+-                Settings.System.RETICKER_STATUS,
+-                it.toInt(),
+-                UserHandle.USER_CURRENT
+-            )
+-        }
+-
+     var autoBrightness
+         get() =
+             Settings.System.getIntForUser(
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/widget/tiles/NotificationTile.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/widget/tiles/NotificationTile.kt
+index a3518e3..d5a98be 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/widget/tiles/NotificationTile.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/widget/tiles/NotificationTile.kt
+@@ -32,22 +32,14 @@ class NotificationTile @JvmOverloads constructor(
+             when (value) {
+                 NO_NOTIFICATION -> {
+                     systemSettings.headsUp = false
+-                    systemSettings.reTicker = false
+                     summary?.text = context.getString(R.string.notification_hide)
+                 }
+                 HEADS_UP_MODE -> {
+                     systemSettings.headsUp = true
+-                    systemSettings.reTicker = false
+                     summary?.text = context.getString(R.string.notification_headsup)
+                 }
+-                RETICKER_MODE -> {
+-                    systemSettings.headsUp = true
+-                    systemSettings.reTicker = true
+-                    summary?.text = context.getString(R.string.notification_reticker)
+-                }
+                 DANMAKU_MODE -> {
+                     systemSettings.headsUp = false
+-                    systemSettings.reTicker = false
+                     summary?.text = context.getString(R.string.notification_danmaku)
+                 }
+             }
+@@ -69,7 +61,6 @@ class NotificationTile @JvmOverloads constructor(
+     companion object {
+         private const val NO_NOTIFICATION = 0
+         private const val HEADS_UP_MODE = 1
+-        private const val RETICKER_MODE = 2
+-        private const val DANMAKU_MODE = 3
++        private const val DANMAKU_MODE = 2
+     }
+ }
+diff --git a/app/src/main/res/values/arrays.xml b/app/src/main/res/values/arrays.xml
+index dd6f1db..f910340 100644
+--- a/app/src/main/res/values/arrays.xml
++++ b/app/src/main/res/values/arrays.xml
+@@ -52,7 +52,6 @@
+     <string-array name="notification_mode_entries" translatable="false">
+         <item>@string/notification_mode_hide</item>
+         <item>@string/notification_mode_headsup</item>
+-        <item>@string/notification_mode_reticker</item>
+         <item>@string/notification_mode_danmaku</item>
+     </string-array>
+ 
+@@ -60,6 +59,5 @@
+         <item>0</item>
+         <item>1</item>
+         <item>2</item>
+-        <item>3</item>
+     </string-array>
+ </resources>
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+index f00c75c..ea928fa 100644
+--- a/app/src/main/res/values/strings.xml
++++ b/app/src/main/res/values/strings.xml
+@@ -35,7 +35,6 @@
+     <string name="notification_mode_title">Notification mode</string>
+     <string name="notification_mode_hide">Do not show</string>
+     <string name="notification_mode_headsup">Show as Heads Up</string>
+-    <string name="notification_mode_reticker">Show as reTicker</string>
+     <string name="notification_mode_danmaku">Show as Danmaku</string>
+ 
+     <!-- Ringer Mode -->
+@@ -79,7 +78,6 @@
+     <string name="fps_Info_title">FPS info</string>
+     <string name="notification_hide">Hide</string>
+     <string name="notification_headsup">Heads Up</string>
+-    <string name="notification_reticker">reTicker</string>
+     <string name="notification_danmaku">Danmaku</string>
+     <string name="state_enabled">Enabled</string>
+     <string name="state_disabled">Disabled</string>
+-- 
+2.37.3
+

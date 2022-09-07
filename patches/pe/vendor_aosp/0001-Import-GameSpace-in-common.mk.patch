@@ -1,0 +1,28 @@
+From 30159d7904166ba15b71a7736958d0a57006db0a Mon Sep 17 00:00:00 2001
+From: AngelaCooljx <cool@gayhub.eu.org>
+Date: Wed, 7 Sep 2022 22:04:50 +0800
+Subject: [PATCH] Import GameSpace in common.mk
+
+Change-Id: I0ffe99d62915b27f78bf85dec0b6db60b92578c2
+---
+ config/common.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/config/common.mk b/config/common.mk
+index 3fdefb9..07f449c 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -208,6 +208,10 @@ endif
+ PRODUCT_PACKAGES += \
+     RepainterServicePriv
+ 
++# Extra packages
++PRODUCT_PACKAGES += \
++    GameSpace
++
+ # Audio
+ $(call inherit-product, vendor/aosp/config/audio.mk)
+ 
+-- 
+2.37.3
+
