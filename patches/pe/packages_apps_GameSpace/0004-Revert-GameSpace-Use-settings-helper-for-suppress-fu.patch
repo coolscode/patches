@@ -1,0 +1,127 @@
+From b1b4f380646a30da12aed8d2bb89c947e4f86671 Mon Sep 17 00:00:00 2001
+From: minaripenguin <alexfinhart@gmail.com>
+Date: Mon, 25 Jul 2022 09:48:47 +0800
+Subject: [PATCH] Revert "GameSpace: Use settings helper for suppress
+ fullscreen intent"
+
+This reverts commit d9a667572c8d94e096451822123953f1d7555d15.
+
+Signed-off-by: minaripenguin <alexfinhart@gmail.com>
+Signed-off-by: Richard Raya <rdxzv.dev@gmail.com>
+---
+ .../gamespace/data/SystemSettings.kt          | 17 +++++++++++++-
+ .../gamespace/settings/SettingsFragment.kt    | 23 +++++++++++++++++--
+ app/src/main/res/xml/root_preferences.xml     |  5 +++-
+ 3 files changed, 41 insertions(+), 4 deletions(-)
+
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+index 85b43f2..b49d3ed 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/data/SystemSettings.kt
+@@ -1,6 +1,5 @@
+ /*
+  * Copyright (C) 2021 Chaldeaprjkt
+- *               2022 crDroid Android Project
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -71,6 +70,22 @@ class SystemSettings @Inject constructor(
+             )
+         }
+ 
++    var suppressFullscreenIntent
++        get() = Settings.System.getIntForUser(
++            resolver,
++            Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
++            0,
++            UserHandle.USER_CURRENT
++        ) == 1
++        set(it) {
++            Settings.System.putIntForUser(
++                resolver,
++                Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
++                it.toInt(),
++                UserHandle.USER_CURRENT
++            )
++        }
++
+     var userGames
+         get() =
+             Settings.System.getStringForUser(
+diff --git a/app/src/main/java/io/chaldeaprjkt/gamespace/settings/SettingsFragment.kt b/app/src/main/java/io/chaldeaprjkt/gamespace/settings/SettingsFragment.kt
+index bc41afa..4e4edaf 100644
+--- a/app/src/main/java/io/chaldeaprjkt/gamespace/settings/SettingsFragment.kt
++++ b/app/src/main/java/io/chaldeaprjkt/gamespace/settings/SettingsFragment.kt
+@@ -1,6 +1,5 @@
+ /*
+  * Copyright (C) 2021 Chaldeaprjkt
+- *               2022 crDroid Android Project
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -23,13 +22,18 @@ import android.view.View
+ import androidx.activity.result.contract.ActivityResultContracts
+ import androidx.preference.Preference
+ import androidx.preference.PreferenceFragmentCompat
++import androidx.preference.SwitchPreference
+ import dagger.hilt.android.AndroidEntryPoint
+ import io.chaldeaprjkt.gamespace.R
++import io.chaldeaprjkt.gamespace.data.SystemSettings
+ import io.chaldeaprjkt.gamespace.preferences.AppListPreferences
+ import io.chaldeaprjkt.gamespace.preferences.appselector.AppSelectorActivity
++import javax.inject.Inject
+ 
+ @AndroidEntryPoint(PreferenceFragmentCompat::class)
+-class SettingsFragment : Hilt_SettingsFragment() {
++class SettingsFragment : Hilt_SettingsFragment(), Preference.OnPreferenceChangeListener {
++    @Inject
++    lateinit var settings: SystemSettings
+ 
+     private var apps: AppListPreferences? = null
+ 
+@@ -65,10 +69,25 @@ class SettingsFragment : Hilt_SettingsFragment() {
+                 selectorResult.launch(Intent(context, AppSelectorActivity::class.java))
+                 return@setOnPreferenceClickListener true
+             }
++
++        findPreference<SwitchPreference>(Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT)?.apply {
++            isChecked = settings.suppressFullscreenIntent
++            onPreferenceChangeListener = this@SettingsFragment
++        }
+     }
+ 
+     override fun onResume() {
+         super.onResume()
+         apps?.updateAppList()
+     }
++
++    override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
++        when (preference?.key) {
++            Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT -> {
++                settings.suppressFullscreenIntent = newValue as Boolean
++                return true
++            }
++        }
++        return false
++    }
+ }
+diff --git a/app/src/main/res/xml/root_preferences.xml b/app/src/main/res/xml/root_preferences.xml
+index df6d5d6..c515b91 100644
+--- a/app/src/main/res/xml/root_preferences.xml
++++ b/app/src/main/res/xml/root_preferences.xml
+@@ -43,8 +43,11 @@
+             android:summary="%s"
+             android:title="@string/ringer_mode_title" />
+ 
+-        <com.crdroid.settings.preferences.SystemSettingSwitchPreference
++        <!-- persistent:false because it'll be stored to Settings.System directly -->
++        <SwitchPreference
++            android:defaultValue="false"
+             android:key="gamespace_suppress_fullscreen_intent"
++            android:persistent="false"
+             android:summary="@string/suppress_fullscreen_intent_summary"
+             android:title="@string/suppress_fullscreen_intent_title" />
+ 
+-- 
+2.37.3
+
