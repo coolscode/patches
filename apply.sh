@@ -20,17 +20,26 @@ done
 
 DEVICE="Cezanne" 
 
-if [ $1 = kosp ] ;then
-PROJECT="AOSP-Krypton"
-elif [ $1 = pe  ] ;then
-PROJECT="Pixel-Experience"
-elif [ $1 = lineage  ] ;then
-PROJECT="LineageOS"
-elif [ $1 = acme  ] ;then
-PROJECT="AcmeUI"
-elif [ $1 = arrow  ] ;then
-PROJECH="ArrowOS"
-elif [ -d $PD/$1/packages_apps_GameSpace ] || [ ! -d packages/apps/GameSpace ] ;then
+case $1 in
+     kosp | -k)
+      PROJECT="AOSP-Krypton"
+     ;;
+     pe | -p)
+      PROJECT="Pixel-Experience"
+     ;;
+     lineage | -l)
+      PROJECT="LineageOS"
+     ;;
+     acme | -ae)
+      PROJECT="AcmeUI"
+     ;;
+     arrow | -aw)
+      PROJECH="ArrowOS"
+     ;;
+esac
+
+# GameSpace
+if [ -d $PD/$1/packages_apps_GameSpace ] || [ ! -d packages/apps/GameSpace ] ;then
 git clone https://github.com/crdroidandroid/android_packages_apps_GameSpace -b 12.1 packages/apps/GameSpace
 fi
 
