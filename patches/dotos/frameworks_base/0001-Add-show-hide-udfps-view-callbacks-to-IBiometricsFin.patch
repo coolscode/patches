@@ -1,7 +1,7 @@
 From 39f78d0badf74c242b1ac4ca82e4c9c9d3d7a40a Mon Sep 17 00:00:00 2001
 From: SagarMakhar <sagarmakhar@gmail.com>
 Date: Fri, 3 Jun 2022 19:06:59 +0800
-Subject: [PATCH 1/5] Add show|hide udfps view callbacks to
+Subject: [PATCH 1/7] Add show|hide udfps view callbacks to
  IBiometricsFingerprint@2.3 [1/2]
 
 ---

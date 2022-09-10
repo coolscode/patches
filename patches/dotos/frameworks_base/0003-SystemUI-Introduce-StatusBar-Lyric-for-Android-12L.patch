@@ -1,7 +1,7 @@
-From f45ac83a57728ea2b92e3a160b03fa5f7d0f6b70 Mon Sep 17 00:00:00 2001
+From 2872fa5772b63383e887fefebdd1fb1dab8bc78f Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
 Date: Sat, 10 Sep 2022 17:11:41 +0800
-Subject: [PATCH 3/6] SystemUI: Introduce StatusBar Lyric for Android 12L
+Subject: [PATCH 3/7] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 *PixelPropsUtils: Use Meizu for Statusbar lyric
 

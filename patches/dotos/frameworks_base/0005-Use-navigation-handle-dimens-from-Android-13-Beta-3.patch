@@ -1,7 +1,7 @@
-From 8dbecbdbefd328c8a1cd79998e0a01ce8ac37dae Mon Sep 17 00:00:00 2001
+From 1888280377104a26804c6db76d576a38a07c2d14 Mon Sep 17 00:00:00 2001
 From: Sourajit Karmakar <sourajit@live.com>
 Date: Wed, 22 Jun 2022 11:57:24 +0200
-Subject: [PATCH 5/5] Use navigation handle dimens from Android 13 Beta 3
+Subject: [PATCH 5/7] Use navigation handle dimens from Android 13 Beta 3
 
 Change-Id: I22e27ac483d3af138f4fa7c3866bbd4a314e2d33
 ---

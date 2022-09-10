@@ -1,16 +1,16 @@
-From 31335d25ed87f39a79d537a04922d47c247c6619 Mon Sep 17 00:00:00 2001
+From b3f2464c00566863b68669acf3836fc56b6fe8f8 Mon Sep 17 00:00:00 2001
 From: AngelaCooljx <cool@gayhub.eu.org>
-Date: Sat, 10 Sep 2022 19:39:34 +0800
-Subject: [PATCH] Switch to PE's PixelPropsUtils to make propsToChangeMeizu
- work
+Date: Sat, 10 Sep 2022 22:56:42 +0800
+Subject: [PATCH 7/7] Switch to PE's PixelPropsUtils to make propsToChangeMeizu
+  work
 
-Change-Id: I0dbd5ceb15032b232f0fd545988e2ac2a347271a
+Change-Id: Id1492def37610f78830beaac9a46f2ff659f1dab
 ---
- .../internal/util/dot/PixelPropsUtils.java    | 277 +++++-------------
- 1 file changed, 73 insertions(+), 204 deletions(-)
+ .../internal/util/dot/PixelPropsUtils.java    | 275 +++++-------------
+ 1 file changed, 72 insertions(+), 203 deletions(-)
 
 diff --git a/core/java/com/android/internal/util/dot/PixelPropsUtils.java b/core/java/com/android/internal/util/dot/PixelPropsUtils.java
-index e183c24028b4..066d28be8136 100644
+index e183c24028b4..787da3d05ec9 100644
 --- a/core/java/com/android/internal/util/dot/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/dot/PixelPropsUtils.java
 @@ -1,7 +1,5 @@
@@ -27,8 +27,7 @@ index e183c24028b4..066d28be8136 100644
      public static final String PACKAGE_GMS = "com.google.android.gms";
 -    public static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
 -    public static final String PACKAGE_SETTINGS_SERVICES = "com.google.android.settings.intelligence";
--    private static final String DEVICE = "ro.dot.device";
-+    private static final String DEVICE = "org.pixelexperience.device";
+     private static final String DEVICE = "ro.dot.device";
      private static final String TAG = PixelPropsUtils.class.getSimpleName();
      private static final boolean DEBUG = false;
  

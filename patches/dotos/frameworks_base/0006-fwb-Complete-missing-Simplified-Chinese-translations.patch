@@ -1,9 +1,9 @@
-From a1288a84d8081c49a153cc1eab32f518156fbf1f Mon Sep 17 00:00:00 2001
+From e1a9a53c7686ede97323c69130d7b76682609c18 Mon Sep 17 00:00:00 2001
 From: AngelaCooljx <cool@gayhub.eu.org>
-Date: Sat, 10 Sep 2022 17:30:44 +0800
-Subject: [PATCH 6/6] fwb: Complete missing Simplified Chinese translations
+Date: Sat, 10 Sep 2022 22:55:03 +0800
+Subject: [PATCH 6/7] fwb: Complete missing Simplified Chinese translations
 
-Change-Id: Ib6c53a5b84d64e69bf88307c7fe7db5115446c1a
+Change-Id: I5b074e15b13e1648e397bcdfd28f74d845975755
 ---
  core/res/res/values-zh-rCN/dot_strings.xml    |  28 +++
  .../res/values-zh-rCN/dot_strings.xml         | 201 ++++++++++++++++++
@@ -13,7 +13,7 @@ Change-Id: Ib6c53a5b84d64e69bf88307c7fe7db5115446c1a
 
 diff --git a/core/res/res/values-zh-rCN/dot_strings.xml b/core/res/res/values-zh-rCN/dot_strings.xml
 new file mode 100644
-index 000000000000..464c12642fab
+index 000000000000..98ebdb1a84d2
 --- /dev/null
 +++ b/core/res/res/values-zh-rCN/dot_strings.xml
 @@ -0,0 +1,28 @@
@@ -33,10 +33,10 @@ index 000000000000..464c12642fab
 +    <!-- Advanced reboot -->
 +    <string name="reboot_to_recovery_title">恢复模式</string>
 +    <string name="reboot_to_recovery_message">重启到恢复模式</string>
-+    <string name="reboot_to_bootloader_title">引导模式</string>
-+    <string name="reboot_to_bootloader_message">重启到引导模式</string>
++    <string name="reboot_to_bootloader_title">引导程序</string>
++    <string name="reboot_to_bootloader_message">重启到引导程序</string>
 +    <string name="reboot_title">重启</string>
-+    <string name="reboot_message">重启进系统</string>
++    <string name="reboot_message">系统重启中</string>
 +
 +    <!-- Face unlock -->
 +    <string name="face_unlock_disabled_idle">由于设备不活动，人脸解锁已禁用</string>

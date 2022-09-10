@@ -1,7 +1,7 @@
 From 7cc4ab4e95d642122154b50fef8033f74d24d5d5 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
 Date: Sat, 10 Sep 2022 09:14:05 +0800
-Subject: [PATCH 2/5] udfps: Implement framework dimming support
+Subject: [PATCH 2/7] udfps: Implement framework dimming support
 
  [Lynnrin]:
  Adapt for Android 12.1
