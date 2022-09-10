@@ -1,6 +1,6 @@
-From e767bff0160c29d309e645f51050ddf0bb2a87bb Mon Sep 17 00:00:00 2001
+From 9aa631a101aa96a3a859a2f640485fc2516ced1e Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Sat, 10 Sep 2022 09:28:27 +0800
+Date: Sat, 10 Sep 2022 15:44:04 +0800
 Subject: [PATCH 3/5] SystemUI: Introduce StatusBar Lyric for Android 12L
 
 *PixelPropsUtils: Use Meizu for Statusbar lyric
@@ -8,14 +8,14 @@ Subject: [PATCH 3/5] SystemUI: Introduce StatusBar Lyric for Android 12L
 Co-authored-by: Undying-yueyue <orgtech007@gmail.com>
 Co-authored-by: AngelaCooljx <cool@gayhub.eu.org>
 Co-authored-by: HearnYuyuko <dingwenxuan4@gmail.com>
-Change-Id: I7d401ffbc5d40a7d62ec80d33cbb7ab8a40cd883
+Change-Id: Ia411f14278e99c09a033a1c8437f65fcd59d8e35
 ---
  core/api/current.txt                          |   2 +
  core/java/android/app/Notification.java       |   5 +
  core/java/android/provider/Settings.java      |   7 +
  core/java/android/widget/ImageSwitcher.java   |  16 +
  core/java/android/widget/TextSwitcher.java    |  11 +
- .../internal/util/dot/PixelPropsUtils.java    |  24 +
+ .../internal/util/dot/PixelPropsUtils.java    |  31 ++
  packages/SystemUI/res/layout/status_bar.xml   |  13 +
  .../res/layout/status_bar_lyric_ticker.xml    |  61 +++
  .../SystemUI/res/values/custom_styles.xml     |   6 +
@@ -35,7 +35,7 @@ Change-Id: I7d401ffbc5d40a7d62ec80d33cbb7ab8a40cd883
  .../fragment/CollapsedStatusBarFragment.java  |  39 ++
  .../window/StatusBarWindowController.java     |   2 +-
  .../android/systemui/util/LyricTextView.java  | 142 ++++++
- 25 files changed, 1322 insertions(+), 5 deletions(-)
+ 25 files changed, 1329 insertions(+), 5 deletions(-)
  create mode 100644 packages/SystemUI/res/layout/status_bar_lyric_ticker.xml
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/LyricTicker.java
  create mode 100644 packages/SystemUI/src/com/android/systemui/statusbar/phone/Ticker.java
@@ -137,7 +137,7 @@ index ecd9a8cfb3d1..ca16c9dc6013 100644
 +
  }
 diff --git a/core/java/com/android/internal/util/dot/PixelPropsUtils.java b/core/java/com/android/internal/util/dot/PixelPropsUtils.java
-index 4cbbaa1a7a6c..13cde9dcaee3 100644
+index 4cbbaa1a7a6c..58e0cf8da773 100644
 --- a/core/java/com/android/internal/util/dot/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/dot/PixelPropsUtils.java
 @@ -46,6 +46,7 @@ public class PixelPropsUtils {
@@ -178,20 +178,27 @@ index 4cbbaa1a7a6c..13cde9dcaee3 100644
      }
  
      public static void setProps(Application app) {
-@@ -298,6 +315,13 @@ public class PixelPropsUtils {
-                     Object value = prop.getValue();
-                     setPropValue(key, value);
+@@ -300,6 +317,20 @@ public class PixelPropsUtils {
                  }
-+            } else if (Arrays.asList(packagesToChangeMeizu).contains(packageName)) {
-+                if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-+                for (Map.Entry<String, Object> prop : propsToChangeMeizu.entrySet()) {
-+                    String key = prop.getKey();
-+                    Object value = prop.getValue();
-+                    setPropValue(key, value);
-+                }
              }
          }
++        if ((Arrays.asList(packagesToChangeMeizu).contains(packageName))) {
++            Map<String, Object> propsToChange = propsToChangeMeizu;
++            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
++            for (Map.Entry<String, Object> prop : propsToChangeMeizu.entrySet()) {
++                String key = prop.getKey();
++                Object value = prop.getValue();
++                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
++                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
++                    continue;
++                }
++                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
++                setPropValue(key, value);
++            }
++        }
      }
+ 
+     private static void setPropValue(String key, Object value) {
 diff --git a/packages/SystemUI/res/layout/status_bar.xml b/packages/SystemUI/res/layout/status_bar.xml
 index 4f422d589018..c0717f5eb526 100644
 --- a/packages/SystemUI/res/layout/status_bar.xml

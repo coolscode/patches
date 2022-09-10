@@ -1,0 +1,75 @@
+From b1aab697a32633bad64f4619343ec1a5cdfc65ec Mon Sep 17 00:00:00 2001
+From: AngelaCooljx <cool@gayhub.eu.org>
+Date: Sat, 10 Sep 2022 10:36:37 +0800
+Subject: [PATCH 3/3] Add more Simplified Chinese translations for settings
+
+Change-Id: I4f6e770de5082520bc3c0c0ee6a815b5071575a6
+---
+ res-dot/values-zh-rCN/dot_strings.xml | 54 +++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+ create mode 100644 res-dot/values-zh-rCN/dot_strings.xml
+
+diff --git a/res-dot/values-zh-rCN/dot_strings.xml b/res-dot/values-zh-rCN/dot_strings.xml
+new file mode 100644
+index 0000000000..714701b493
+--- /dev/null
++++ b/res-dot/values-zh-rCN/dot_strings.xml
+@@ -0,0 +1,54 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++     Copyright 2022 The DotOS Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++
++    <string name="dot_dashboard_device">关于手机</string>
++    <string name="dot_dashboard_account">账户</string>
++    <string name="dot_dashboard_network">互联网</string>
++    <string name="dot_dashboard_conectivity">连接</string>    
++    <string name="dot_dashboard_display">显示</string>
++    <string name="dot_dashboard_battery">电池</string>
++    <string name="dot_dashboard_sound">声音</string>
++    <string name="dot_dashboard_apps">应用</string>
++    <string name="dot_dashboard_notif">通知</string>
++    <string name="dot_dashboard_storage">存储</string>
++    <string name="dot_dashboard_privacy">隐私</string>    
++    <string name="dot_dashboard_location">位置</string>
++    <string name="dot_dashboard_security">安全</string>
++    <string name="dot_dashboard_accessibility">无障碍</string>
++    <string name="dot_dashboard_system">其他</string>    
++    <string name="dot_dashboard_support">支持</string>
++
++    <!-- Dashboard categories -->
++    <string name="dot_dashboard_updates">系统更新</string>
++    <string name="dot_updates_status_updated">没有新的更新</string>
++    <string name="dot_updates_status_new">有可用的更新</string>
++
++    <string name="top_level_connectivity">连接</string>
++    <string name="top_level_personalize">个性化</string>
++    <string name="top_level_security" translatable="false">@string/security_settings_title</string>
++    <string name="top_level_others">其他</string>
++
++    <!-- Dot Customizations -->
++    <string name="dot_customizer_dashboard_title">自定义</string>
++    <string name="dot_customizer_dashboard_summary">用一滴颜料个性化您的体验</string>
++
++    <string name="config_styles_and_wallpaper_picker_class">com.dot.customizations.picker.CustomizationPickerActivity</string>
++    <string name="config_wallpaper_picker_class">com.dot.customizations.picker.CategoryPickerActivity</string>
++    <string name="config_wallpaper_picker_package">com.dot.customizations</string>
++
++</resources>
+\ No newline at end of file
+-- 
+2.37.3
+
