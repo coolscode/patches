@@ -1,0 +1,61 @@
+From 88ec807853bb63bdb9ed133f47ecd943bbf3facb Mon Sep 17 00:00:00 2001
+From: AmeChanRain <downloadbot007@gmail.com>
+Date: Sat, 10 Sep 2022 05:09:38 +0800
+Subject: [PATCH 2/2] Add StatusBar Lyric to Settings
+
+Change-Id: Ie36da3f06c64cd6bbbb37834dcb0028e24408ef1
+---
+ res/values-zh-rCN/dot_strings.xml | 5 ++++-
+ res/values/dot_strings.xml        | 5 ++++-
+ res/xml/display_settings.xml      | 7 +++++++
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/res/values-zh-rCN/dot_strings.xml b/res/values-zh-rCN/dot_strings.xml
+index 5669192c74..ef81fc11d3 100644
+--- a/res/values-zh-rCN/dot_strings.xml
++++ b/res/values-zh-rCN/dot_strings.xml
+@@ -84,5 +84,8 @@
+     <string name="selinux_status_disabled">Disabled</string>
+     <string name="selinux_status_permissive">Permissive</string>
+     <string name="selinux_status_enforcing">Enforcing</string>
+-    
++
++    <!-- Status Bar Lyric -->
++    <string name="status_bar_show_lyric_title">状态栏歌词（需要应用支持哦）</string>
++    <string name="status_bar_show_lyric_summary">感谢Shelling和AmeChan的贡献~</string>
+ </resources>
+diff --git a/res/values/dot_strings.xml b/res/values/dot_strings.xml
+index 3a06fc7255..6d1b241601 100644
+--- a/res/values/dot_strings.xml
++++ b/res/values/dot_strings.xml
+@@ -84,5 +84,8 @@
+     <string name="selinux_status_disabled">Disabled</string>
+     <string name="selinux_status_permissive">Permissive</string>
+     <string name="selinux_status_enforcing">Enforcing</string>
+-    
++
++    <!-- Status Bar Lyric -->
++    <string name="status_bar_show_lyric_title">Status bar lyric (need App support)</string>
++    <string name="status_bar_show_lyric_summary">Show lyric in status bar. Thanks to @cjybyjk and @AmeChanRain! (from @exTHmUI)</string>
+ </resources>
+diff --git a/res/xml/display_settings.xml b/res/xml/display_settings.xml
+index 08bf9b4f25..8ea8c5470a 100644
+--- a/res/xml/display_settings.xml
++++ b/res/xml/display_settings.xml
+@@ -6,6 +6,13 @@
+     android:title="@string/display_settings"
+     settings:keywords="@string/keywords_display">
+ 
++    <!-- Statusbar Lyric -->
++    <com.android.settings.custom.preference.SecureSettingSwitchPreference
++        android:key="status_bar_show_lyric"
++        android:title="@string/status_bar_show_lyric_title"
++        android:summary="@string/status_bar_show_lyric_summary"
++        android:defaultValue="true" />
++
+     <PreferenceCategory
+         android:title="@string/category_name_brightness">
+ 
+-- 
+2.37.3
+

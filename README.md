@@ -1,6 +1,6 @@
 # Patches
 ## Use
-First, please synchronize the source code of AOSP-Krypton, PixelExperience-Plus, LineageOS, AcmeUI or ArrowOS
+First, please synchronize the source code of AOSP-Krypton, PixelExperience-Plus, LineageOS, AcmeUI, ArrowOS or dotOS
 
 ```shell
 cd sourcedirectory
@@ -13,7 +13,7 @@ git clone https://github.com/coolscode/patches
 
 Then apply the patches
 ```shell
-bash patches/apply.sh [kosp|pe|lineage|acme|arrow](Optional)
+bash patches/apply.sh [kosp|pe|lineage|acme|arrow|dotos](Optional)
 ```
 
 There may be more in the future...
@@ -45,6 +45,12 @@ There may be more in the future...
 
 ### ArrowOS 13.0
 - Add udfps support and framworks dimming
+- Adapt for Cezanne
+- Maybe more...
+
+### dotOS 6.0
+- Add udfps support and framworks dimming
+- StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)
 - Adapt for Cezanne
 - Maybe more...
   

@@ -1,0 +1,40 @@
+From 8dbecbdbefd328c8a1cd79998e0a01ce8ac37dae Mon Sep 17 00:00:00 2001
+From: Sourajit Karmakar <sourajit@live.com>
+Date: Wed, 22 Jun 2022 11:57:24 +0200
+Subject: [PATCH 5/5] Use navigation handle dimens from Android 13 Beta 3
+
+Change-Id: I22e27ac483d3af138f4fa7c3866bbd4a314e2d33
+---
+ packages/SystemUI/res/values/dimens.xml | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/packages/SystemUI/res/values/dimens.xml b/packages/SystemUI/res/values/dimens.xml
+index 8f71e33e419f..0571f71a61e2 100644
+--- a/packages/SystemUI/res/values/dimens.xml
++++ b/packages/SystemUI/res/values/dimens.xml
+@@ -30,17 +30,17 @@
+     <dimen name="navigation_bar_deadzone_size_max">32dp</dimen>
+ 
+     <!-- dimensions for the navigation bar handle -->
+-    <dimen name="navigation_handle_radius">1dp</dimen>
+-    <dimen name="navigation_handle_bottom">6dp</dimen>
++    <dimen name="navigation_handle_radius">2dp</dimen>
++    <dimen name="navigation_handle_bottom">8dp</dimen>
+     <dimen name="navigation_handle_sample_horizontal_margin">10dp</dimen>
+-    <dimen name="navigation_home_handle_width">72dp</dimen>
++    <dimen name="navigation_home_handle_width">108dp</dimen>
+ 
+     <!-- Size of the nav bar edge panels, should be greater to the
+          edge sensitivity + the drag threshold -->
+-    <dimen name="navigation_edge_panel_width">70dp</dimen>
++    <dimen name="navigation_edge_panel_width">105dp</dimen>
+     <!-- Padding at the end of the navigation panel to allow the arrow not to be clipped off -->
+     <dimen name="navigation_edge_panel_padding">8dp</dimen>
+-    <dimen name="navigation_edge_panel_height">96dp</dimen>
++    <dimen name="navigation_edge_panel_height">268dp</dimen>
+     <!-- The threshold to drag to trigger the edge action -->
+     <dimen name="navigation_edge_action_drag_threshold">16dp</dimen>
+     <!-- The minimum display position of the arrow on the screen -->
+-- 
+2.37.3
+

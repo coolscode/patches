@@ -36,6 +36,9 @@ case $1 in
      arrow | -aw)
       PROJECH="ArrowOS"
      ;;
+     dotos | -d)
+      PROJECH="dotOS"
+     ;;
 esac
 
 # GameSpace
