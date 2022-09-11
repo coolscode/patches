@@ -34,10 +34,10 @@ case $1 in
       PROJECT="AcmeUI"
      ;;
      arrow | -aw)
-      PROJECH="ArrowOS"
+      PROJECT="ArrowOS"
      ;;
      dotos | -d)
-      PROJECH="dotOS"
+      PROJECT="dotOS"
      ;;
 esac
 
