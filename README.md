@@ -8,15 +8,15 @@ cd sourcedirectory
 
 Clone this repo
 ```shell
-git clone https://github.com/coolscode/patches
+git clone https://github.com/coolscode/patches -b master anydirname
 ```
 
 Then apply the patches
 ```shell
-bash patches/apply.sh [kosp|pe|lineage|acme|arrow|dotos](Optional)
+bash anydirname/apply.sh [kosp|pe|lineage|acme|arrow|dotos](Optional)
 ```
 
-There may be more in the future...
+There maybe more in the future...
 
 ## Support Project
 ### AOSP-Krypton 12.1

@@ -2,7 +2,7 @@
 
 set -e
 
-PD=$PWD/patches
+PD=$(cd $(dirname $0);pwd)
 
 apply_patch() {
 patches="$(readlink -f -- $1)"
