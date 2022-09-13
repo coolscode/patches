@@ -39,6 +39,9 @@ case $1 in
      dotos | -d)
       PROJECT="dotOS"
      ;;
+     pe13 | -pe)
+      PROJECT="pe13"
+     ;;
 esac
 
 # GameSpace

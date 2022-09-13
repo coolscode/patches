@@ -13,7 +13,7 @@ git clone https://github.com/coolscode/patches -b master anydirname
 
 Then apply the patches
 ```shell
-bash anydirname/apply.sh [kosp|pe|lineage|acme|arrow|dotos](Optional)
+bash anydirname/apply.sh [kosp|pe|lineage|acme|arrow|dotos|pe13](Optional)
 ```
 
 There maybe more in the future...
@@ -53,5 +53,10 @@ There maybe more in the future...
 - StatusBar Lyric from [exTHmUI](https://github.com/exthmui) and [Miku-UI](https://github.com/Miku-UI)
 - Adapt for Cezanne
 - Maybe more...
+  
+### PixelExperience-Plus 13.0
+- Add udfps support and framworks dimming
+- Adapt for Cezanne
+- Maybe more...  
   
 \* Main maintenance branch
