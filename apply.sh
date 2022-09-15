@@ -42,6 +42,12 @@ case $1 in
      pe13 | -pe)
       PROJECT="pe13"
      ;;
+     *)
+      sleep 0.5
+      echo "Unsupported project"
+      echo "Please check spelling"
+      exit
+     ;;
 esac
 
 # GameSpace
