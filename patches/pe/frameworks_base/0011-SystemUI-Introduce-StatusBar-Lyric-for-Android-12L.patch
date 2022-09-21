@@ -1,13 +1,14 @@
-From 9bf4a1c7fc5b6cd2f606e2de98278a0b92bb1885 Mon Sep 17 00:00:00 2001
+From 81166b16981b00f234c3c2a3cb8c26b98e3383da Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Sun, 4 Sep 2022 08:34:03 +0800
-Subject: [PATCH 11/17] SystemUI: Introduce StatusBar Lyric for Android 12L
+Date: Wed, 14 Sep 2022 22:21:49 +0800
+Subject: [PATCH 11/18] SystemUI: Introduce StatusBar Lyric for Android 12L
 
-Also modify PixelPropsUtils
+*PixelPropsUtils: Use Meizu for Statusbar lyric
 
 Co-authored-by: Undying-yueyue <orgtech007@gmail.com>
 Co-authored-by: AngelaCooljx <cool@gayhub.eu.org>
-Change-Id: I4916d689dff7fd191cb21fbc0f7346563e3b0599
+Co-authored-by: HearnYuyuko <dingwenxuan4@gmail.com>
+Change-Id: I00bafcaba2f1384c55f735978a95ba7247118635
 ---
  core/api/current.txt                          |   2 +
  core/java/android/app/Notification.java       |   5 +
@@ -135,7 +136,7 @@ index ecd9a8cfb3d1..ca16c9dc6013 100644
 +
  }
 diff --git a/core/java/com/android/internal/util/custom/PixelPropsUtils.java b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
-index 3db366020def..8668455297d6 100644
+index 0c7ce8684233..a6ca18788c16 100644
 --- a/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 +++ b/core/java/com/android/internal/util/custom/PixelPropsUtils.java
 @@ -1,5 +1,6 @@
@@ -175,8 +176,8 @@ index 3db366020def..8668455297d6 100644
 +        propsToChangeMeizu.put("FINGERPRINT", "meizu/meizu_18_CN/meizu18:11/RKQ1.201105.002/1607588916:user/release-keys");
      }
  
-     public static void setProps(Application app) {
-@@ -155,6 +173,23 @@ public class PixelPropsUtils {
+     private static void setPropsForSamsung(String packageName) {
+@@ -172,6 +190,23 @@ public class PixelPropsUtils {
                  setPropValue(key, value);
              }
          }

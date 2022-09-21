@@ -1,7 +1,7 @@
-From cb48c2ba91a6d127f23bd27ea632b5ef4005dec7 Mon Sep 17 00:00:00 2001
+From e360795f9475c7456ba80865495a12066dac6c97 Mon Sep 17 00:00:00 2001
 From: Nauval Rizky <enuma.alrizky@gmail.com>
 Date: Wed, 7 Sep 2022 17:59:35 +0800
-Subject: [PATCH 17/17] SystemUI: Add support for GameSpace
+Subject: [PATCH 16/18] SystemUI: Add support for GameSpace
 
 This is an addon for GameSpace for broadcasting about game start/stop.
 Additionally, it also has special option for suppressing fullscreen

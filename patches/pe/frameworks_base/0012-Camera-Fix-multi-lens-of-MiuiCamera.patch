@@ -1,7 +1,7 @@
-From b27d063ef4ed9e3a14861c971614cc3e68c19d86 Mon Sep 17 00:00:00 2001
+From b90d567b4ca6fe03218a3e6be2810e23bcb7cfb4 Mon Sep 17 00:00:00 2001
 From: wbs306 <wbs306@gmail.com>
 Date: Mon, 15 Aug 2022 08:14:36 +0800
-Subject: [PATCH 12/17] Camera: Fix multi-lens of MiuiCamera
+Subject: [PATCH 12/18] Camera: Fix multi-lens of MiuiCamera
 
 Ultra-wide and macro lens can work perfectly on MiuiCamera now!
 

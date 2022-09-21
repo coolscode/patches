@@ -1,7 +1,7 @@
-From 54a23687e41ced35670591f2df0259abe6cb602a Mon Sep 17 00:00:00 2001
+From 9c0c21c2fb1043c39a13c3a86a1bc6a56530f6d6 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
 Date: Wed, 7 Jul 2021 22:07:55 +0800
-Subject: [PATCH 16/17] SystemUI: Export RecordingService for External Usage
+Subject: [PATCH 15/18] SystemUI: Export RecordingService for External Usage
 
 Signed-off-by: cjybyjk <cjybyjk@zjnu.edu.cn>
 [nullxception: simplify start handling and adapt it to 12L]

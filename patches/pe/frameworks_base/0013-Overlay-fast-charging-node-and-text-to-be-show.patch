@@ -1,7 +1,7 @@
-From 61bad65da4613cc4f3922183b9abf50e435b859d Mon Sep 17 00:00:00 2001
+From 46c23a68fd9a0dc891c6f2c80e3bd6fa8464bd4d Mon Sep 17 00:00:00 2001
 From: SagarMakhar <sagarmakhar@gmail.com>
 Date: Sun, 4 Sep 2022 02:19:42 +0800
-Subject: [PATCH 13/17] Overlay fast charging node and text to be show
+Subject: [PATCH 13/18] Overlay fast charging node and text to be show
 
 Change-Id: Ib620abc61b00db5f3a8b2612bd947714b9b32d59
 ---

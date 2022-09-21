@@ -1,7 +1,7 @@
-From be6b8bef4b19d6e26785c1ec60dc800aed8c4c87 Mon Sep 17 00:00:00 2001
+From 4e3066394165246020e3f998ddf4d6e4506059fb Mon Sep 17 00:00:00 2001
 From: ezio84 <brabus84@gmail.com>
 Date: Thu, 8 Sep 2022 00:07:54 +0800
-Subject: [PATCH 19/19] base: add API for disabling gestural navigation
+Subject: [PATCH 18/18] base: add API for disabling gestural navigation
 
 Signed-off-by: jhonboy121 <alfredmathew05@gmail.com>
 Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>

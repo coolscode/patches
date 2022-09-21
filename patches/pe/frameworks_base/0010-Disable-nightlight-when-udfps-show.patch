@@ -1,7 +1,7 @@
-From 2ed19a0e6085283178adbf5cf47f774ce5f65338 Mon Sep 17 00:00:00 2001
+From 20438e817dcecc3405727259e93bdcf57bb7e5ae Mon Sep 17 00:00:00 2001
 From: wfhtqp <wfhtqp@gmail.com>
 Date: Sun, 12 Jun 2022 22:19:21 +0800
-Subject: [PATCH 10/17] Disable nightlight when udfps show
+Subject: [PATCH 10/18] Disable nightlight when udfps show
 
 Change-Id: I020749789a00a5a055260346269e137628beecc9
 ---

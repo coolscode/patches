@@ -1,7 +1,7 @@
-From 956532a0a592468ea71e9ae86efea6552265f980 Mon Sep 17 00:00:00 2001
+From 99712ad96c7604b5acf5938bb08535df5575953e Mon Sep 17 00:00:00 2001
 From: cristianvaz <cristianvaz81993@gmail.com>
 Date: Thu, 23 Jun 2022 11:40:34 +0200
-Subject: [PATCH 18/19] base: define missing config_lightFontFamily
+Subject: [PATCH 17/18] base: define missing config_lightFontFamily
 
 Change-Id: I854570cf513c9d447d7c25b2bbf280806f898588
 ---

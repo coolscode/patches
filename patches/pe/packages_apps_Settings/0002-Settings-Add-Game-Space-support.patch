@@ -1,4 +1,4 @@
-From c336293da7f4a0d3dddc106b4cf3c4e60861ba25 Mon Sep 17 00:00:00 2001
+From b3b3a58d6cd83eebf90cdccebd6a4b59df7fd553 Mon Sep 17 00:00:00 2001
 From: Nauval Rizky <enuma.alrizky@gmail.com>
 Date: Thu, 9 Dec 2021 11:38:52 +0700
 Subject: [PATCH 2/2] Settings: Add Game Space support
