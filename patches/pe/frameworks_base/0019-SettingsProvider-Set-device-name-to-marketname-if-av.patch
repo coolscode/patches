@@ -1,0 +1,34 @@
+From 6974e87798f8f63f745e908307538fbdbe379ac3 Mon Sep 17 00:00:00 2001
+From: Adithya R <gh0strider.2k18.reborn@gmail.com>
+Date: Sat, 4 Sep 2021 13:46:19 +0530
+Subject: [PATCH] SettingsProvider: Set device name to marketname if available
+
+ * model number on many devices differ from the actual
+   device name, example M2007J20CG/I on Poco X3 (surya)
+   so use the market name as the default device name if
+   its set by the device
+
+Test: clean flash; device_name set to marketname
+Change-Id: Ib29e766607053406fd9c851133041340683d8943
+Signed-off-by: Adithya R <gh0strider.2k18.reborn@gmail.com>
+---
+ .../src/com/android/providers/settings/DatabaseHelper.java     | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+index 6934fe5bb352..cdafcd482efc 100644
+--- a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
++++ b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+@@ -2666,7 +2666,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
+     }
+ 
+     private String getDefaultDeviceName() {
+-        return mContext.getResources().getString(R.string.def_device_name_simple, Build.MODEL);
++        return mContext.getResources().getString(R.string.def_device_name_simple,
++            SystemProperties.get("ro.product.marketname", Build.MODEL));
+     }
+ 
+     private TelephonyManager getTelephonyManager() {
+-- 
+2.37.3
+
