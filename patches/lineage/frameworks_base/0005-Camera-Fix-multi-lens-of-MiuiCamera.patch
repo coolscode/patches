@@ -1,0 +1,28 @@
+From f0ed1b6dc0c0222133734559224bcfe056532fea Mon Sep 17 00:00:00 2001
+From: wbs306 <wbs306@gmail.com>
+Date: Sun, 2 Oct 2022 04:05:43 +0800
+Subject: [PATCH] Camera: Fix multi-lens of MiuiCamera
+
+Ultra-wide and macro lens can work perfectly on MiuiCamera now!
+
+Change-Id: I62e58f952132b54ff3c54ce83fef346191f50862
+---
+ core/java/android/hardware/Camera.java | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/core/java/android/hardware/Camera.java b/core/java/android/hardware/Camera.java
+index f7b37aa9..dba0a08b 100644
+--- a/core/java/android/hardware/Camera.java
++++ b/core/java/android/hardware/Camera.java
+@@ -275,6 +275,8 @@ public class Camera {
+          * if the package name does not falls in this bucket
+          */
+         String packageName = ActivityThread.currentOpPackageName();
++        if (packageName == null)
++            return true;
+         List<String> packageList = Arrays.asList(
+                 SystemProperties.get("vendor.camera.aux.packagelist", packageName).split(","));
+         List<String> packageExcludelist = Arrays.asList(
+-- 
+2.37.3
+
