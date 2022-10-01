@@ -1,12 +1,12 @@
-From 9714d4b86969745fb22e21673541fe70f00b7aec Mon Sep 17 00:00:00 2001
+From 3c6a6aa57e0eded7495fbac524ddbcccc5aa8b04 Mon Sep 17 00:00:00 2001
 From: TheScarastic <warabhishek@gmail.com>
-Date: Mon, 27 Jun 2022 10:26:11 +0800
-Subject: [PATCH] udfps: Add support for udfps on aod without having dedicated 
- sensor
+Date: Sun, 2 Oct 2022 03:52:50 +0800
+Subject: [PATCH 4/4] udfps: Add support for udfps on aod without having
+ dedicated sensor
 
 * make it overlayable while at it
 
-Change-Id: Iaeabd1fd6475dd621ce0543b0c8373a56eec2f61
+Change-Id: I78fb4e8e6c2a070dff87a12c1b2182782c77e7a0
 ---
  .../fingerprint/IUdfpsOverlayController.aidl     |  3 +++
  packages/SystemUI/res/values/lineage_config.xml  |  3 +++
@@ -27,18 +27,18 @@ index 648edda6..f5d9a76e 100644
 +    void onAcquired(int sensorId, int acquiredInfo, int vendorCode);
  }
 diff --git a/packages/SystemUI/res/values/lineage_config.xml b/packages/SystemUI/res/values/lineage_config.xml
-index c72eb023..87e89ce1 100644
+index 9f9bb840..8ab7e951 100644
 --- a/packages/SystemUI/res/values/lineage_config.xml
 +++ b/packages/SystemUI/res/values/lineage_config.xml
-@@ -37,6 +37,9 @@
-     <!-- Udfps HBM provider class name -->
-     <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
+@@ -34,6 +34,9 @@
+     -->
+     <integer name="config_udfpsHbmType">1</integer>
  
 +    <!-- Udfps vendor code -->
 +    <integer name="config_udfps_vendor_code">22</integer>
 +
-     <!-- Flag to enable framework dimming for udfps -->
-     <bool name="config_udfpsFrameworkDimming">false</bool>
+     <!-- Udfps HBM provider class name -->
+     <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
  
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 index 77e155c5..6fdcc30c 100644
@@ -118,5 +118,5 @@ index 03574579..4153453f 100644
      public void onAuthenticated(BiometricAuthenticator.Identifier identifier,
              boolean authenticated, ArrayList<Byte> token) {
 -- 
-2.36.1
+2.37.3
 

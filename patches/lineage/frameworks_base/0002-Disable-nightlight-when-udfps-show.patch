@@ -1,17 +1,17 @@
-From b22596f0f122c8aeaa21c6f861a9f630cf67e4ff Mon Sep 17 00:00:00 2001
+From 8b298d27d215b546db120e828750c2176e4990dc Mon Sep 17 00:00:00 2001
 From: wfhtqp <wfhtqp@gmail.com>
 Date: Fri, 3 Jun 2022 19:54:59 +0800
-Subject: [PATCH] Disable nightlight when udfps show
+Subject: [PATCH 2/4] Disable nightlight when udfps show
 
 ---
  .../systemui/biometrics/UdfpsController.java  | 20 +++++++++++++++++++
  1 file changed, 20 insertions(+)
 
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
-index 123f9dba..6476de6f 100644
+index 8533f356..51c50b39 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
-@@ -35,6 +35,7 @@ import android.graphics.Point;
+@@ -34,6 +34,7 @@ import android.graphics.Point;
  import android.graphics.RectF;
  import android.hardware.biometrics.BiometricOverlayConstants;
  import android.hardware.biometrics.SensorLocationInternal;
@@ -19,7 +19,7 @@ index 123f9dba..6476de6f 100644
  import android.hardware.display.DisplayManager;
  import android.hardware.fingerprint.FingerprintManager;
  import android.hardware.fingerprint.FingerprintSensorPropertiesInternal;
-@@ -256,10 +257,28 @@ public class UdfpsController implements DozeReceiver, UdfpsHbmProvider {
+@@ -241,10 +242,28 @@ public class UdfpsController implements DozeReceiver {
      }
  
      public class UdfpsOverlayController extends IUdfpsOverlayController.Stub {
@@ -48,7 +48,7 @@ index 123f9dba..6476de6f 100644
                  final UdfpsEnrollHelper enrollHelper;
                  if (reason == BiometricOverlayConstants.REASON_ENROLL_FIND_SENSOR
                          || reason == BiometricOverlayConstants.REASON_ENROLL_ENROLLING) {
-@@ -282,6 +301,7 @@ public class UdfpsController implements DozeReceiver, UdfpsHbmProvider {
+@@ -267,6 +286,7 @@ public class UdfpsController implements DozeReceiver {
                              + "mKeyguardUpdateMonitor.isFingerprintDetectionRunning()=true");
                  }
  
@@ -57,5 +57,5 @@ index 123f9dba..6476de6f 100644
                  updateOverlay();
              });
 -- 
-2.36.1
+2.37.3
 

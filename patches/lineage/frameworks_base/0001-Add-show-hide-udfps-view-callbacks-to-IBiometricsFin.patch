@@ -1,7 +1,7 @@
-From d054ca6f83f827516afc4c01ec6560417789e239 Mon Sep 17 00:00:00 2001
+From d71bbf163f2775567b35cc80fb86bd316f196203 Mon Sep 17 00:00:00 2001
 From: SagarMakhar <sagarmakhar@gmail.com>
 Date: Fri, 3 Jun 2022 19:06:59 +0800
-Subject: [PATCH] Add show|hide udfps view callbacks to
+Subject: [PATCH 1/4] Add show|hide udfps view callbacks to
  IBiometricsFingerprint@2.3 [1/2]
 
 ---
@@ -96,10 +96,10 @@ index 00871789..666f6aa2 100644
                  mUdfpsOverlayController.get().hideUdfpsOverlay(sensorId);
              } catch (RemoteException e) {
 diff --git a/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java b/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
-index 41546eb2..bddac691 100644
+index 3058e250..03574579 100644
 --- a/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
 +++ b/services/core/java/com/android/server/biometrics/sensors/fingerprint/hidl/FingerprintAuthenticationClient.java
-@@ -121,7 +121,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+@@ -114,7 +114,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
          if (authenticated) {
              mState = STATE_STOPPED;
              resetFailedAttempts(getTargetUserId());
@@ -108,7 +108,7 @@ index 41546eb2..bddac691 100644
          } else {
              mState = STATE_STARTED_PAUSED_ATTEMPTED;
              final @LockoutTracker.LockoutMode int lockoutMode =
-@@ -134,7 +134,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+@@ -127,7 +127,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
                  // Send the error, but do not invoke the FinishCallback yet. Since lockout is not
                  // controlled by the HAL, the framework must stop the sensor before finishing the
                  // client.
@@ -117,7 +117,7 @@ index 41546eb2..bddac691 100644
                  onErrorInternal(errorCode, 0 /* vendorCode */, false /* finish */);
                  cancel();
              }
-@@ -149,7 +149,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+@@ -142,7 +142,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
              BiometricNotificationUtils.showBadCalibrationNotification(getContext());
          }
  
@@ -126,7 +126,7 @@ index 41546eb2..bddac691 100644
      }
  
      private void resetFailedAttempts(int userId) {
-@@ -177,7 +177,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+@@ -170,7 +170,7 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
  
      @Override
      protected void startHalOperation() {
@@ -135,7 +135,7 @@ index 41546eb2..bddac691 100644
  
          try {
              // GroupId was never used. In fact, groupId is always the same as userId.
-@@ -186,14 +186,14 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
+@@ -179,14 +179,14 @@ class FingerprintAuthenticationClient extends AuthenticationClient<IBiometricsFi
              Slog.e(TAG, "Remote exception when requesting auth", e);
              onError(BiometricFingerprintConstants.FINGERPRINT_ERROR_HW_UNAVAILABLE,
                      0 /* vendorCode */);
@@ -208,5 +208,5 @@ index 986e92e2..713e2b72 100644
 \ No newline at end of file
 +}
 -- 
-2.36.1
+2.37.3
 

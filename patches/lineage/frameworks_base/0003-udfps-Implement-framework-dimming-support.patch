@@ -1,23 +1,24 @@
-From a59dceb1df1eb15114e38dcaa723c737928a91e5 Mon Sep 17 00:00:00 2001
-From: cjybyjk <cjybyjk@users.noreply.github.com>
-Date: Mon, 27 Jun 2022 09:20:12 +0800
-Subject: [PATCH 1/2] udfps: Implement framework dimming support [Lynnrin]:
- Adapt for Android 12.1
+From cd683f6313b3fd1d97870a3f8f278d3f1690c8a4 Mon Sep 17 00:00:00 2001
+From: cjybyjk <cjybyjk@zjnu.edu.cn>
+Date: Sun, 2 Oct 2022 03:50:14 +0800
+Subject: [PATCH 3/4] udfps: Implement framework dimming support
 
-Change-Id: I63271c07e473aed5d460f4bf371c985396fae135
+[Lynnrin]: Adapt for Android 12.1
+
+Change-Id: I072cdf40ace9ef944436c697b6d296f4243762a4
 ---
  .../SystemUI/res/values/lineage_config.xml    | 25 +++++++++
  .../systemui/biometrics/UdfpsController.java  | 56 +++++++++++++++++++
  2 files changed, 81 insertions(+)
 
 diff --git a/packages/SystemUI/res/values/lineage_config.xml b/packages/SystemUI/res/values/lineage_config.xml
-index ff40c892..c72eb023 100644
+index 5832a7a7..9f9bb840 100644
 --- a/packages/SystemUI/res/values/lineage_config.xml
 +++ b/packages/SystemUI/res/values/lineage_config.xml
-@@ -36,4 +36,29 @@
+@@ -45,4 +45,29 @@
  
-     <!-- Udfps HBM provider class name -->
-     <string name="config_udfpsHbmProviderComponent">com.android.systemui.biometrics.DummyUdfpsHbmProvider</string>
+     <!-- Whether usage of the proximity sensor during doze is supported -->
+     <bool name="doze_proximity_sensor_supported">true</bool>
 +
 +    <!-- Flag to enable framework dimming for udfps -->
 +    <bool name="config_udfpsFrameworkDimming">false</bool>
@@ -154,5 +155,5 @@ index 51c50b39..77e155c5 100644
       * Callback for fingerUp and fingerDown events.
       */
 -- 
-2.36.1
+2.37.3
 
