@@ -28,7 +28,10 @@ case $1 in
       PROJECT="Pixel-Experience"
      ;;
      lineage | -l)
-      PROJECT="LineageOS"
+      PROJECT="LineageOS 19.1"
+     ;;
+     lineage20 | -lo)
+      PROJECT="LineageOS 20.0"
      ;;
      acme | -ae)
       PROJECT="AcmeUI"
