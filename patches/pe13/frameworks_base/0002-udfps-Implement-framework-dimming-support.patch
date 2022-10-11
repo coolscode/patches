@@ -1,7 +1,7 @@
-From e1873591b7ae28c668f96072fe4749dddbc66512 Mon Sep 17 00:00:00 2001
+From d9b10eb3c3f871bf1a65b9ce2d4c067d2c305dd6 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Tue, 13 Sep 2022 11:26:05 +0800
-Subject: [PATCH 3/3] udfps: Implement framework dimming support
+Date: Tue, 11 Oct 2022 16:06:17 +0800
+Subject: [PATCH 2/2] udfps: Implement framework dimming support
 
 [Lynnrin]: Adapt for Android 12.1
 [@nishant6342]: Adapt to Android 13
@@ -9,12 +9,47 @@ Subject: [PATCH 3/3] udfps: Implement framework dimming support
 Change-Id: I63271c07e473aed5d460f4bf371c985396fae135
 Signed-off-by: Nishant Kumar <www.rajsonu13@gmail.com>
 ---
+ .../SystemUI/res/values/custom_config.xml     | 25 +++++++++
  .../systemui/biometrics/UdfpsController.java  | 55 +++++++++++++++++++
  .../biometrics/UdfpsControllerOverlay.kt      | 10 +++-
- 2 files changed, 64 insertions(+), 1 deletion(-)
+ 3 files changed, 89 insertions(+), 1 deletion(-)
 
+diff --git a/packages/SystemUI/res/values/custom_config.xml b/packages/SystemUI/res/values/custom_config.xml
+index 7d5cb2968f9c..d04a352800a1 100644
+--- a/packages/SystemUI/res/values/custom_config.xml
++++ b/packages/SystemUI/res/values/custom_config.xml
+@@ -20,4 +20,29 @@
+ 
+     <!-- Udfps vendor code -->
+     <integer name="config_udfps_vendor_code">0</integer>
++ 
++    <!-- Flag to enable framework dimming for udfps -->
++    <bool name="config_udfpsFrameworkDimming">false</bool>
++
++    <!-- Array of brightness-alpha lut for framework dimming -->
++    <string-array name="config_udfpsDimmingBrightnessAlphaArray" translatable="false">
++          <!-- Example:
++          <item>0,255</item>
++          <item>1,234</item>
++          <item>3,227</item>
++          <item>8,208</item>
++          <item>16,192</item>
++          <item>27,176</item>
++          <item>41,160</item>
++          <item>61,144</item>
++          <item>80,128</item>
++          <item>104,112</item>
++          <item>130,96</item>
++          <item>158,80</item>
++          <item>188,64</item>
++          <item>221,48</item>
++          <item>250,36</item>
++          <item>255,33</item>
++          -->
++    </string-array>
+ </resources>
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
-index 61bdc5ec..0802d7c1 100644
+index 61bdc5ec5e9a..0802d7c11563 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java
 @@ -62,6 +62,7 @@ import com.android.keyguard.KeyguardUpdateMonitor;
@@ -108,7 +143,7 @@ index 61bdc5ec..0802d7c1 100644
  
      /**
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
-index baa44881..a51a67da 100644
+index baa448814d30..a51a67da6361 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
 @@ -103,12 +103,20 @@ class UdfpsControllerOverlay(
@@ -134,5 +169,5 @@ index baa44881..a51a67da 100644
      val enrollHelper: UdfpsEnrollHelper? = if (requestReason.isEnrollmentReason()) {
          UdfpsEnrollHelper(context, fingerprintManager, requestReason)
 -- 
-2.37.3
+2.38.0
 
