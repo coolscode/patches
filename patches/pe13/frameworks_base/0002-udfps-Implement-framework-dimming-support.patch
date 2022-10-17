@@ -1,6 +1,6 @@
-From d9b10eb3c3f871bf1a65b9ce2d4c067d2c305dd6 Mon Sep 17 00:00:00 2001
+From c821ad8e9b5456c898e21b9924bd0b8210914dc0 Mon Sep 17 00:00:00 2001
 From: cjybyjk <cjybyjk@zjnu.edu.cn>
-Date: Tue, 11 Oct 2022 16:06:17 +0800
+Date: Sun, 16 Oct 2022 23:02:55 +0800
 Subject: [PATCH 2/2] udfps: Implement framework dimming support
 
 [Lynnrin]: Adapt for Android 12.1
@@ -9,20 +9,19 @@ Subject: [PATCH 2/2] udfps: Implement framework dimming support
 Change-Id: I63271c07e473aed5d460f4bf371c985396fae135
 Signed-off-by: Nishant Kumar <www.rajsonu13@gmail.com>
 ---
- .../SystemUI/res/values/custom_config.xml     | 25 +++++++++
+ .../SystemUI/res/values/custom_config.xml     | 24 ++++++++
  .../systemui/biometrics/UdfpsController.java  | 55 +++++++++++++++++++
  .../biometrics/UdfpsControllerOverlay.kt      | 10 +++-
- 3 files changed, 89 insertions(+), 1 deletion(-)
+ 3 files changed, 88 insertions(+), 1 deletion(-)
 
 diff --git a/packages/SystemUI/res/values/custom_config.xml b/packages/SystemUI/res/values/custom_config.xml
-index 7d5cb2968f9c..d04a352800a1 100644
+index 1d63cde25745..7e58cd1d20ea 100644
 --- a/packages/SystemUI/res/values/custom_config.xml
 +++ b/packages/SystemUI/res/values/custom_config.xml
-@@ -20,4 +20,29 @@
+@@ -30,4 +30,28 @@
+     <!-- Allow devices override audio panel location to the left side -->
+     <bool name="config_audioPanelOnLeftSide">false</bool>
  
-     <!-- Udfps vendor code -->
-     <integer name="config_udfps_vendor_code">0</integer>
-+ 
 +    <!-- Flag to enable framework dimming for udfps -->
 +    <bool name="config_udfpsFrameworkDimming">false</bool>
 +
