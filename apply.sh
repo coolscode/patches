@@ -28,10 +28,10 @@ case $1 in
       PROJECT="Pixel-Experience"
      ;;
      lineage | -l)
-      PROJECT="LineageOS 19.1"
+      PROJECT="LineageOS-19.1"
      ;;
-     lineage20 | -lo)
-      PROJECT="LineageOS 20.0"
+     lineage-20 | -l-20)
+      PROJECT="LineageOS-20.0"
      ;;
      acme | -ae)
       PROJECT="AcmeUI"
@@ -43,7 +43,7 @@ case $1 in
       PROJECT="dotOS"
      ;;
      pe13 | -pe)
-      PROJECT="pe13"
+      PROJECT="Pixel-Experience-13.0"
      ;;
      *)
       sleep 0.5
@@ -64,4 +64,4 @@ echo ""
 sleep 5
 
 echo "Applying patches"
-apply_patch $PD $1
+apply_patch $PD $PROJECT
